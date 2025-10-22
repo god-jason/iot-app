@@ -93,21 +93,6 @@
       </view>
     </view>
 
-    <!-- 第二行：底部导航 -->
-    <view class="bottom-nav">
-      <view 
-        v-for="(nav, index) in navigation" 
-        :key="index"
-        class="nav-item"
-        :class="{ active: currentPage === nav.page }"
-        @click="navigateTo(nav)"
-      >
-        <view class="nav-icon">
-          <image class="nav-icon-img" :src="nav.icon" mode="aspectFit"></image>
-        </view>
-        <text class="nav-text">{{ nav.text }}</text>
-      </view>
-    </view>
   </view>
 </template>
 

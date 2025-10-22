@@ -77,5 +77,6 @@
                 }
             }
         }
-    }
+    },
+    "fallbackLocale" : "zh-Hans"
 }
