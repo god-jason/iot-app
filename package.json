@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/god-jason/iot-app#readme",
   "dependencies": {
+    "echarts": "^6.0.0",
     "ezuikit-js": "^8.1.16"
   }
 }
