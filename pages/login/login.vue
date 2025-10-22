@@ -118,7 +118,7 @@ export default {
         // 跳转到首页
         setTimeout(() => {
           uni.reLaunch({
-            url: '/pages/stats/stats',
+            url: '/pages/device/device',
             success: () => {
               console.log('跳转成功')
             },

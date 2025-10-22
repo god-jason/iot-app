@@ -1,25 +1,22 @@
 <template>
-	<view class="container">
-
-
+	<view>
+		
 	</view>
-
 </template>
 
 <script>
 	export default {
 		data() {
 			return {
+				
 			}
 		},
-		mounted() {
-			//TODO 加载
-		},
 		methods: {
+			
 		}
 	}
 </script>
 
-<style scoped>
-	
+<style>
+
 </style>
