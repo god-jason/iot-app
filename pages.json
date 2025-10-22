@@ -1,0 +1,109 @@
+{
+	"tabBar": {
+		"color": "#000000",
+		"selectedColor": "#1890ff",
+		"backgroundColor": "#ccc",
+		"list": [{
+			"pagePath": "pages/stats/stats",
+			"iconPath": "/static/icons_index/home.png",
+			"selectedIconPath": "/static/icons_index/home.png",
+			"text": "首页"
+		}, {
+			"pagePath": "pages/maps/maps",
+			"iconPath": "/static/icons_index/map.png",
+			"selectedIconPath": "/static/icons_index/map.png",
+			"text": "地图"
+		}, {
+			"pagePath": "pages/profile/profile",
+			"iconPath": "/static/icons_profile/about.png",
+			"selectedIconPath": "/static/icons_profile/about.png",
+			"text": "我的"
+		}]
+	},
+	"pages": [ 
+		{
+			"path":"pages/login/login",
+			"style":{
+				"navigationBarTitleText": "登录"
+			}
+		},
+		
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "智能设备监控系统"
+			}
+		},
+		
+		{
+		  "path": "pages/stats/stats",
+		  "style": {
+		    "navigationBarTitleText": "设备监控"
+		  }
+		},
+		
+		{
+		  "path": "pages/settings/settings",
+		  "style": {
+		    "navigationBarTitleText": "详情"
+		  }
+		},
+		
+		{
+		      "path": "pages/settings/param-adjust",
+		      "style": {
+		        "navigationBarTitleText": "参数调整",
+		        "navigationBarBackgroundColor": "#1890ff",
+		        "navigationBarTextStyle": "white"
+		      }
+		},
+		
+		{
+		      "path": "pages/chart/files",
+		      "style": {
+		        "navigationBarTitleText": "历史曲线",
+		        "navigationBarBackgroundColor": "#1890ff",
+		        "navigationBarTextStyle": "white"
+		      }
+		},
+		
+		{
+		      "path": "pages/maps/maps",
+		      "style": {
+		        "navigationBarTitleText": "地图",
+		        "navigationStyle": "custom"
+		      }
+		},
+		
+		{
+		      "path": "pages/profile/profile",
+		      "style": {
+		        "navigationBarTitleText": "我的",
+		        "navigationStyle": "custom"
+		      }
+		},
+		
+		{
+		      "path": "pages/password/change-password",
+		      "style": {
+		        "navigationBarTitleText": "修改密码",
+		        "navigationStyle": "custom"
+		      }
+		},
+		
+		{
+			"path": "pages/about/about",
+			"style": {
+			  "navigationBarTitleText": "关于我们",
+			  "navigationStyle": "custom"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	},
+	"uniIdRouter": {}
+}
