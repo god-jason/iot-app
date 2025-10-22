@@ -2,8 +2,11 @@
 	<view>
 		<uni-grid :column="3" :show-border="false" :square="false">
 			<uni-grid-item v-for="(p, k) in properties" :key="k" @click="open(p)">
-				<view>{{p.label}}</view>
-				<view>1.33{{p.unit}}</view>
+				<view class="label">{{p.label}}</view>
+				<view class="value">
+					<text class="num">1.33</text>
+					<text class="unit">{{p.unit}}</text>
+				</view>
 			</uni-grid-item>
 		</uni-grid>
 	</view>
@@ -61,6 +64,15 @@
 	}
 </script>
 
-<style lang="scss">
-
+<style lang="scss" scoped>
+	.label{
+		
+	}
+	.value{
+		.num{
+			font-size: 1.2em;
+			font-weight: bold;
+		}
+	}
+	
 </style>

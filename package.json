@@ -1,0 +1,22 @@
+{
+  "name": "iot-app",
+  "version": "1.0.0",
+  "description": "基于uniapp实现的物联网App标准模板",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/god-jason/iot-app.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/god-jason/iot-app/issues"
+  },
+  "homepage": "https://github.com/god-jason/iot-app#readme",
+  "dependencies": {
+    "ezuikit-js": "^8.1.16"
+  }
+}

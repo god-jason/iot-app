@@ -208,27 +208,6 @@ export default {
       isPanelCollapsed: false,
       // 当前页面
       currentPage: 'maps',
-      // 底部导航
-      navigation: [
-        {
-          text: '主页',
-          page: 'stats',
-          icon: '/static/icon_index/home.png',
-          url: '/pages/index/index'
-        },
-        {
-          text: '地图',
-          page: 'maps',
-          icon: '/static/icon_index/map.png',
-          url: '/pages/maps/maps'
-        },
-        {
-          text: '我的',
-          page: 'users',
-          icon: '/static/icon_maps/profile.png',
-          url: '/pages/profile/profile'
-        }
-      ],
       // 加载状态
       isLoading: true,
       // 显示权限提示

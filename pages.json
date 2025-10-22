@@ -3,12 +3,13 @@
 		"color": "#4a4a4a",
 		"selectedColor": "#1890ff",
 		"backgroundColor": "#ececec",
-		"list": [{
+		"list2": [{
 			"pagePath": "pages/index/index",
 			"iconPath": "/static/tabs/home.png",
 			"selectedIconPath": "/static/tabs/home1.png",
 			"text": "首页"
-		}, {
+		}],
+		"list": [{
 			"pagePath": "pages/device/device",
 			"iconPath": "/static/tabs/device.png",
 			"selectedIconPath": "/static/tabs/device1.png",
@@ -86,20 +87,35 @@
 		{
 			"path": "pages/device/device",
 			"style": {
-				"navigationBarTitleText": "设备"
+				"navigationBarTitleText": "设备",
+				"enablePullDownRefresh": true
 			}
 		},
 		{
-			"path" : "pages/device/detail",
-			"style" : 
-			{
-				"navigationBarTitleText" : "设备详情"
+			"path": "pages/device/detail",
+			"style": {
+				"navigationBarTitleText": "设备详情"
 			}
 		},
 		{
 			"path": "pages/message/message",
 			"style": {
-				"navigationBarTitleText": "消息"
+				"navigationBarTitleText": "消息",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path" : "pages/device/history",
+			"style" : 
+			{
+				"navigationBarTitleText" : "历史曲线"
+			}
+		},
+		{
+			"path" : "pages/device/parameters",
+			"style" : 
+			{
+				"navigationBarTitleText" : "参数配置"
 			}
 		}
 	],
