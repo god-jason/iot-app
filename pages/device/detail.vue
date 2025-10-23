@@ -22,10 +22,11 @@
 
 		<uni-card>
 			<uni-list :border="false">
-				<uni-list-item title="历史曲线" note="" show-arrow clickable link="navigateTo" to="/pages/device/history">
+				<uni-list-item title="历史曲线" note="" show-arrow clickable link="navigateTo" to="/pages/device/history"
+					show-extra-icon :extra-icon="{color:'#1296db', size:'22', type:'bars'}">
 				</uni-list-item>
-				<uni-list-item title="参数配置" note="" show-arrow clickable link="navigateTo"
-					to="/pages/device/parameters">
+				<uni-list-item title="参数配置" note="" show-arrow clickable link="navigateTo" to="/pages/device/parameters"
+					show-extra-icon :extra-icon="{color:'#1296db', size:'22', type:'settings-filled'}">
 				</uni-list-item>
 			</uni-list>
 		</uni-card>

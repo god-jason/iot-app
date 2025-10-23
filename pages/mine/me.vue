@@ -10,17 +10,17 @@
 		<uni-card>
 			<uni-list :border="false">
 				<uni-list-item title="个人信息" clickable show-arrow show-extra-icon
-					:extra-icon="{color:'#000000', size:'24', type:'person'}"></uni-list-item>
+					:extra-icon="{color:'#1296db', size:'28', type:'person'}"></uni-list-item>
 				<uni-list-item title="我的组织" clickable show-arrow show-extra-icon
-					:extra-icon="{color:'#000000', size:'24', type:'staff'}"></uni-list-item>
-				<uni-list-item title="扫码绑定设备" clickable show-arrow show-extra-icon
-					:extra-icon="{color:'#000000', size:'24', type:'scan'}"></uni-list-item>
+					:extra-icon="{color:'#1296db', size:'28', type:'staff'}"></uni-list-item>
+				<uni-list-item title="绑定设备" clickable show-arrow show-extra-icon
+					:extra-icon="{color:'#1296db', size:'28', type:'scan'}"></uni-list-item>
 				<uni-list-item title="客户支持" clickable show-arrow show-extra-icon
-					:extra-icon="{color:'#000000', size:'24', type:'phone'}"></uni-list-item>
+					:extra-icon="{color:'#1296db', size:'28', type:'headphones'}"></uni-list-item>
 				<uni-list-item title="意见反馈" clickable show-arrow show-extra-icon
-					:extra-icon="{color:'#000000', size:'24', type:'star'}"></uni-list-item>
+					:extra-icon="{color:'#1296db', size:'28', type:'flag'}"></uni-list-item>
 				<uni-list-item title="退出" clickable show-extra-icon
-					:extra-icon="{color:'#000000', size:'24', type:'close'}"></uni-list-item>
+					:extra-icon="{color:'#1296db', size:'28', type:'close'}"></uni-list-item>
 			</uni-list>
 		</uni-card>
 
