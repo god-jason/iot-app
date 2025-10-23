@@ -1,5 +1,5 @@
 <template>
-	<view>
+	<view class="container">
 		<view class="head">
 			<image class="avatar" mode="aspectFill" :src="user.avatar"></image>
 			<view class="nickname">
@@ -9,9 +9,9 @@
 
 		<uni-card>
 			<uni-list :border="false">
-				<uni-list-item title="个人信息" clickable show-arrow show-extra-icon
+				<uni-list-item title="个人信息" clickable show-arrow show-extra-icon  link="navigateTo" to="/pages/mine/info"
 					:extra-icon="{color:'#1296db', size:'28', type:'person'}"></uni-list-item>
-				<uni-list-item title="我的组织" clickable show-arrow show-extra-icon
+				<uni-list-item title="我的组织" clickable show-arrow show-extra-icon  link="navigateTo" to="/pages/mine/group"
 					:extra-icon="{color:'#1296db', size:'28', type:'staff'}"></uni-list-item>
 				<uni-list-item title="绑定设备" clickable show-arrow show-extra-icon
 					:extra-icon="{color:'#1296db', size:'28', type:'scan'}"></uni-list-item>
@@ -19,7 +19,7 @@
 					:extra-icon="{color:'#1296db', size:'28', type:'headphones'}"></uni-list-item>
 				<uni-list-item title="意见反馈" clickable show-arrow show-extra-icon
 					:extra-icon="{color:'#1296db', size:'28', type:'flag'}"></uni-list-item>
-				<uni-list-item title="退出" clickable show-extra-icon
+				<uni-list-item title="退出" clickable show-extra-icon link="navigateTo" to="/pages/login/login"
 					:extra-icon="{color:'#1296db', size:'28', type:'close'}"></uni-list-item>
 			</uni-list>
 		</uni-card>
@@ -31,7 +31,7 @@
 				<uni-list-item title="所有用户" clickable show-arrow></uni-list-item>
 			</uni-list>
 		</uni-card>
-		
+
 
 	</view>
 </template>
@@ -52,7 +52,13 @@
 	}
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+	.container {
+		min-height: 100vh;
+		//background: linear-gradient(135deg, #1296db 0%, #764ba2 100%);
+		background-color: #1296db;
+	}
+
 	.head {
 		display: flex;
 		flex-direction: column;

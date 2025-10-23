@@ -34,7 +34,7 @@
 	"pages": [{
 			"path": "pages/login/login",
 			"style": {
-				"navigationBarTitleText": "登录"
+				"navigationStyle": "custom"
 			}
 		},
 		{
@@ -89,6 +89,20 @@
 			"style": {
 				"navigationBarTitleText": "修改密码",
 				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path" : "pages/mine/info",
+			"style" : 
+			{
+				"navigationBarTitleText" : "个人信息"
+			}
+		},
+		{
+			"path" : "pages/mine/group",
+			"style" : 
+			{
+				"navigationBarTitleText" : "我的组织"
 			}
 		}
 	],
