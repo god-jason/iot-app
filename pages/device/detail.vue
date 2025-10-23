@@ -9,7 +9,7 @@
 				:product="device.product_id" type="detail"></device-values>
 		</uni-card>
 
-		<uni-card title="操作">
+		<uni-card>
 			<uni-forms ref="form">
 				<uni-forms-item label="开关">
 					<switch checked="true" @change="" />
@@ -20,13 +20,15 @@
 			</uni-forms>
 		</uni-card>
 
-
-		<uni-list>
-			<uni-list-item title="历史曲线" note="" show-arrow clickable link="navigateTo" to="/pages/device/history">
-			</uni-list-item>
-			<uni-list-item title="参数配置" note="" show-arrow clickable link="navigateTo" to="/pages/device/parameters">
-			</uni-list-item>
-		</uni-list>
+		<uni-card>
+			<uni-list :border="false">
+				<uni-list-item title="历史曲线" note="" show-arrow clickable link="navigateTo" to="/pages/device/history">
+				</uni-list-item>
+				<uni-list-item title="参数配置" note="" show-arrow clickable link="navigateTo"
+					to="/pages/device/parameters">
+				</uni-list-item>
+			</uni-list>
+		</uni-card>
 
 	</view>
 </template>
@@ -45,9 +47,9 @@
 			}
 		},
 		methods: {
-			onPropertyClick(device, property){
+			onPropertyClick(device, property) {
 				uni.navigateTo({
-					url:"/pages/device/history?device_id="+device.id+"&property="+property.name
+					url: "/pages/device/history?device_id=" + device.id + "&property=" + property.name
 				})
 			}
 		}
