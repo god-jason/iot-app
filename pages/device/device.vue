@@ -1,20 +1,29 @@
 <template>
 	<view class="container">
+		<uni-search-bar placeholder="搜索" @confirm="search"></uni-search-bar>
 
 		<uni-grid :column="3" :show-border="false" :square="false">
 			<uni-grid-item>
-				<uni-card title="设备总数"> 100 </uni-card>
+				<view class="item">
+					<view class="label">设备总数</view>
+					<view class="num"> {{total}} </view>
+				</view>
 			</uni-grid-item>
 			<uni-grid-item>
-				<uni-card title="在线数量"> 97 </uni-card>
+				<view class="item">
+					<view class="label">在线数量</view>
+					<view class="num"> {{online}} </view>
+				</view>
 			</uni-grid-item>
 			<uni-grid-item>
-				<uni-card title="离线数量"> 3 </uni-card>
+				<view class="item">
+					<view class="label">离线数量</view>
+					<view class="num"> {{offline}} </view>
+				</view>
 			</uni-grid-item>
 		</uni-grid>
 
 		<uni-section title="设备列表" type="square">
-			<uni-search-bar placeholder="快捷搜索" @confirm="search"></uni-search-bar>
 		</uni-section>
 
 		<uni-card v-for="(device, index) in devices" @click="open(device)" :title="device.name" :sub-title="device.id"
@@ -31,6 +40,10 @@
 	export default {
 		data() {
 			return {
+				total: 100,
+				online: 97,
+				offline: 3,
+
 				// 搜索关键词
 				searchKeyword: '',
 
@@ -90,9 +103,17 @@
 	}
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 	.item {
+		color: #404040;
 		text-align: center;
-		padding: 5rpx 0;
+		.label{
+			
+		}
+		.num{
+			font-size: 1.2em;
+			font-weight: bold;
+			padding: 15rpx 0;
+		}
 	}
 </style>

@@ -2,6 +2,13 @@
 	<view style="width:750rpx; height:750rpx">
 		<l-echart ref="chart" @finished="init"></l-echart>
 	</view>
+	<view class="toolbar">
+		<button size="mini">近1天</button>
+		<button size="mini">近5天</button>
+		<button size="mini">近1个月</button>
+		<button size="mini">近3个月</button>
+		<button size="mini">近6个月</button>
+	</view>
 </template>
 
 <script>
@@ -40,6 +47,8 @@
 	}
 </script>
 
-<style>
-
+<style scoped>
+.toolbar{
+	display: flex;
+}
 </style>

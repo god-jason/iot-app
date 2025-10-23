@@ -14,6 +14,9 @@
 		},
 		mounted() {
 			//TODO 加载
+			uni.reLaunch({
+				url: "/pages/device/device"
+			})
 		},
 		methods: {
 		}

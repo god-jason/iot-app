@@ -94,7 +94,8 @@
 		{
 			"path": "pages/device/detail",
 			"style": {
-				"navigationBarTitleText": "设备详情"
+				"navigationBarTitleText": "设备详情",
+				"enablePullDownRefresh": true
 			}
 		},
 		{
@@ -108,7 +109,8 @@
 			"path" : "pages/device/history",
 			"style" : 
 			{
-				"navigationBarTitleText" : "历史曲线"
+				"navigationBarTitleText" : "历史曲线",
+				"enablePullDownRefresh": true
 			}
 		},
 		{

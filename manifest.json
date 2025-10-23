@@ -1,6 +1,6 @@
 {
-    "name" : "WaterExample",
-    "appid" : "__UNI__4334FB5",
+    "name" : "iot-app",
+    "appid" : "__UNI__AC49A10",
     "description" : "",
     "versionName" : "1.0.0",
     "versionCode" : "100",
@@ -78,5 +78,6 @@
             }
         }
     },
-    "fallbackLocale" : "zh-Hans"
+    "fallbackLocale" : "zh-Hans",
+    "locale" : "zh-Hans"
 }

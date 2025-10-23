@@ -4,7 +4,7 @@
 			<uni-grid-item v-for="(p, k) in properties" :key="k" @click="open(p)">
 				<view class="label">{{p.label}}</view>
 				<view class="value">
-					<text class="num">1.33</text>
+					<text class="num">{{values[p.name]}}</text>
 					<text class="unit">{{p.unit}}</text>
 				</view>
 			</uni-grid-item>
@@ -48,6 +48,13 @@
 						unit: "kWh"
 					}
 				],
+				values:{
+					temperature: 12.5,
+					humidity: 46,
+					voltage: 231,
+					current: 2.1,
+					power: 470
+				}
 				
 			};
 		},
