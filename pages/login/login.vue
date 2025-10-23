@@ -1,14 +1,17 @@
 <template>
 	<view class="login-container">
 		<!-- 顶部背景 -->
-		<view class="login-header">
-			<text class="welcome-text">欢迎回来</text>
-			<text class="sub-title">请登录您的账户</text>
-		</view>
 
+		<view class="logo">
+			<image src="/static/logo.png" mode="aspectFill"></image>
+		</view>
+		
+		
 		<uni-card>
 			
-			<view style="height: 100rpx;"></view>
+			<view class="login-header">
+				登 录
+			</view>
 
 			<uni-forms ref="form">
 				<uni-forms-item>
@@ -25,7 +28,7 @@
 				</uni-forms-item>
 			</uni-forms>
 
-			<button class="login-btn" :class="{ 'disabled': !canLogin }" :disabled="!canLogin" @click="handleLogin">
+			<button type="primary" class="login-btn" :class="{ 'disabled': !canLogin }" :disabled="!canLogin" @click="handleLogin">
 				{{ loading ? '登录中...' : '登录' }}
 			</button>
 
@@ -164,84 +167,30 @@
 <style lang="scss" scoped>
 	.login-container {
 		min-height: 100vh;
-		background-color: #1296db;
+		//background-color: #1296db;
+		background-color: #f8f8f8;
 		//background: linear-gradient(135deg, #1296db 0%, #764ba2 100%);
+	}
+	
+	.logo{
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		image{
+			width: 375rpx;
+			height: 375rpx;
+		}
 	}
 
 	.login-header {
-		padding: 120rpx 60rpx 80rpx;
 		text-align: center;
-	}
-
-	.welcome-text {
-		display: block;
 		font-size: 48rpx;
 		font-weight: bold;
-		color: white;
-		margin-bottom: 20rpx;
+		//color: white;
+		//margin-bottom: 20rpx;
+		padding: 40rpx 0;
 	}
-
-	.sub-title {
-		display: block;
-		font-size: 28rpx;
-		color: rgba(255, 255, 255, 0.8);
-	}
-
-	.login-form {
-		background: white;
-		margin: 0 30rpx;
-		border-radius: 20rpx;
-		padding: 60rpx 40rpx;
-		box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.1);
-	}
-
-	.input-group {
-		margin-bottom: 50rpx;
-	}
-
-	.input-item {
-		display: flex;
-		align-items: center;
-		border-bottom: 1rpx solid #eee;
-		padding: 30rpx 0;
-		margin-bottom: 20rpx;
-	}
-
-	.input-item:last-child {
-		margin-bottom: 0;
-	}
-
-	/* 修改图标样式 */
-	.item-icon {
-		width: 40rpx;
-		height: 40rpx;
-		margin-right: 20rpx;
-	}
-
-	.input {
-		flex: 1;
-		font-size: 32rpx;
-		height: 60rpx;
-		line-height: 60rpx;
-	}
-
-	.placeholder {
-		color: #ccc;
-	}
-
-	.form-options {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 60rpx;
-	}
-
-	.remember-me {
-		display: flex;
-		align-items: center;
-		font-size: 28rpx;
-		color: #666;
-	}
+	
 
 	.forgot-password {
 		font-size: 28rpx;
@@ -250,9 +199,9 @@
 
 	.login-btn {
 		//background: linear-gradient(135deg, #1296db 0%, #764ba2 100%);		
-		background-color: #1296db;
-		color: white;
-		border: none;
+		//background-color: #1296db;
+		//color: white;
+		//border: none;
 		border-radius: 50rpx;
 		height: 90rpx;
 		line-height: 90rpx;

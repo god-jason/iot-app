@@ -56,7 +56,8 @@
 	.container {
 		min-height: 100vh;
 		//background: linear-gradient(135deg, #1296db 0%, #764ba2 100%);
-		background-color: #1296db;
+		//background-color: #1296db;
+		background-color: #f8f8f8;
 	}
 
 	.head {
