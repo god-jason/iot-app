@@ -6,7 +6,9 @@
 </template>
 
 <script>
-import { EZUIKitPlayer } from "ezuikit-js";
+	import {
+		EZUIKitPlayer
+	} from "ezuikit-js";
 	export default {
 		name: "ez-camera",
 		props: {
@@ -23,11 +25,11 @@ import { EZUIKitPlayer } from "ezuikit-js";
 			const appKey = "d4defba50b5c4e70a9229bb88ea09d9b"
 			const secret = "b4845736581dfe32caf5f1bf78cbfeae"
 
-			
+
 			this.auth(appKey, secret);
 		},
 		methods: {
-			auth(appKey, appSecret){
+			auth(appKey, appSecret) {
 				uni.request({
 					url: "https://open.ys7.com/api/lapp/token/get",
 					method: "POST",
@@ -42,12 +44,12 @@ import { EZUIKitPlayer } from "ezuikit-js";
 							this.accessToken = res.data.data.accessToken
 							this.play()
 							this.closeEncrypt()
-						}				
+						}
 					}
-				
+
 				})
 			},
-			closeEncrypt(){
+			closeEncrypt() {
 				uni.request({
 					url: "https://open.ys7.com/api/lapp/device/encrypt/off",
 					method: "POST",
@@ -57,9 +59,9 @@ import { EZUIKitPlayer } from "ezuikit-js";
 					data: "accessToken=" + this.accessToken + "&deviceSerial=" + this.sn,
 					dataType: "json",
 					success: (res) => {
-						console.log("ez-camera close encrypt", res.data)		
+						console.log("ez-camera close encrypt", res.data)
 					}
-				
+
 				})
 			},
 			play() {

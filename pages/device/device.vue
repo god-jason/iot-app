@@ -1,5 +1,6 @@
 <template>
 	<view>
+
 		<uni-search-bar placeholder="搜索" @confirm="search"></uni-search-bar>
 
 		<uni-grid :column="3" :show-border="false" :square="false">
@@ -28,7 +29,7 @@
 
 		<uni-card v-for="(device, index) in devices" @click="open(device)" :title="device.name" :sub-title="device.id"
 			:extra="device.online?'在线':'离线'" thumbnail="/static/device.png"
-			 :style="{backgroundColor: (device.online ? '': '#f6f6f6')}">
+			:style="{backgroundColor: (device.online ? '': '#f6f6f6')}">
 			<device-values @property-click="onPropertyClick(device, $event)" :device="device.id"
 				:product="device.product_id" type="list"></device-values>
 		</uni-card>
@@ -90,6 +91,10 @@
 			//TODO 加载
 		},
 		methods: {
+			changeGroup(event) {
+				//console.log("changeGroup", event)
+				this.index = event.detail.value;
+			},
 			open(device) {
 				uni.navigateTo({
 					url: "/pages/device/detail?id=" + device.id,
@@ -105,6 +110,10 @@
 </script>
 
 <style lang="scss" scoped>
+	.group {
+		padding: 5rpx 20rpx;
+	}
+
 	.item {
 		color: #808080;
 		text-align: center;
