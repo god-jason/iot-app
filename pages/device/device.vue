@@ -1,23 +1,23 @@
 <template>
-	<view class="container">
+	<view>
 		<uni-search-bar placeholder="搜索" @confirm="search"></uni-search-bar>
 
 		<uni-grid :column="3" :show-border="false" :square="false">
 			<uni-grid-item>
 				<view class="item">
-					<view class="label">设备总数</view>
+					<view class="label">总数</view>
 					<view class="num"> {{total}} </view>
 				</view>
 			</uni-grid-item>
 			<uni-grid-item>
 				<view class="item">
-					<view class="label">在线数量</view>
+					<view class="label">在线</view>
 					<view class="num"> {{online}} </view>
 				</view>
 			</uni-grid-item>
 			<uni-grid-item>
 				<view class="item">
-					<view class="label">离线数量</view>
+					<view class="label">离线</view>
 					<view class="num"> {{offline}} </view>
 				</view>
 			</uni-grid-item>
@@ -27,7 +27,8 @@
 		</uni-section>
 
 		<uni-card v-for="(device, index) in devices" @click="open(device)" :title="device.name" :sub-title="device.id"
-			:extra="device.online?'在线':'离线'" thumbnail="/static/device.png">
+			:extra="device.online?'在线':'离线'" thumbnail="/static/device.png"
+			 :style="{backgroundColor: (device.online ? '': '#f6f6f6')}">
 			<device-values @property-click="onPropertyClick(device, $event)" :device="device.id"
 				:product="device.product_id" type="list"></device-values>
 		</uni-card>
@@ -105,13 +106,14 @@
 
 <style lang="scss" scoped>
 	.item {
-		color: #404040;
+		color: #808080;
 		text-align: center;
-		.label{
-			
-		}
-		.num{
-			font-size: 1.2em;
+
+		.label {}
+
+		.num {
+			color: #1296db;
+			font-size: 1.5em;
 			font-weight: bold;
 			padding: 15rpx 0;
 		}
