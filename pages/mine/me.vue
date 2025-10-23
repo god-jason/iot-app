@@ -9,12 +9,12 @@
 
 		<uni-card>
 			<uni-list :border="false">
-				<uni-list-item title="个人信息" clickable show-arrow show-extra-icon  link="navigateTo" to="/pages/mine/info"
+				<uni-list-item title="个人信息" clickable show-arrow show-extra-icon link="navigateTo" to="/pages/mine/info"
 					:extra-icon="{color:'#1296db', size:'28', type:'person'}"></uni-list-item>
-				<uni-list-item title="我的组织" clickable show-arrow show-extra-icon  link="navigateTo" to="/pages/mine/group"
-					:extra-icon="{color:'#1296db', size:'28', type:'staff'}"></uni-list-item>
-				<uni-list-item title="绑定设备" clickable show-arrow show-extra-icon
-					:extra-icon="{color:'#1296db', size:'28', type:'scan'}"></uni-list-item>
+				<uni-list-item title="我的组织" clickable show-arrow show-extra-icon link="navigateTo"
+					to="/pages/mine/group" :extra-icon="{color:'#1296db', size:'28', type:'staff'}"></uni-list-item>
+				<uni-list-item title="绑定设备" clickable show-arrow show-extra-icon link="navigateTo"
+					to="/pages/device/bind" :extra-icon="{color:'#1296db', size:'28', type:'scan'}"></uni-list-item>
 				<uni-list-item title="客户支持" clickable show-arrow show-extra-icon
 					:extra-icon="{color:'#1296db', size:'28', type:'headphones'}"></uni-list-item>
 				<uni-list-item title="意见反馈" clickable show-arrow show-extra-icon
@@ -26,9 +26,9 @@
 
 		<uni-card title="平台管理" extra="限管理员">
 			<uni-list :border="false">
-				<uni-list-item title="所有设备" clickable show-arrow></uni-list-item>
-				<uni-list-item title="所有客户" clickable show-arrow></uni-list-item>
-				<uni-list-item title="所有用户" clickable show-arrow></uni-list-item>
+				<uni-list-item title="所有设备" clickable show-arrow link="navigateTo" to="/pages/admin/device"></uni-list-item>
+				<uni-list-item title="所有组织" clickable show-arrow link="navigateTo" to="/pages/admin/group"></uni-list-item>
+				<uni-list-item title="所有用户" clickable show-arrow link="navigateTo" to="/pages/admin/user"></uni-list-item>
 			</uni-list>
 		</uni-card>
 

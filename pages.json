@@ -104,6 +104,34 @@
 			{
 				"navigationBarTitleText" : "我的组织"
 			}
+		},
+		{
+			"path" : "pages/device/bind",
+			"style" : 
+			{
+				"navigationBarTitleText" : "绑定设备"
+			}
+		},
+		{
+			"path" : "pages/admin/device",
+			"style" : 
+			{
+				"navigationBarTitleText" : "所有设备"
+			}
+		},
+		{
+			"path" : "pages/admin/user",
+			"style" : 
+			{
+				"navigationBarTitleText" : "所有用户"
+			}
+		},
+		{
+			"path" : "pages/admin/group",
+			"style" : 
+			{
+				"navigationBarTitleText" : "所有组织"
+			}
 		}
 	],
 	"globalStyle": {
