@@ -9,8 +9,10 @@
 
 		<uni-card>
 			<uni-list :border="false">
-				<uni-list-item title="修改个人信息" clickable show-arrow show-extra-icon
+				<uni-list-item title="个人信息" clickable show-arrow show-extra-icon
 					:extra-icon="{color:'#000000', size:'24', type:'person'}"></uni-list-item>
+				<uni-list-item title="我的组织" clickable show-arrow show-extra-icon
+					:extra-icon="{color:'#000000', size:'24', type:'staff'}"></uni-list-item>
 				<uni-list-item title="扫码绑定设备" clickable show-arrow show-extra-icon
 					:extra-icon="{color:'#000000', size:'24', type:'scan'}"></uni-list-item>
 				<uni-list-item title="客户支持" clickable show-arrow show-extra-icon
@@ -56,7 +58,7 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		padding: 100rpx 0;
+		padding: 120rpx 0 60rpx;
 	}
 
 	.avatar {

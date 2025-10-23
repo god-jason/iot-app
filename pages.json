@@ -37,53 +37,6 @@
 				"navigationBarTitleText": "登录"
 			}
 		},
-
-		{
-			"path": "pages/index/index",
-			"style": {
-				"navigationBarTitleText": "首页",
-				"enablePullDownRefresh": true
-			}
-		},
-
-		{
-			"path": "pages/settings/settings",
-			"style": {
-				"navigationBarTitleText": "详情"
-			}
-		},
-
-		{
-			"path": "pages/settings/param-adjust",
-			"style": {
-				"navigationBarTitleText": "参数调整",
-				"navigationBarBackgroundColor": "#1890ff",
-				"navigationBarTextStyle": "white"
-			}
-		},
-
-		{
-			"path": "pages/maps/maps",
-			"style": {
-				"navigationBarTitleText": "地图"
-			}
-		},
-
-		{
-			"path": "pages/mine/mine",
-			"style": {
-				"navigationBarTitleText": "我的",
-				"navigationStyle": "custom"
-			}
-		},
-
-		{
-			"path": "pages/mine/password",
-			"style": {
-				"navigationBarTitleText": "修改密码",
-				"navigationStyle": "custom"
-			}
-		},
 		{
 			"path": "pages/device/device",
 			"style": {
@@ -99,6 +52,19 @@
 			}
 		},
 		{
+			"path": "pages/device/history",
+			"style": {
+				"navigationBarTitleText": "历史曲线",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/device/parameters",
+			"style": {
+				"navigationBarTitleText": "参数配置"
+			}
+		},
+		{
 			"path": "pages/message/message",
 			"style": {
 				"navigationBarTitleText": "消息",
@@ -106,25 +72,23 @@
 			}
 		},
 		{
-			"path" : "pages/device/history",
-			"style" : 
-			{
-				"navigationBarTitleText" : "历史曲线",
-				"enablePullDownRefresh": true
+			"path": "pages/maps/maps",
+			"style": {
+				"navigationBarTitleText": "地图"
 			}
 		},
 		{
-			"path" : "pages/device/parameters",
-			"style" : 
-			{
-				"navigationBarTitleText" : "参数配置"
+			"path": "pages/mine/me",
+			"style": {
+				"navigationBarTitleText": "我的",
+				"navigationStyle": "custom"
 			}
 		},
 		{
-			"path" : "pages/mine/me",
-			"style" : 
-			{
-				"navigationBarTitleText" : "我的"
+			"path": "pages/mine/password",
+			"style": {
+				"navigationBarTitleText": "修改密码",
+				"navigationStyle": "custom"
 			}
 		}
 	],
