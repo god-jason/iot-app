@@ -3,13 +3,12 @@
 		"color": "#4a4a4a",
 		"selectedColor": "#1890ff",
 		"backgroundColor": "#F8F8F8",
-		"list2": [{
+		"list": [{
 			"pagePath": "pages/index/index",
 			"iconPath": "/static/tabs/home.png",
 			"selectedIconPath": "/static/tabs/home1.png",
 			"text": "首页"
-		}],
-		"list": [{
+		}, {
 			"pagePath": "pages/device/device",
 			"iconPath": "/static/tabs/device.png",
 			"selectedIconPath": "/static/tabs/device1.png",
@@ -35,6 +34,13 @@
 			"path": "pages/login/login",
 			"style": {
 				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "首页",
+				"enablePullDownRefresh": true
 			}
 		},
 		{
@@ -92,49 +98,48 @@
 			}
 		},
 		{
-			"path" : "pages/mine/info",
-			"style" : 
-			{
-				"navigationBarTitleText" : "个人信息"
+			"path": "pages/mine/info",
+			"style": {
+				"navigationBarTitleText": "个人信息"
 			}
 		},
 		{
-			"path" : "pages/mine/group",
-			"style" : 
-			{
-				"navigationBarTitleText" : "我的组织"
+			"path": "pages/mine/group",
+			"style": {
+				"navigationBarTitleText": "我的组织"
 			}
 		},
 		{
-			"path" : "pages/device/bind",
-			"style" : 
-			{
-				"navigationBarTitleText" : "绑定设备"
+			"path": "pages/device/bind",
+			"style": {
+				"navigationBarTitleText": "绑定设备"
 			}
 		},
 		{
-			"path" : "pages/admin/device",
-			"style" : 
-			{
-				"navigationBarTitleText" : "所有设备"
+			"path": "pages/admin/device",
+			"style": {
+				"navigationBarTitleText": "所有设备"
 			}
 		},
 		{
-			"path" : "pages/admin/user",
-			"style" : 
-			{
-				"navigationBarTitleText" : "所有用户"
+			"path": "pages/admin/user",
+			"style": {
+				"navigationBarTitleText": "所有用户"
 			}
 		},
 		{
-			"path" : "pages/admin/group",
-			"style" : 
-			{
-				"navigationBarTitleText" : "所有组织"
+			"path": "pages/admin/group",
+			"style": {
+				"navigationBarTitleText": "所有组织"
 			}
 		}
 	],
 	"globalStyle": {
+		// #ifdef MP-WEIXIN 
+		"usingComponents": {
+			"ezplayer": "plugin://ezplayer/ezplayer"
+		},
+		// #endif
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "物联网",
 		"navigationBarBackgroundColor": "#F8F8F8",

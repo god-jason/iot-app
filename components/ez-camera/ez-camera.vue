@@ -1,14 +1,31 @@
 <template>
 	<view>
+
+		<!-- #ifndef MP-WEIXIN -->
 		<view class="container" id="video-container">
 		</view>
+		<!-- #endif -->
+
+		<!-- #ifdef MP-WEIXIN -->
+		<ezplayer id="ezplayer" :accessToken="accessToken" :url="video_url" plugins="talk,voice,ptz,privacy,mirror"
+			recPlayTime=""
+			theme="{{ { showCapture: true, showBottomBar: true, showDatePicker: true, showTypeSwitch: true } }}"
+			bind:handleError="handleError" bind:onControlEvent="onControlEvent" />
+		<!-- #endif -->
+
+
 	</view>
 </template>
 
 <script>
+	//注意!!! 微信小程序需要先在后台开通视频流权限，需要《增值电信业务许可证》国内多方通信服务业务 或 《中国国家强制性产品认证证书》
+	//需要使用微信插件，否则体积太大，插件ID为wxf2b3a0262975d8c2
+	// #ifndef MP-WEIXIN	
 	import {
 		EZUIKitPlayer
 	} from "ezuikit-js";
+	// #endif
+
 	export default {
 		name: "ez-camera",
 		props: {
@@ -18,12 +35,13 @@
 		data() {
 			return {
 				accessToken: "",
-				player: null
+				video_url: "",
+				player: null,
 			};
 		},
 		mounted() {
-			const appKey = "d4defba50b5c4e70a9229bb88ea09d9b"
-			const secret = "b4845736581dfe32caf5f1bf78cbfeae"
+			const appKey = "90dc82af3ea04d68883e3d8d25a23cde"
+			const secret = "36e3eb420eed2a1ef3d61f543dffb0e9"
 
 
 			this.auth(appKey, secret);
@@ -42,8 +60,16 @@
 						console.log("ez-camera token", res.data)
 						if (res.data.code == "200") {
 							this.accessToken = res.data.data.accessToken
+							// #ifdef MP-WEIXIN							
+							//rtmp://open.ys7.com/BA7248908/1/live
+							this.video_url = "rtmp://open.ys7.com/" + this.sn + "/" + this.channel +
+								"/live" //GB4667293
+							// #endif
+
+							// #ifndef MP-WEIXIN
 							this.play()
-							this.closeEncrypt()
+							//this.closeEncrypt()
+							// #endif
 						}
 					}
 
@@ -71,110 +97,31 @@
 				const windowWidth = si.windowWidth;
 
 				//"ezopen://open.ys7.com/BC7799091/1.hd.live",
-				const url = "ezopen://open.ys7.com/" + this.sn + "/" + this.channel + ".hd.live" //GB4667293
+				const url = "ezopen://open.ys7.com/" + this.sn + "/" + this.channel + ".live" //GB4667293
 
 				this.player = new EZUIKitPlayer({
 					id: "video-container", // 视频容器ID
 					accessToken: this.accessToken,
 					url: url,
 					// simple: 极简版; pcLive: pc直播; pcRec: pc回放; mobileLive: 移动端直播; mobileRec: 移动端回放;security: 安防版; voice: 语音版;
-					template: "mobileLive",
-					plugin: ["talk"], // 加载插件，talk-对讲
+					template: "pcLive",
+					//plugin: ["talk","voice","ptz","privacy","mirror"], // 加载插件，talk-对讲
 					width: windowWidth || 375,
 					height: windowWidth * 2 / 3,
-					// quality: 1, // 
-					// language: "en", // zh | en
-					handleError: (err) => {
-						console.error("handleError", err);
-					},
-					// 自定义清晰度 默认 null, 如果有值 sdk 内部不在进行获取, null 默认使用接口获取的清晰度列表, videoLevelList.length === 0 不展示清晰度控件 sdk 内部不在进行获取, videoLevelList.length > 0 展示控件 sdk 内部不在进行获取
-					// videoLevelList: [
-					//   { level: 0, name: "流畅", streamTypeIn: 1 },
-					//   { level: 1, name: "标清", streamTypeIn: 1 },
-					// ],
-					// staticPath: "/ezuikit_static", // 如果想使用本地静态资源，请复制根目录下ezuikit_static 到当前目录下， 然后设置该值
-					env: {
-						// https://open.ys7.com/help/1772?h=domain
-						// domain默认是 https://open.ys7.com, 如果是私有化部署或海外的环境，请配置对应的domain
-						// The default domain is https://open.ys7.com If it is a private deployment or overseas (outside of China) environment, please configure the corresponding domain
-						domain: "https://open.ys7.com",
-					},
-					// staticPath: "https://openstatic.ys7.com/ezuikit_js/v8.1.9/ezuikit_static",
-					// 日志打印设置
-					loggerOptions: {
-						// player.setLoggerOptions(options)
-						level: "INFO", // INFO LOG  WARN  ERROR
-						name: "ezuikit",
-						showTime: true,
-					},
-					// 视频流的信息回调类型
-					/**
-					 * 打开流信息回调，监听 streamInfoCB 事件
-					 * 0 : 每次都回调
-					 * 1 : 只回调一次
-					 * 注意：会影响性能
-					 * 默认值 1
-					 */
-					streamInfoCBType: 1,
-					// v8.1.10
-					// 自定义清晰度 默认 null, 如果有值 sdk 内部不在进行获取, null 默认使用接口获取的清晰度列表, videoLevelList.length === 0 不展示清晰度控件 sdk 内部不在进行获取, videoLevelList.length > 0 展示控件 sdk 内部不在进行获取
-					// videoLevelList: [
-					//   { level: 1, name: "标清", streamTypeIn: 2 }, // 需要保证支持子码流 (streamTypeIn=2)
-					//   { level: 2, name: "高清", streamTypeIn: 1 },
-					// ],
-					handleFirstFrameDisplay: () => {
-						player.setWaterMarkFont({
-							fontString: ["watermark"], // 水印文本内容
-							startPos: {
-								fX: 0.1,
-								fY: 0.1
-							},
-							fontColor: {
-								fR: 0, // 红色分量(黑色)
-								fG: 0, // 绿色分量(黑色)
-								fB: 0, // 蓝色分量(黑色)
-								fA: 1, // 透明度(不透明)
-							},
-							fontSize: {
-								nFontWidth: 24,
-								nFontHeight: 24,
-							},
-							fontRotate: {
-								fRotateAngle: 0, // 旋转角度
-								fFillFullScreen: true, // 平铺整个屏幕
-							},
-							fontFamily: "Arial", // 字体
-							fontNumber: {
-								nRowNumber: 4, // 行数
-								nColNumber: 4, // 列数
-							},
-							space: 1, // 行间距
-						});
-					}
+					streamInfoCBType: 0,
 				});
-
-				this.player.eventEmitter.on(EZUIKitPlayer.EVENTS.videoInfo, (info) => {
-					console.log("videoinfo", info);
-				});
-
-				this.player.eventEmitter.on(EZUIKitPlayer.EVENTS.audioInfo, (info) => {
-					console.log("audioInfo", info);
-				});
-
-				// 首帧渲染成功
-				// first frame display
-				this.player.eventEmitter.on(EZUIKitPlayer.EVENTS.firstFrameDisplay, () => {
-					console.log("firstFrameDisplay ");
-				});
-				this.player.eventEmitter.on(EZUIKitPlayer.EVENTS.streamInfoCB, (info) => {
-					console.log("streamInfoCB ", info);
-				});
-				//window.player = this.player;
+				
+				//关闭流信息显示
+				this.player.displayStreamInfo(false);
 			}
 		}
 	}
 </script>
 
 <style>
+
+[video-container-streamInfo]{
+	display: none;
+}
 
 </style>

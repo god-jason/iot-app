@@ -3,7 +3,7 @@
 		<!-- 顶部背景 -->
 
 		<view class="logo">
-			<image src="/static/logo.png" mode="aspectFill"></image>
+			<image src="/static/logo.jpg" mode="aspectFill"></image>
 		</view>
 		
 		
@@ -173,12 +173,14 @@
 	}
 	
 	.logo{
+		padding-top: 120rpx;
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		image{
 			width: 375rpx;
 			height: 375rpx;
+			border-radius: 50%;
 		}
 	}
 

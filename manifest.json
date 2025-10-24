@@ -1,5 +1,5 @@
 {
-    "name" : "物联大师",
+    "name" : "物联小白",
     "appid" : "__UNI__AC49A10",
     "description" : "开源物联网数据中台",
     "versionName" : "1.0.0",
@@ -87,7 +87,7 @@
     "quickapp" : {},
     /* 小程序特有相关 */
     "mp-weixin" : {
-        "appid" : "wxc4b435390f1a352a",
+        "appid" : "wx0e77be5ee5eca13a",
         "setting" : {
             "urlCheck" : false
         },
@@ -98,6 +98,12 @@
         "permission" : {
             "scope.userLocation" : {
                 "desc" : "获取地图页面当前的位置"
+            }
+        },
+        "plugins" : {
+            "ezplayer" : {
+                "version" : "latest",
+                "provider" : "wxf2b3a0262975d8c2"
             }
         }
     },
@@ -123,7 +129,7 @@
         "enable" : false,
         "version" : "2"
     },
-    "vueVersion" : "3",
+    "vueVersion" : "2",
     "h5" : {
         "sdkConfigs" : {
             "maps" : {

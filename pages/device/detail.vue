@@ -1,9 +1,9 @@
 <template>
 	<view>
 
-		<!-- <ez-camera key="" secret="" sn="GA1719614" :channel="1"></ez-camera> -->
+		<ez-camera key="" secret="" sn="GA1719614" :channel="1"></ez-camera>
 
-		<uni-card @click="open(device)" :title="device.name" :sub-title="device.id" :extra="device.online?'在线':'离线'"
+		<uni-card :title="device.name" :sub-title="device.id" :extra="device.online?'在线':'离线'"
 			thumbnail="/static/device.png">
 			<device-values @property-click="onPropertyClick(device, $event)" :device="device.id"
 				:product="device.product_id" type="detail"></device-values>
