@@ -24,6 +24,7 @@
 	import {
 		EZUIKitPlayer
 	} from "ezuikit-js";
+import { onBeforeUnmount, onUnmounted } from "vue";
 	// #endif
 
 	export default {
@@ -42,9 +43,11 @@
 		mounted() {
 			const appKey = "90dc82af3ea04d68883e3d8d25a23cde"
 			const secret = "36e3eb420eed2a1ef3d61f543dffb0e9"
-
-
 			this.auth(appKey, secret);
+		},
+		onUnmounted() {
+			this.player.stop();
+			this.player.destroy();
 		},
 		methods: {
 			auth(appKey, appSecret) {

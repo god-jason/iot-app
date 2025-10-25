@@ -4,20 +4,20 @@
 		"selectedColor": "#1890ff",
 		"backgroundColor": "#F8F8F8",
 		"list": [{
-			"pagePath": "pages/index/index",
-			"iconPath": "/static/tabs/home.png",
-			"selectedIconPath": "/static/tabs/home1.png",
-			"text": "首页"
-		}, {
 			"pagePath": "pages/device/device",
-			"iconPath": "/static/tabs/device.png",
-			"selectedIconPath": "/static/tabs/device1.png",
+			"iconPath": "/static/tabs/gateway.png",
+			"selectedIconPath": "/static/tabs/gateway1.png",
 			"text": "设备"
 		}, {
 			"pagePath": "pages/message/message",
 			"iconPath": "/static/tabs/msg.png",
 			"selectedIconPath": "/static/tabs/msg1.png",
 			"text": "消息"
+		}, {
+			"pagePath": "pages/index/index",
+			"iconPath": "/static/tabs/dash.png",
+			"selectedIconPath": "/static/tabs/dash1.png",
+			"text": "工作台"
 		}, {
 			"pagePath": "pages/maps/maps",
 			"iconPath": "/static/tabs/map.png",
@@ -39,7 +39,7 @@
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "首页",
+				"navigationBarTitleText": "工作台",
 				"enablePullDownRefresh": true
 			}
 		},
