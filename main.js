@@ -1,9 +1,10 @@
 import App from './App'
-
+import request from '@/utils/request.js'
 // #ifndef VUE3
 import Vue from 'vue'
 import './uni.promisify.adaptor'
 Vue.config.productionTip = false
+Vue.prototype.$http = request
 App.mpType = 'app'
 const app = new Vue({
   ...App

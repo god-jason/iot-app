@@ -107,7 +107,7 @@
 
 		}
 	}
-</script>
+</script>Q
 
 <style lang="scss" scoped>
 	.group {

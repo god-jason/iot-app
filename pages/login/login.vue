@@ -1,30 +1,30 @@
 <template>
 	<view class="login-container">
 		<!-- 顶部背景 -->
-
 		<view class="logo">
 			<image src="/static/logo.jpg" mode="aspectFill"></image>
 		</view>
 		
-		
 		<uni-card>
-			
 			<view class="login-header">
 				登 录
 			</view>
 
 			<uni-forms ref="form">
 				<uni-forms-item>
-					<uni-easyinput v-model="form.username" placeholder="请输入用户名/手机号" prefix-icon="person" />
+					<uni-easyinput v-model="form.username" placeholder="请输入用户名" prefix-icon="person" />
 				</uni-forms-item>
 				<uni-forms-item>
 					<uni-easyinput type="password" v-model="form.password" placeholder="请输入密码" prefix-icon="locked" />
 				</uni-forms-item>
 				<uni-forms-item>
-					<label>
-						<checkbox :value="rememberPassword" /><text>记住密码</text>
-					</label>
-					<text class="forgot-password" @click="navigateToForgot"> 忘记密码?</text>
+					<view class="form-actions">
+						<view class="remember-password">
+							<checkbox :checked="rememberPassword" @click="toggleRememberPassword" />
+							<text @click="toggleRememberPassword">记住密码</text>
+						</view>
+						<text class="forgot-password" @click="navigateToForgot">忘记密码?</text>
+					</view>
 				</uni-forms-item>
 			</uni-forms>
 
@@ -34,19 +34,21 @@
 
 			<view class="other-login">
 				<text class="divider">或使用以下方式登录</text>
-				<view @click="wechatLogin">
-					<uni-icons type="weixin"></uni-icons>
+				<view class="wechat-login" @click="wechatLogin">
+					<uni-icons type="weixin" size="24"></uni-icons>
 					<text>微信小程序授权登录</text>
 				</view>
 			</view>
-
-
 		</uni-card>
-
 	</view>
 </template>
 
 <script>
+	import {
+		login,
+		setToken
+	} from '@/utils/request.js';
+
 	export default {
 		data() {
 			return {
@@ -71,6 +73,11 @@
 			this.checkSavedLogin()
 		},
 		methods: {
+			// 切换记住密码状态
+			toggleRememberPassword() {
+				this.rememberPassword = !this.rememberPassword;
+			},
+
 			// 处理登录
 			async handleLogin() {
 				if (!this.canLogin) return
@@ -78,60 +85,99 @@
 				this.loading = true
 
 				try {
-					// 模拟登录请求
-					await this.mockLogin()
+					// 调用实际的后端登录接口
+					const res = await this.realLogin()
 
 					// 保存登录状态
 					if (this.rememberPassword) {
 						uni.setStorageSync('userInfo', this.form)
+					} else {
+						uni.removeStorageSync('userInfo')
 					}
 
-					uni.setStorageSync('token', 'mock-token-' + Date.now())
+					// 保存 token 和登录状态
 					uni.setStorageSync('isLoggedIn', true)
-
+					
 					// 显示成功提示
 					uni.showToast({
 						title: '登录成功',
-						icon: 'success'
+						icon: 'success',
+						duration: 2000
 					})
 
 					// 跳转到首页
 					setTimeout(() => {
 						uni.reLaunch({
-							url: '/pages/device/device',
-							success: () => {
-								console.log('跳转成功')
-							},
-							fail: (err) => {
-								console.log('跳转失败:', err)
-							}
+							url: '/pages/device/device'
 						})
-					}, 1000)
+					}, 1500)
 
 				} catch (error) {
+					console.error('登录错误:', error)
 					uni.showToast({
 						title: error.message || '登录失败',
-						icon: 'none'
+						icon: 'none',
+						duration: 3000
 					})
 				} finally {
 					this.loading = false
 				}
 			},
 
-			// 模拟登录API调用
-			mockLogin() {
-				return new Promise((resolve, reject) => {
-					setTimeout(() => {
-						// 模拟登录验证
-						if (this.form.username === 'admin' && this.form.password === '123456') {
-							resolve({
-								success: true
-							})
-						} else {
-							reject(new Error('用户名或密码错误'))
-						}
-					}, 1000)
-				})
+			// 实际登录API调用
+			// 在 login.vue 的 realLogin 方法中
+			async realLogin() {
+			  try {
+			    console.log('📝 开始登录请求...');
+			    const res = await login(this.form.username, this.form.password);
+			    
+			    console.log('✅ 登录响应详情:', res);
+			    
+			    // 更灵活的响应处理
+			    if (res && (res.code === 200 || res.success || res.data)) {
+			      console.log('🎉 登录成功!');
+			      
+			      // 处理token和用户信息
+			      const token = res.data?.token || res.token;
+			      const userData = res.data?.user || res.user || res.data;
+			      
+			      if (token) {
+			        setToken(token);
+			        console.log('💾 Token已保存:', token);
+			      }
+			      if (userData) {
+			        uni.setStorageSync('userData', userData);
+			        console.log('💾 用户信息已保存:', userData);
+			      }
+			      
+			      return res;
+			    } else {
+			      console.error('❌ 后端返回错误结构:', res);
+			      throw new Error(res?.message || res?.msg || '登录失败，请检查响应格式');
+			    }
+			  } catch (error) {
+			    console.error('💥 登录完整错误信息:', {
+			      name: error.name,
+			      message: error.message,
+			      statusCode: error.statusCode,
+			      responseData: error.data,
+			      stack: error.stack
+			    });
+			    
+			    // 更详细的错误提示
+			    let userMessage = '登录失败';
+			    if (error.statusCode === 401) {
+			      userMessage = '用户名或密码错误';
+			    } else if (error.statusCode === 404) {
+			      userMessage = '登录接口不存在';
+			    } else if (error.statusCode === 500) {
+			      userMessage = '服务器内部错误';
+			    } else if (error.message.includes('网络请求失败')) {
+			      userMessage = '网络连接失败，请检查后端服务';
+			    }
+			    
+			    throw new Error(userMessage);
+			  }
 			},
 
 			// 检查保存的登录信息
@@ -167,9 +213,7 @@
 <style lang="scss" scoped>
 	.login-container {
 		min-height: 100vh;
-		//background-color: #1296db;
 		background-color: #f8f8f8;
-		//background: linear-gradient(135deg, #1296db 0%, #764ba2 100%);
 	}
 	
 	.logo{
@@ -188,22 +232,37 @@
 		text-align: center;
 		font-size: 48rpx;
 		font-weight: bold;
-		//color: white;
-		//margin-bottom: 20rpx;
 		padding: 40rpx 0;
 	}
 	
-
+	.form-actions {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		width: 100%;
+	}
+	
+	.remember-password {
+		display: flex;
+		align-items: center;
+		font-size: 28rpx;
+		color: #666;
+		
+		checkbox {
+			margin-right: 10rpx;
+		}
+		
+		text {
+			margin-left: 10rpx;
+		}
+	}
+	
 	.forgot-password {
 		font-size: 28rpx;
 		color: #667eea;
 	}
 
 	.login-btn {
-		//background: linear-gradient(135deg, #1296db 0%, #764ba2 100%);		
-		//background-color: #1296db;
-		//color: white;
-		//border: none;
 		border-radius: 50rpx;
 		height: 90rpx;
 		line-height: 90rpx;
@@ -245,31 +304,22 @@
 	.divider::after {
 		right: 60rpx;
 	}
-
-	.login-methods {
-		display: flex;
-		justify-content: center;
-		gap: 60rpx;
-	}
-
-	.method-btn {
+	
+	.wechat-login {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		background: none;
-		border: none;
+		justify-content: center;
 		padding: 20rpx;
-	}
-
-	/* 修改微信图标样式 */
-	.method-icon {
-		width: 50rpx;
-		height: 50rpx;
-		margin-bottom: 10rpx;
-	}
-
-	.method-btn text:last-child {
-		font-size: 24rpx;
-		color: #666;
+		
+		uni-icons {
+			margin-bottom: 10rpx;
+			color: #09BB07;
+		}
+		
+		text {
+			font-size: 24rpx;
+			color: #666;
+		}
 	}
 </style>
