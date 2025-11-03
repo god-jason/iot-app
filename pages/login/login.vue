@@ -46,7 +46,8 @@
 <script>
 	import {
 		login,
-		setToken
+		setToken,
+		getToken
 	} from '@/utils/request.js';
 
 	export default {
@@ -78,107 +79,111 @@
 				this.rememberPassword = !this.rememberPassword;
 			},
 
+			// 检查网络状态
+			async checkNetwork() {
+				return new Promise((resolve) => {
+					uni.getNetworkType({
+						success: (res) => {
+							if (res.networkType === 'none') {
+								uni.showToast({
+									title: '网络连接不可用',
+									icon: 'none'
+								});
+								resolve(false);
+							} else {
+								resolve(true);
+							}
+						},
+						fail: () => resolve(true)
+					});
+				});
+			},
+
 			// 处理登录
 			async handleLogin() {
-				if (!this.canLogin) return
-
-				this.loading = true
-
-				try {
-					// 调用实际的后端登录接口
-					const res = await this.realLogin()
-
-					// 保存登录状态
-					if (this.rememberPassword) {
-						uni.setStorageSync('userInfo', this.form)
-					} else {
-						uni.removeStorageSync('userInfo')
-					}
-
-					// 保存 token 和登录状态
-					uni.setStorageSync('isLoggedIn', true)
-					
-					// 显示成功提示
-					uni.showToast({
-						title: '登录成功',
-						icon: 'success',
-						duration: 2000
-					})
-
-					// 跳转到首页
-					setTimeout(() => {
-						uni.reLaunch({
-							url: '/pages/device/device'
-						})
-					}, 1500)
-
-				} catch (error) {
-					console.error('登录错误:', error)
-					uni.showToast({
-						title: error.message || '登录失败',
-						icon: 'none',
-						duration: 3000
-					})
-				} finally {
-					this.loading = false
-				}
+			  if (!this.canLogin) return
+			
+			  // 检查网络
+			  const hasNetwork = await this.checkNetwork();
+			  if (!hasNetwork) return;
+			
+			  this.loading = true
+			  console.log('开始登录流程，用户名:', this.form.username);
+			
+			  try {
+			    // 调用实际的后端登录接口
+			    const res = await this.realLogin()
+			    console.log('realLogin返回结果:', res);
+			    console.log('登录成功，准备跳转');
+			    console.log('当前token:', getToken());
+			    console.log('用户数据:', uni.getStorageSync('userData'));
+			
+			    // 保存登录状态
+			    if (this.rememberPassword) {
+			      uni.setStorageSync('userInfo', this.form)
+			    } else {
+			      uni.removeStorageSync('userInfo')
+			    }
+			
+			    // 保存登录状态
+			    uni.setStorageSync('isLoggedIn', true)
+			    
+			    // 显示成功提示
+			    uni.showToast({
+			      title: '登录成功',
+			      icon: 'success',
+			      duration: 2000
+			    })
+			
+			    // 跳转到首页
+			    setTimeout(() => {
+			      console.log('执行跳转...');
+			      uni.reLaunch({
+			        url: '/pages/device/device'
+			      })
+			    }, 1500)
+			
+			  } catch (error) {
+			   // console.error('登录错误:', error)
+			    uni.showToast({
+			      title: error.message || '登录失败',
+			      icon: 'none',
+			      duration: 3000
+			    })
+			  } finally {
+			    this.loading = false
+			  }
 			},
 
 			// 实际登录API调用
-			// 在 login.vue 的 realLogin 方法中
 			async realLogin() {
-			  try {
-			    console.log('📝 开始登录请求...');
-			    const res = await login(this.form.username, this.form.password);
-			    
-			    console.log('✅ 登录响应详情:', res);
-			    
-			    // 更灵活的响应处理
-			    if (res && (res.code === 200 || res.success || res.data)) {
-			      console.log('🎉 登录成功!');
+			    try {
+			      console.log('开始登录请求...');
+			      const res = await login(this.form.username, this.form.password);
 			      
-			      // 处理token和用户信息
-			      const token = res.data?.token || res.token;
-			      const userData = res.data?.user || res.user || res.data;
+			      console.log('登录响应详情:', res);
 			      
-			      if (token) {
+			      // 直接处理后端返回的格式：{ "data": { "token": "...", "user": {...} } }
+			      if (res && res.data && res.data.token) {
+			        const { token, user } = res.data;
+			        
 			        setToken(token);
-			        console.log('💾 Token已保存:', token);
+			        console.log('Token已保存');
+			        
+			        if (user) {
+			          uni.setStorageSync('userData', user);
+			          console.log('用户信息已保存');
+			        }
+			        
+			        return res;
+			      } else {
+			        throw new Error('登录失败：响应格式不正确');
 			      }
-			      if (userData) {
-			        uni.setStorageSync('userData', userData);
-			        console.log('💾 用户信息已保存:', userData);
-			      }
-			      
-			      return res;
-			    } else {
-			      console.error('❌ 后端返回错误结构:', res);
-			      throw new Error(res?.message || res?.msg || '登录失败，请检查响应格式');
+			    } catch (error) {
+			      console.error('登录错误:', error);
+			      throw new Error(error.message || '登录失败');
 			    }
-			  } catch (error) {
-			    console.error('💥 登录完整错误信息:', {
-			      name: error.name,
-			      message: error.message,
-			      statusCode: error.statusCode,
-			      responseData: error.data,
-			      stack: error.stack
-			    });
-			    
-			    // 更详细的错误提示
-			    let userMessage = '登录失败';
-			    if (error.statusCode === 401) {
-			      userMessage = '用户名或密码错误';
-			    } else if (error.statusCode === 404) {
-			      userMessage = '登录接口不存在';
-			    } else if (error.statusCode === 500) {
-			      userMessage = '服务器内部错误';
-			    } else if (error.message.includes('网络请求失败')) {
-			      userMessage = '网络连接失败，请检查后端服务';
-			    }
-			    
-			    throw new Error(userMessage);
-			  }
-			},
+			  },
 
 			// 检查保存的登录信息
 			checkSavedLogin() {
@@ -321,5 +326,5 @@
 			font-size: 24rpx;
 			color: #666;
 		}
-	}
+	} 
 </style>
