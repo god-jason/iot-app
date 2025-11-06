@@ -1,9 +1,9 @@
 <template>
 	<view class="container">
 		<view class="head">
-			<image class="avatar" mode="aspectFill" :src="user.avatar"></image>
+			<image class="avatar" mode="aspectFill" :src="user.avatar || avatar"></image>
 			<view class="nickname">
-				{{user.nickname}}
+				{{user.nickname || user.name}}
 			</view>
 		</view>
 
@@ -12,8 +12,8 @@
 				<uni-list-item title="个人信息" clickable show-arrow show-extra-icon link="navigateTo" to="/pages/mine/info"
 					:extra-icon="{color:'#1296db', size:'28', type:'person'}"></uni-list-item>
 				<uni-list-item title="我的组织" clickable show-arrow show-extra-icon link="navigateTo"
-					:right-text="group.name"
-					to="/pages/mine/group" :extra-icon="{color:'#1296db', size:'28', type:'staff'}"></uni-list-item>
+					:right-text="group.name" to="/pages/mine/group"
+					:extra-icon="{color:'#1296db', size:'28', type:'staff'}"></uni-list-item>
 				<uni-list-item title="绑定设备" clickable show-arrow show-extra-icon link="navigateTo"
 					to="/pages/device/bind" :extra-icon="{color:'#1296db', size:'28', type:'scan'}"></uni-list-item>
 				<uni-list-item title="客户支持" clickable show-arrow show-extra-icon
@@ -30,20 +30,32 @@
 </template>
 
 <script>
+	import {
+		getUser
+	} from '../../utils/request';
+
 	export default {
 		data() {
 			return {
+				avatar: '/static/avatar.jpg',
 				user: {
 					avatar: '/static/avatar.jpg',
-					nickname: '海绵宝宝'
+					nickname: ' '
 				},
-				group:{
+				group: {
 					name: "南京真格智能科技有限公司"
 				}
 			}
 		},
+		onLoad() {
+			this.load()
+		},
 		methods: {
+			async load() {
+				this.user = await getUser()
+				console.log("user", this.user)
 
+			}
 		}
 	}
 </script>
@@ -67,7 +79,7 @@
 	.avatar {
 		width: 300rpx;
 		height: 300rpx;
-		border: 1rpx solid grey;
+		//border: 1rpx solid grey;
 		border-radius: 100%;
 	}
 

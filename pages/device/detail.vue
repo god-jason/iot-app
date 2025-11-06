@@ -1,7 +1,7 @@
 <template>
 	<view>
 
-		<ez-camera key="" secret="" sn="GA1719614" :channel="1"></ez-camera>
+		<!-- <ez-camera key="" secret="" sn="GA1719614" :channel="1"></ez-camera> -->
 
 		<uni-card :title="device.name" :sub-title="device.id" :extra="device.online?'在线':'离线'"
 			thumbnail="/static/device.png">

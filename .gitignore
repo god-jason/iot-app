@@ -140,3 +140,4 @@ vite.config.ts.timestamp-*
 /unpackage/cache
 /unpackage/dist
 /unpackage/release
+/unpackage/debug

@@ -3,19 +3,18 @@
 		onLaunch: function() {
 			this.checkLoginStatus()
 		},
-		  methods: {
-		    checkLoginStatus() {
-		      const isLoggedIn = uni.getStorageSync('isLoggedIn')
-		      const token = uni.getStorageSync('token')
-		      if (!isLoggedIn || !token) {
-		        // 未登录，跳转到登录页
-		        uni.redirectTo({
-		          url: '/pages/login/login'
-		        })
-		      }
-		    }
-		  }
+		methods: {
+			checkLoginStatus() {
+				const token = uni.getStorageSync('token')
+				if (!token) {
+					// 未登录，跳转到登录页
+					uni.redirectTo({
+						url: '/pages/login/login'
+					})
+				}
+			}
 		}
+	}
 </script>
 
 <style>
