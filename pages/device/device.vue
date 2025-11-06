@@ -1,8 +1,8 @@
 <template>
 	<view>
 		<!-- 组织信息显示 -->
-		<view v-if="group" class="organization-info">
-			<text class="org-name">{{ group.name || '未知组织' }}</text>
+		<view v-if="group" class="organization-info" @click="openGroup">
+			<text class="org-name">{{ group.name || '神秘组织' }}</text>
 		</view>
 
 		<view v-else class="no-organization">
@@ -104,7 +104,7 @@
 			//有变化重新加载
 			if (this.last_group_id = this.group.id) {
 				this.loadStats().then()
-				this.loadDevices().then()
+				this.refresh().then()
 				this.last_group_id = this.group.id
 
 			}
@@ -134,7 +134,7 @@
 				user.checkGroup().then(change => {
 					if (change) {
 						this.loadStats().then()
-						this.loadDevices().then()
+						this.refresh().then()
 						this.last_group_id = this.group.id
 					}
 				})
@@ -189,6 +189,13 @@
 			cancelSearch() {
 				this.keyword = ''
 				this.refresh()
+			},
+			
+			
+			openGroup() {
+				uni.navigateTo({
+					url: "/pages/mine/group"
+				})
 			},
 
 			// 格式化日期

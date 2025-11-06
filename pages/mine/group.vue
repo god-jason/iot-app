@@ -45,7 +45,11 @@
 			this.load()
 		},
 		methods: {
-			async load() {
+			async load(){
+				this.loadOwns().then()
+				this.loadMembers().then()
+			},
+			async loadOwns(){
 				let res = await post("table/group/search", {
 					filter: {
 						user_id: this.user.id
@@ -57,6 +61,9 @@
 						group.role = "超级管理员"
 					})
 				}
+			},
+			async loadMembers() {
+				
 
 				//作为成员的
 				let res2 = await post("table/member/search", {
@@ -66,14 +73,22 @@
 				})
 				if (res2.data && res2.data.length > 0) {
 					for (let index = 0; index < res2.data.length; index++) {
-						let group_id = res2.data[index].group_id
-						let res = await get("table/group/detail/" + group_id)
-						let group = res.data
-						group.role = res2.data[index].role
-						this.groups.push(group)
+						// let group_id = res2.data[index].group_id
+						// let res = await get("table/group/detail/" + group_id)
+						// let group = res.data
+						// group.role = res2.data[index].role
+						// this.groups.push(group)
+						
+						//以下方式数据不更新
+						let group = res2.data[index]
+						get("table/group/detail/" + group.group_id).then(res=>{
+							Object.assign(group, res.data)
+							this.groups.push(group)
+						})
 					}
 				}
 			},
+			
 			quitGroup(group){
 				uni.showModal({
 					title:"提示",
@@ -89,6 +104,7 @@
 			},
 			switchGroup(group){
 				user.setGroup(group)
+				uni.navigateBack()
 			}
 		}
 	}
