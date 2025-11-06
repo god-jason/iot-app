@@ -88,6 +88,8 @@
 				devices: [],
 
 				loading: false,
+
+				last_group_id: undefined
 			}
 		},
 		computed: {
@@ -98,8 +100,14 @@
 			this.load().then()
 		},
 		onShow() {
-			// 页面显示时刷新数据
-			//this.refreshDeviceData();
+
+			//有变化重新加载
+			if (this.last_group_id = this.group.id) {
+				this.loadStats().then()
+				this.loadDevices().then()
+				this.last_group_id = this.group.id
+
+			}
 		},
 		onPullDownRefresh() {
 			this.keyword = ''
@@ -115,10 +123,23 @@
 		methods: {
 			//统一加载
 			async load() {
-				this.group = await user.getGroup()
-				this.loadStats().then
-				this.loadDevices().then()
+				//先加载
+				if (this.group) {
+					this.loadStats().then()
+					this.loadDevices().then()
+					this.last_group_id = this.group.id
+				}
+
+				//有变化重新加载
+				user.checkGroup().then(change => {
+					if (change) {
+						this.loadStats().then()
+						this.loadDevices().then()
+						this.last_group_id = this.group.id
+					}
+				})
 			},
+
 			//统计信息
 			async loadStats() {
 				let res = await post("table/device/count", {

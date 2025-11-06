@@ -3,7 +3,7 @@
 		<view class="head">
 			<image class="avatar" mode="aspectFill" :src="user.avatar || avatar"></image>
 			<view class="nickname">
-				{{user.nickname || user.name}}
+				{{user.nickname || user.name || '无名'}}
 			</view>
 		</view>
 
@@ -30,12 +30,18 @@
 </template>
 
 <script>
-	
-import { mapState } from 'pinia';
-import { userStore } from '../../store';
-import { get, post } from '../../utils/request';
+	import {
+		mapState
+	} from 'pinia';
+	import {
+		userStore
+	} from '../../store';
+	import {
+		get,
+		post
+	} from '../../utils/request';
 
-const user = userStore()
+	const user = userStore()
 
 	export default {
 		data() {
@@ -51,8 +57,7 @@ const user = userStore()
 		},
 		methods: {
 			async load() {
-				await user.getGroup()
-
+				await user.checkGroup()
 			}
 		}
 	}
