@@ -3,10 +3,12 @@
 
 		<!-- <ez-camera key="" secret="" sn="GA1719614" :channel="1"></ez-camera> -->
 
-		<uni-card :title="device.name" :sub-title="device.id" :extra="device.online?'在线':'离线'"
+		<uni-card v-if="device" :title="device.name"
+		 :sub-title="device.id" :extra="device.online?'在线':'离线'"
 			thumbnail="/static/device.png">
-			<device-values @property-click="onPropertyClick(device, $event)" :device="device.id"
-				:product="device.product_id" type="detail"></device-values>
+			<device-values @property-click="onPropertyClick($event)"
+			 :product="device.product_id"
+			 :device="device.id" type="detail"></device-values>
 		</uni-card>
 
 		<uni-card>
@@ -35,22 +37,27 @@
 </template>
 
 <script>
+import { get } from '../../utils/request'
+
 	export default {
 		data() {
 			return {
-				device: {
-					id: "123123",
-					name: '发电设备-003',
-					online: true,
-					switchStatus: 'on',
-					updateTime: '2024-01-20 14:30:25'
-				}
+				id: undefined,
+				device: undefined,
 			}
 		},
+		onLoad(options) {
+			this.id = options.id
+			this.load()
+		},
 		methods: {
-			onPropertyClick(device, property) {
+			async load(){
+				let res = await get("table/device/detail/"+this.id)
+				this.device = res.data;
+			},
+			onPropertyClick(property) {
 				uni.navigateTo({
-					url: "/pages/device/history?device_id=" + device.id + "&property=" + property.name
+					url: "/pages/device/history?device_id=" + this.device.id + "&property=" + property.name
 				})
 			}
 		}

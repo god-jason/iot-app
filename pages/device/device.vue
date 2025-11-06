@@ -40,8 +40,7 @@
 			<uni-card v-for="(device, index) in devices" :key="device.id" @click="open(device)" :title="device.name"
 				:sub-title="device.id" :extra="device.online?'在线':'离线'" thumbnail="/static/device.png"
 				:style="{backgroundColor: (device.online ? '': '#f6f6f6')}">
-				<device-values @property-click="onPropertyClick(device, $event)" :device="device.id"
-					:product="device.product_id" type="list"></device-values>
+				<device-values :product="device.product_id" :device="device.id" type="simple"></device-values>
 			</uni-card>
 		</view>
 
@@ -102,11 +101,10 @@
 		onShow() {
 
 			//有变化重新加载
-			if (this.last_group_id = this.group.id) {
+			if (this.last_group_id != this.group.id) {
 				this.loadStats().then()
 				this.refresh().then()
 				this.last_group_id = this.group.id
-
 			}
 		},
 		onPullDownRefresh() {
@@ -214,10 +212,6 @@
 				uni.navigateTo({
 					url: "/pages/device/detail?id=" + device.id,
 				})
-			},
-
-			onPropertyClick(device, property) {
-				console.log('设备属性点击:', device, property);
 			}
 		}
 	}
