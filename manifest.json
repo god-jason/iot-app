@@ -129,41 +129,40 @@
         "enable" : false,
         "version" : "2"
     },
-    "vueVersion" : "2",
-    "h5": {
-           "devServer": {
-               "port": 9000,
-               "disableHostCheck": true,
-               "proxy": {
-                   "/auth": {
-                       "target": "http://localhost:8888",
-                       "changeOrigin": true,
-                       "secure": false
-                   },
-                   "/me": {
-                       "target": "http://localhost:8888",
-                       "changeOrigin": true,
-                       "secure": false
-                   },
-                   "/logout": {
-                       "target": "http://localhost:8888",
-                       "changeOrigin": true,
-                       "secure": false
-                   },
-                   "/member": {
-                       "target": "http://localhost:8888",
-                       "changeOrigin": true,
-                       "secure": false
-                   },
-                   "/device": {
-                       "target": "http://localhost:8888",
-                       "changeOrigin": true,
-                       "secure": false
-                   }
-               }
-		 }
+    "vueVersion" : "3",
+    "h5" : {
+        "devServer" : {
+            "port" : 9000,
+            "disableHostCheck" : true,
+            "proxy" : {
+                "/auth" : {
+                    "target" : "http://localhost:8888",
+                    "changeOrigin" : true,
+                    "secure" : false
+                },
+                "/me" : {
+                    "target" : "http://localhost:8888",
+                    "changeOrigin" : true,
+                    "secure" : false
+                },
+                "/logout" : {
+                    "target" : "http://localhost:8888",
+                    "changeOrigin" : true,
+                    "secure" : false
+                },
+                "/member" : {
+                    "target" : "http://localhost:8888",
+                    "changeOrigin" : true,
+                    "secure" : false
+                },
+                "/device" : {
+                    "target" : "http://localhost:8888",
+                    "changeOrigin" : true,
+                    "secure" : false
+                }
+            }
+        }
     },
-	
     "fallbackLocale" : "zh-Hans",
     "locale" : "zh-Hans",
     "app-harmony" : {

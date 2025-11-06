@@ -30,30 +30,28 @@
 </template>
 
 <script>
-	import {
-		getUser
-	} from '../../utils/request';
+	
+import { mapState } from 'pinia';
+import { userStore } from '../../store';
+import { get, post } from '../../utils/request';
+
+const user = userStore()
 
 	export default {
 		data() {
 			return {
-				avatar: '/static/avatar.jpg',
-				user: {
-					avatar: '/static/avatar.jpg',
-					nickname: ' '
-				},
-				group: {
-					name: "南京真格智能科技有限公司"
-				}
+				avatar: '/static/avatar.jpg'
 			}
+		},
+		computed: {
+			...mapState(userStore, ['user', 'group']),
 		},
 		onLoad() {
 			this.load()
 		},
 		methods: {
 			async load() {
-				this.user = await getUser()
-				console.log("user", this.user)
+				await user.getGroup()
 
 			}
 		}

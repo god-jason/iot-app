@@ -30,7 +30,7 @@ export async function request(options) {
 					let data = res.data;
 					if (data.error) {
 						uni.showToast({
-							icon:"error",
+							icon: "error",
 							title: data.error,
 						})
 						reject(new Error(data.error))
@@ -63,28 +63,5 @@ export async function post(api, data, options) {
 		data: data,
 		...options
 	})
-}
-
-
-let user = undefined //uni.getStorageSync("user")
-
-export async function getUser() {
-	if (!user) {
-		if (!token) {
-			uni.reLaunch({
-				url: "/pages/login/login"
-			})
-			return
-		}
-		//查询服务器
-		let res = await get("me")
-		user = res.data
-	}
-	return user || {}
-}
-
-export async function setUser(u) {
-	user = u;
-	//uni.setStorageSync("user", user)
 }
 

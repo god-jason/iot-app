@@ -48,11 +48,10 @@
 	import {
 		md5
 	} from '@/utils/md5.js';
-	import {
-		post,
-		setToken,
-		setUser
-	} from '@/utils/request.js';
+	import { userStore } from '../../store';
+	import { post,setToken} from '@/utils/request.js';
+
+const user = userStore()
 
 	export default {
 		data() {
@@ -119,7 +118,7 @@
 					console.log("auth:", res.data)
 
 					setToken(res.data.token)
-					setUser(res.data.user)
+					user.setUser(res.data.user)
 				} catch (e) {
 
 				}
