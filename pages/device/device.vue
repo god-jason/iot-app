@@ -4,7 +4,7 @@
 		<view v-if="group" class="organization-info">
 			<text class="org-name">{{ group.name || '未知组织' }}</text>
 		</view>
-		
+
 		<view v-else class="no-organization">
 			<uni-notice-bar show-icon text="您还没有加入任何组织，请联系管理员将您添加到组织中"></uni-notice-bar>
 		</view>
@@ -37,9 +37,8 @@
 
 		<!-- 有设备的情况 -->
 		<view v-if="devices.length > 0">
-			<uni-card v-for="(device, index) in devices" :key="device.id" @click="open(device)" 
-				:title="device.name" :sub-title="device.id"
-				:extra="device.online?'在线':'离线'" thumbnail="/static/device.png"
+			<uni-card v-for="(device, index) in devices" :key="device.id" @click="open(device)" :title="device.name"
+				:sub-title="device.id" :extra="device.online?'在线':'离线'" thumbnail="/static/device.png"
 				:style="{backgroundColor: (device.online ? '': '#f6f6f6')}">
 				<device-values @property-click="onPropertyClick(device, $event)" :device="device.id"
 					:product="device.product_id" type="list"></device-values>
@@ -62,12 +61,18 @@
 </template>
 
 <script>
-	
-import { mapState } from 'pinia';
-import { userStore } from '../../store';
-import { get, post } from '../../utils/request';
+	import {
+		mapState
+	} from 'pinia';
+	import {
+		userStore
+	} from '../../store';
+	import {
+		get,
+		post
+	} from '../../utils/request';
 
-const user = userStore()
+	const user = userStore()
 
 	export default {
 		data() {
@@ -75,17 +80,14 @@ const user = userStore()
 				total: 0,
 				online: 0,
 				offline: 0,
-				
+
 				pageSize: 10,
-				
+
 				keyword: '',
-				
+
 				devices: [],
-				
+
 				loading: false,
-				
-				currentMember: null,
-				currentGroupId: null
 			}
 		},
 		computed: {
@@ -110,7 +112,7 @@ const user = userStore()
 			// TODO: 加载更多功能
 			this.loadDevices()
 		},
-		methods: {			
+		methods: {
 			//统一加载
 			async load() {
 				this.group = await user.getGroup()
@@ -118,11 +120,24 @@ const user = userStore()
 				this.loadDevices().then()
 			},
 			//统计信息
-			async loadStats(){
-				
+			async loadStats() {
+				let res = await post("table/device/count", {
+					filter: {
+						group_id: this.group.id
+					}
+				})
+				this.total = res.data
+				res = await post("table/device/count", {
+					filter: {
+						group_id: this.group.id,
+						online: 1,
+					}
+				})
+				this.online = res.data
+				this.offline = this.total - this.online
 			},
 			//加载设备
-			async loadDevices(){
+			async loadDevices() {
 				let res = await post("table/device/search", {
 					filter: {
 						group_id: this.group.id
@@ -131,17 +146,17 @@ const user = userStore()
 					skip: this.devices.length,
 					limit: this.pageSize,
 				})
-				
+
 				if (res.data && res.data.length > 0) {
 					this.devices = this.devices.concat(res.data)
 					this.total = res.total
 				}
-				
+
 				if (!res.data || !res.data.length || res.data.length < this.pageSize) {
 					//没有了
 				}
 			},
-			async refresh(){
+			async refresh() {
 				this.devices = []
 				await this.loadDevices()
 			},
@@ -150,7 +165,7 @@ const user = userStore()
 				this.keyword = $event.value
 				this.refresh()
 			},
-			cancelSearch(){
+			cancelSearch() {
 				this.keyword = ''
 				this.refresh()
 			},
@@ -185,7 +200,7 @@ const user = userStore()
 		padding: 20rpx;
 		background: #f0f8ff;
 		border-bottom: 1rpx solid #e0e0e0;
-		
+
 		.org-name {
 			display: block;
 			font-size: 32rpx;
@@ -193,7 +208,7 @@ const user = userStore()
 			color: #333;
 			margin-bottom: 10rpx;
 		}
-		
+
 		.org-role {
 			font-size: 28rpx;
 			color: #666;
@@ -222,13 +237,13 @@ const user = userStore()
 
 	.device-info {
 		padding: 10rpx 0;
-		
+
 		.info-item {
 			display: block;
 			font-size: 26rpx;
 			color: #666;
 			margin-bottom: 8rpx;
-			
+
 			&:last-child {
 				margin-bottom: 0;
 			}
@@ -240,17 +255,17 @@ const user = userStore()
 		justify-content: center;
 		align-items: center;
 		height: 400rpx;
-		
+
 		.empty-content {
 			text-align: center;
-			
+
 			.empty-text {
 				display: block;
 				font-size: 32rpx;
 				color: #999;
 				margin-top: 20rpx;
 			}
-			
+
 			.empty-desc {
 				display: block;
 				font-size: 28rpx;
