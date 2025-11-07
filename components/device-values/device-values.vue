@@ -36,7 +36,7 @@
 			};
 		},
 		mounted() {
-			console.log(this.device, this.product)
+			//console.log(this.device, this.product)
 
 			//1、查询属性表，防止并发，重复
 			getModel(this.product).then(res => {

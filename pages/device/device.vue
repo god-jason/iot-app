@@ -37,7 +37,8 @@
 
 		<!-- 有设备的情况 -->
 		<view v-if="devices.length > 0">
-			<uni-card v-for="(device, index) in devices" :key="device.id" @click="open(device)" :title="device.name"
+			<uni-card v-for="(device, index) in devices" :key="device.id" @click="open(device)"
+			 :title="device.name || '-'"
 				:sub-title="device.id" :extra="device.online?'在线':'离线'" thumbnail="/static/device.png"
 				:style="{backgroundColor: (device.online ? '': '#f6f6f6')}">
 				<device-values :product="device.product_id" :device="device.id" type="simple"></device-values>

@@ -64,7 +64,7 @@
 			}
 		},
 		{
-			"path": "pages/device/parameters",
+			"path": "pages/device/settings",
 			"style": {
 				"navigationBarTitleText": "参数配置"
 			}
@@ -130,6 +130,12 @@
 			"path": "pages/admin/group",
 			"style": {
 				"navigationBarTitleText": "所有组织"
+			}
+		},
+		{
+			"path": "pages/device/setting",
+			"style": {
+				"navigationBarTitleText": "配置参数"
 			}
 		}
 	],
