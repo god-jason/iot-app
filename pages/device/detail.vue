@@ -3,21 +3,10 @@
 
 		<!-- <ez-camera key="" secret="" sn="GA1719614" :channel="1"></ez-camera> -->
 
-		<uni-card v-if="device" :title="device.name" :sub-title="device.id" :extra="device.online?'在线':'离线'"
+		<uni-card v-if="device" :title="device.name||'-'" :sub-title="device.id" :extra="device.online?'在线':'离线'"
 			thumbnail="/static/device.png">
 			<device-values @property-click="onPropertyClick($event)" :product="device.product_id" :device="device.id"
 				type="detail"></device-values>
-		</uni-card>
-
-		<uni-card>
-			<uni-forms ref="form">
-				<uni-forms-item label="开关">
-					<switch checked="true" @change="" />
-				</uni-forms-item>
-				<uni-forms-item label="转速" name="">
-					<slider :value="60" @change="" />
-				</uni-forms-item>
-			</uni-forms>
 		</uni-card>
 
 		<uni-card>
@@ -29,6 +18,10 @@
 					:extra-icon="{color:'#1296db', size:'22', type:'settings-filled'}">
 				</uni-list-item>
 			</uni-list>
+		</uni-card>
+
+		<uni-card v-if="device">
+			<device-actions :product="device.product_id" :device="device.id"></device-actions>
 		</uni-card>
 
 	</view>

@@ -79,21 +79,17 @@
 							}
 						})
 					}
+					//默认值
+					if (f.type == "number" || f.type == "slider") {
+						this.formData[f.key] = f.min || f.default || 0
+					}
 				})
 				console.log("setting form", this.setting)
 
 				let res = await get("iot/device/" + this.id + "/setting/" + this.setting.name)
 				console.log("原始配置", res.data)
-				this.formData = res.data || {};
-				
-				//默认值
-				this.setting.fields.forEach(f => {
-					if (f.type == "number" || f.type == "slider") {
-						if (this.formData[f.key] == undefined) {
-							this.formData[f.key] = f.min || f.default || 0
-						}
-					}
-				})
+				Object.assign(this.formData, res.data)
+				//this.formData = res.data || {};
 			},
 			async submit() {
 				let res = await post("iot/device/" + this.id + "/setting/" + this.setting.name, this.formData)
@@ -109,10 +105,10 @@
 </script>
 
 <style lang="scss" scoped>
-// picker{
-// 	display: flex;
-// 	flex-direction: row;
-// 	//justify-content: center;
-// 	align-items: center;
-// }
+	// picker{
+	// 	display: flex;
+	// 	flex-direction: row;
+	// 	//justify-content: center;
+	// 	align-items: center;
+	// }
 </style>
