@@ -140,11 +140,6 @@
 		}
 	],
 	"globalStyle": {
-		// #ifdef MP-WEIXIN 
-		"usingComponents": {
-			"ezplayer": "plugin://ezplayer/ezplayer"
-		},
-		// #endif
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "物联网",
 		"navigationBarBackgroundColor": "#F8F8F8",

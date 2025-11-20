@@ -1,7 +1,7 @@
 <template>
 	<view style="width:750rpx; height:750rpx">
 		<!-- <l-echart ref="chart" @finished="init"></l-echart> -->
-		<uni-echarts custom-class="chart" :option="option"></uni-echarts>
+		<uni-echarts custom-class="uni-chart" :option="option"></uni-echarts>
 
 		<view class="toolbar">
 			<button size="mini">近1天</button>
@@ -73,12 +73,12 @@
 	})
 </script>
 
-<style scoped>
+<style>
 	.toolbar {
 		display: flex;
 	}
 
-	.chart {
+	.uni-chart {
 		height: 300px
 	}
 </style>
