@@ -67,6 +67,10 @@
 				actions: []
 			}
 		},
+		onPullDownRefresh() {
+			this.load()
+			uni.stopPullDownRefresh()
+		},
 		onLoad(options) {
 			this.id = options.id
 			this.load()
