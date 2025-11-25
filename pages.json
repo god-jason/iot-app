@@ -137,6 +137,12 @@
 			"style": {
 				"navigationBarTitleText": "配置参数"
 			}
+		},
+		{
+			"path": "pages/device/action",
+			"style": {
+				"navigationBarTitleText": "执行动作"
+			}
 		}
 	],
 	"globalStyle": {
