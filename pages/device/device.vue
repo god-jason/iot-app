@@ -11,7 +11,7 @@
 
 		<uni-search-bar placeholder="搜索设备" @confirm="search" @cancel="cancelSearch"></uni-search-bar>
 
-		<uni-grid :column="3" :show-border="false" :square="false">
+		<uni-grid :column="4" :show-border="false" :square="false">
 			<uni-grid-item>
 				<view class="item">
 					<view class="label">总数</view>
@@ -28,6 +28,12 @@
 				<view class="item">
 					<view class="label">离线</view>
 					<view class="num"> {{offline}} </view>
+				</view>
+			</uni-grid-item>
+			<uni-grid-item>
+				<view class="item">
+					<view class="label">故障</view>
+					<view class="num" :class="{red: error}"> {{error || '-'}} </view>
 				</view>
 			</uni-grid-item>
 		</uni-grid>
@@ -80,6 +86,7 @@
 				total: 0,
 				online: 0,
 				offline: 0,
+				error: 0,
 
 				pageSize: 10,
 
@@ -243,18 +250,22 @@
 	}
 
 	.item {
-		color: #808080;
+		//color: #808080;
 		text-align: center;
 
 		.label {
-			font-size: 28rpx;
+			font-size: 18px;
 		}
 
 		.num {
-			color: #1296db;
-			font-size: 1.5em;
+			//color: #1296db;
+			font-size: 28px;
 			font-weight: bold;
 			padding: 15rpx 0;
+			
+			&.red{
+				color: red;
+			}
 		}
 	}
 

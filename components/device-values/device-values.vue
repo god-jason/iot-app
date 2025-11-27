@@ -3,10 +3,9 @@
 		<view v-for="(p, k) in properties" :key="k">
 			<uni-grid :column="3" :show-border="false" :square="false">
 				<uni-grid-item v-for="(p, k) in p.points" :key="k" @click="open(p)">
-					<view class="label">{{p.label}}</view>
-					<view class="value">
-						<text class="num">{{values[p.name] || '-'}}</text>
-						<text class="unit">{{p.unit}}</text>
+					<view class="point">
+						<view class="label">{{p.label}}{{p.unit}}</view>
+						<view class="value">{{values[p.name] || '-'}}</view>
 					</view>
 				</uni-grid-item>
 			</uni-grid>
@@ -40,7 +39,9 @@
 
 			//1、查询属性表，防止并发，重复
 			getModel(this.product).then(res => {
-				let model = res || {properties:[{}]}
+				let model = res || {
+					properties: [{}]
+				}
 				switch (this.type) {
 					case "simple":
 						//只保留第一个
@@ -71,12 +72,28 @@
 </script>
 
 <style lang="scss" scoped>
-	.label {}
+	.point {
+		text-align: center;
+		font-size: 16px;
+		color: black;
+		//font-weight: bold;
 
-	.value {
-		.num {
-			font-size: 1.2em;
-			font-weight: bold;
+		padding: 10rpx 0;
+		//border: 1px solid #c0c0c0;
+		margin: 10rpx 0;
+
+		.label {
+			font-size: 16px;
+			text-overflow: ellipsis;
+			overflow: hidden;
 		}
+
+		.value {
+			color: black;
+			font-weight: bolder;
+			padding: 10px 0;
+			font-size: 40px;
+		}
+
 	}
 </style>

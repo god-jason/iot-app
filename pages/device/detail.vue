@@ -10,6 +10,31 @@
 				type="detail"></device-values>
 		</uni-card>
 
+		<!-- 动作响应 -->
+		<uni-card v-if="device">
+			<uni-grid :column="2" :show-border="false" :square="false">
+				<uni-grid-item v-for="(p, k) in actions" :key="k">
+					<view v-if="p.type == 'button'" class="action-button" @click="actionClick(p)">{{p.label}}</view>
+
+					<view v-else-if="p.type == 'switch'" class="action-button">
+						<switch checked="true" @change="actionValueChange(p, $event)" />
+						<text class="action-label">{{p.label}}</text>
+					</view>
+
+					<view v-else-if="p.type == 'slider'" class="action-button">
+						<slider @change="actionValueChange(p, $event)" />
+						<text class="action-label">{{p.label}}</text>
+					</view>
+
+					<view v-else-if="p.type == 'form'" class="action-button" @click="actionForm(p, k)">{{p.label}}
+					</view>
+
+					<view v-else class="action-button" @click="actionClick(p)">{{p.label}}</view>
+
+				</uni-grid-item>
+			</uni-grid>
+		</uni-card>
+
 		<uni-card>
 			<uni-list :border="false">
 				<uni-list-item title="历史曲线" note="" show-arrow clickable link="navigateTo" to="/pages/device/history"
@@ -18,35 +43,11 @@
 				<uni-list-item title="参数配置" note="" show-arrow clickable @click="openSettings" show-extra-icon
 					:extra-icon="{color:'#1296db', size:'22', type:'settings-filled'}">
 				</uni-list-item>
+				<uni-list-item title="修改信息" note="" show-arrow clickable show-extra-icon
+					:extra-icon="{color:'#1296db', size:'22', type:'compose'}">
+				</uni-list-item>
 			</uni-list>
 		</uni-card>
-
-		<!-- 动作响应 -->
-		<uni-card v-if="device">
-			<uni-grid :column="3" :show-border="false" :square="true">
-				<uni-grid-item v-for="(p, k) in actions" :key="k">
-
-					<button v-if="p.type == 'button'" type="default" class="action-button"
-						@click="actionClick(p)">{{p.label}}</button>
-
-					<view v-else-if="p.type == 'switch'" class="action-button">
-						<switch checked="true" @change="actionValueChange(p, $event)" />
-						{{p.label}}
-					</view>
-
-					<view v-else-if="p.type == 'slider'" class="action-button">
-						<slider @change="actionValueChange(p, $event)" />
-						{{p.label}}
-					</view>
-
-					<button v-else-if="p.type == 'form'" type="default" class="action-button"
-						@click="actionForm(p, k)">{{p.label}}</button>
-
-					<button v-else type="default" class="action-button" @click="actionClick(p)">{{p.label}}</button>
-				</uni-grid-item>
-			</uni-grid>
-		</uni-card>
-
 	</view>
 </template>
 
@@ -126,14 +127,28 @@
 	}
 </script>
 
-<style>
+<style lang="scss">
+	
 	.action-button {
-		font-size: 32rpx;
-		width: 100%;
+		font-size: 20px;
+		font-weight: bold;
+		margin: 5px;
+		padding: 20px 0;
+		//width: 100%;
 		height: 100%;
+		min-height: 40px;
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		flex-direction: column;
+		border: 1px solid #c0c0c0;
+		border-radius: 5px;
+		background-color: #f0f0f0;
+		//margin: 10rpx;
+	}
+
+	.action-label {
+		margin-top: 20rpx;
+		color: black;
 	}
 </style>

@@ -59,7 +59,7 @@
 					icon: 'success',
 					title: "执行成功"
 				})
-				uni.navigateBack()
+				//uni.navigateBack()
 			},
 			onChange($event, key) {
 				this.formData[key] = $event.detail.value

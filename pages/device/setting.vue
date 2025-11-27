@@ -93,7 +93,11 @@
 			},
 			async submit() {
 				let res = await post("iot/device/" + this.id + "/setting/" + this.setting.name, this.formData)
-				uni.navigateBack()
+				//uni.navigateBack()
+				uni.showToast({
+					title: "保存成功",
+					icon: "success"
+				})
 			},
 
 			onChange($event, key) {
