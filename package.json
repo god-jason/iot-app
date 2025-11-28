@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/god-jason/iot-app#readme",
   "dependencies": {
-    "echarts": "^6.0.0"
+    "echarts": "^6.0.0",
+    "mqtt": "^5.14.1"
   }
 }

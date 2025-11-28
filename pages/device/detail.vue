@@ -110,7 +110,8 @@
 			async actionValueChange(action, $event) {
 				console.log(action, $event.detail.value)
 				let res = await post("iot/device/" + this.id + "/action/" + action.name, {
-					[action.bind || "value"]: $event.detail.value
+					//[action.bind || "value"]: $event.detail.value
+					value: $event.detail.value,
 				})
 				uni.showToast({
 					icon: 'success',

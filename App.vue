@@ -1,4 +1,6 @@
 <script>
+	import { connectMqtt, subscribe } from './utils/mqtt'
+
 	export default {
 		onLaunch: function() {
 			this.checkLoginStatus()
@@ -11,6 +13,11 @@
 					uni.redirectTo({
 						url: '/pages/login/login'
 					})
+				} else {
+					connectMqtt()
+					
+					//TODO 不应该放这里
+					subscribe("device/#")
 				}
 			}
 		}
