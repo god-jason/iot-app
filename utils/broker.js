@@ -1,19 +1,4 @@
-
-// #ifdef MP-WEIXIN
-import 'abortcontroller-polyfill/dist/abortcontroller-polyfill-only' // import before mqtt.
-import '../node_modules/esbuild-plugin-polyfill-node/polyfills/navigator'
-import '../node_modules/esbuild-plugin-polyfill-node/polyfills/process'
-
-import mqtt from "mqtt"
-//const mqtt = require("../node_modules/mqtt");
-//import mqtt from "mqtt"
-//const mqtt = require("./mqtt.min")
-console.log("mqtt", mqtt)
-//#endif
-
-// #ifndef MP-WEIXIN
-import mqtt from "mqtt"
-// #endif
+import mqtt from '../node_modules/mqtt/dist/mqtt.js'
 
 import {
 	mqtt_server
