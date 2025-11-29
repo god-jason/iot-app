@@ -1,5 +1,5 @@
 <script>
-	import { connectMqtt, subscribe } from './utils/mqtt'
+	import { connectMqtt, subscribe } from './utils/broker.js'
 
 	export default {
 		onLaunch: function() {
@@ -14,6 +14,7 @@
 						url: '/pages/login/login'
 					})
 				} else {
+	
 					connectMqtt()
 					
 					//TODO 不应该放这里
