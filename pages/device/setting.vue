@@ -42,7 +42,8 @@
 </template>
 
 <script>
-	import {
+	import { checkMqtt, publish, subscribe } from '../../utils/broker'
+import {
 		getModel
 	} from '../../utils/model'
 	import {
@@ -65,6 +66,9 @@
 			this.product_id = options.product_id
 			this.index = options.index
 			this.load()
+		},
+		onUnload() {
+			unsubscribe("device/"+this.id+"/setting/"+this.setting.name+"/read/response")
 		},
 		methods: {
 			async load() {
@@ -90,8 +94,15 @@
 				console.log("原始配置", res.data)
 				Object.assign(this.formData, res.data)
 				//this.formData = res.data || {};
+				
+				subscribe("device/"+this.id+"/setting/"+this.setting.name+"/read/response", (topic, payload)=>{
+					Object.assign(this.formData, payload)
+				})
+				publish("device/"+this.id+"/setting/"+this.setting.name+"/read", "{}")
+				
 			},
 			async submit() {
+				publish("device/"+this.id+"/setting/"+this.setting.name, this.formData)
 				let res = await post("iot/device/" + this.id + "/setting/" + this.setting.name, this.formData)
 				//uni.navigateBack()
 				uni.showToast({

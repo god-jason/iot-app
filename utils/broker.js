@@ -85,13 +85,24 @@ export function connectMqtt() {
 	})
 }
 
+export function checkMqtt(){
+	if (!client) connectMqtt()
+}
 
+
+export function publish(topic, payload) {
+	checkMqtt()
+	if (typeof payload == "object")
+		payload = JSON.stringify(payload)
+	client && client.publish(topic, payload)
+}
 
 export function subscribe(filter, cb) {
 	// 计数，避免重复订阅
 	if (subs[filter] && subs[filter] > 0) {
 		subs[filter] = subs[filter] + 1
 	} else {
+		checkMqtt()
 		client && client.subscribe(filter)
 		subs[filter] = 1
 	}

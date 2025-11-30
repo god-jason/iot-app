@@ -53,7 +53,7 @@
 </template>
 
 <script>
-	import { subscribe, unsubscribe } from '../../utils/broker';
+	import { checkMqtt, subscribe, unsubscribe } from '../../utils/broker';
 import {
 		getModel
 	} from '../../utils/model';
@@ -75,13 +75,18 @@ import {
 			uni.stopPullDownRefresh()
 			this.load()
 			this.watch()
-			this.unsubscribe()
 		},
 		onLoad(options) {
 			this.id = options.id
 			this.load()
 			this.watch()
 			this.subscribe()
+		},
+		onUnload() {
+			this.unsubscribe()
+		},
+		onShow() {
+			checkMqtt()
 		},
 		methods: {
 			subscribe(){

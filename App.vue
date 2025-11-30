@@ -13,14 +13,12 @@
 					uni.redirectTo({
 						url: '/pages/login/login'
 					})
-				} else {
-	
-					connectMqtt()
-					
-					//TODO 不应该放这里
-					subscribe("device/#", function(topic, payload){
-						console.log("mqtt device", topic, payload)
-					})
+				} else {	
+					connectMqtt()					
+					//测试
+					// subscribe("device/#", function(topic, payload){
+					// 	console.log("mqtt device", topic, payload)
+					// })
 				}
 			}
 		}
