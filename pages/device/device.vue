@@ -47,7 +47,7 @@
 			 :title="device.name || '-'"
 				:sub-title="device.id" :extra="device.online?'在线':'离线'" thumbnail="/static/device.png"
 				:style="{backgroundColor: (device.online ? '': '#f6f6f6')}">
-				<device-values :product="device.product_id" :device="device.id" type="simple"></device-values>
+				<device-values-mini :product="device.product_id" :device="device.id" type="simple"></device-values-mini>
 			</uni-card>
 		</view>
 

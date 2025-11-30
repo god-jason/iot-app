@@ -6,7 +6,8 @@
 		<!-- 实时状态 -->
 		<uni-card v-if="device" :title="device.name||'-'" :sub-title="device.id" :extra="device.online?'在线':'离线'"
 			thumbnail="/static/device.png">
-			<device-values @property-click="onPropertyClick($event)" :product="device.product_id" :device="device.id"
+			<device-values @property-click="onPropertyClick($event)"
+			 :product="device.product_id" :values="values"
 				type="detail"></device-values>
 		</uni-card>
 
@@ -17,12 +18,12 @@
 					<view v-if="p.type == 'button'" class="action-button" @click="actionClick(p)">{{p.label}}</view>
 
 					<view v-else-if="p.type == 'switch'" class="action-button">
-						<switch checked="true" @change="actionValueChange(p, $event)" />
+						<switch :checked="p.bind ? values[p.bind] : false" @change="actionValueChange(p, $event)" />
 						<text class="action-label">{{p.label}}</text>
 					</view>
 
 					<view v-else-if="p.type == 'slider'" class="action-button">
-						<slider @change="actionValueChange(p, $event)" />
+						<slider :value="p.bind ? values[p.bind] : 0" @change="actionValueChange(p, $event)" />
 						<text class="action-label">{{p.label}}</text>
 					</view>
 
@@ -52,7 +53,8 @@
 </template>
 
 <script>
-	import {
+	import { subscribe, unsubscribe } from '../../utils/broker';
+import {
 		getModel
 	} from '../../utils/model';
 	import {
@@ -65,24 +67,53 @@
 			return {
 				id: undefined,
 				device: undefined,
-				actions: []
+				actions: [],
+				values: {}
 			}
 		},
 		onPullDownRefresh() {
+			uni.stopPullDownRefresh()
 			this.load()
 			this.watch()
-			uni.stopPullDownRefresh()
+			this.unsubscribe()
 		},
 		onLoad(options) {
 			this.id = options.id
 			this.load()
 			this.watch()
+			this.subscribe()
 		},
 		methods: {
+			subscribe(){
+				//订阅变化
+				subscribe("device/"+this.id+"/values", (topic, payload)=>{
+					this.values = payload
+				})
+				//订阅响应
+				subscribe("device/"+this.id+"/action/+/response", (topic, payload)=>{
+					if (payload.ok) {
+						
+					uni.showToast({
+						icon: 'success',
+						title: "执行成功"
+					})
+					}
+				})
+			},
+			unsubscribe(){
+				unsubscribe("device/"+this.id+"/values") //TODO 全部取消订阅了
+				unsubscribe("device/"+this.id+"/action/response")
+			},
 			async load() {
 				let res = await get("table/device/detail/" + this.id)
 				this.device = res.data;
 				this.loadAction()
+			},
+			async loadValues() {
+
+				//2、查询实时状态
+				let res = await get("iot/device/" + this.device + "/values")
+				this.values = res.data
 			},
 			async watch() {
 				let res = await post("iot/device/" + this.id + "/action/watch", {
@@ -136,7 +167,6 @@
 </script>
 
 <style lang="scss">
-	
 	.action-button {
 		font-size: 20px;
 		font-weight: bold;

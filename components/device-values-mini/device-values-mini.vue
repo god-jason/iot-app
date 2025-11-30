@@ -25,12 +25,13 @@
 		name: "device-values",
 		props: {
 			product: String,
+			device: String,
 			type: String,
-			values: Object,
 		},
 		data() {
 			return {
-				properties: []
+				properties: [],
+				values: {}
 			};
 		},
 		mounted() {
@@ -55,6 +56,11 @@
 						this.properties = model.properties
 						break
 				}
+			})
+
+			//2、查询实时状态
+			get("iot/device/" + this.device + "/values").then(res => {
+				this.values = res.data
 			})
 		},
 		methods: {

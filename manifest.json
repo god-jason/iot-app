@@ -108,12 +108,6 @@
             "scope.userLocation" : {
                 "desc" : "获取地图页面当前的位置"
             }
-        },
-        "plugins" : {
-            "ezplayer" : {
-                "version" : "latest",
-                "provider" : "wxf2b3a0262975d8c2"
-            }
         }
     },
     "mp-alipay" : {
