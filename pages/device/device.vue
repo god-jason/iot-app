@@ -5,7 +5,7 @@
 			<text class="org-name">{{ group.name || '神秘组织' }}</text>
 		</view>
 
-		<view v-else class="no-organization">
+		<view v-else class="no-organization" @click="openGroup">
 			<uni-notice-bar show-icon text="您还没有加入任何组织，请联系管理员将您添加到组织中"></uni-notice-bar>
 		</view>
 

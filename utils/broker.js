@@ -1,11 +1,24 @@
-import mqtt from '../node_modules/mqtt/dist/mqtt.js'
+// #ifdef MP-WEIXIN
+//const mqtt = require("./mqtt.js")
+//import * as mqtt from './mqtt.min.js' //v3.0.0
+//import mqtt from './mqtt'
+import * as mqtt from "mqtt/dist/mqtt"
+
+//#endif
+
+// #ifndef MP-WEIXIN
+//import * as mqtt from 'mqtt'
+import * as mqtt from "mqtt/dist/mqtt"
+// #endif
+
+
 
 import {
 	mqtt_server
 } from "@/app.config";
 
-var client
 
+var client
 
 let subs = {} // 订阅历史
 let sub_tree = {
@@ -36,7 +49,6 @@ function find_callback(node, topics, topic, payload) {
 
 
 
-
 export function connectMqtt() {
 
 	// #ifdef MP-WEIXIN
@@ -53,9 +65,15 @@ export function connectMqtt() {
 
 	client.on("error", console.error)
 	client.on("message", function(topic, payload) {
-		console.log("mqtt message", topic, payload.toString())
+		//console.log("mqtt message", topic, payload.toString())
 		let ts = topic.split("/")
-		find_callback(sub_tree, ts, topic, payload.toString())
+		let data
+		try{
+			data = JSON.parse(payload.toString())
+		}catch(e){
+			data = payload
+		}
+		find_callback(sub_tree, ts, topic, data)
 	})
 	client.on("connect", function() {
 		console.log("mqtt connected")
@@ -81,7 +99,7 @@ export function subscribe(filter, cb) {
 	let fs = filter.split("/")
 
 	// 创建树枝
-	let sub = self.sub_tree
+	let sub = sub_tree
 
 	fs.forEach(f => {
 		let s = sub.children[f]

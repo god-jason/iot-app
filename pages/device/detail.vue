@@ -70,17 +70,24 @@
 		},
 		onPullDownRefresh() {
 			this.load()
+			this.watch()
 			uni.stopPullDownRefresh()
 		},
 		onLoad(options) {
 			this.id = options.id
 			this.load()
+			this.watch()
 		},
 		methods: {
 			async load() {
 				let res = await get("table/device/detail/" + this.id)
 				this.device = res.data;
 				this.loadAction()
+			},
+			async watch() {
+				let res = await post("iot/device/" + this.id + "/action/watch", {
+					value: 60000,
+				})
 			},
 			async loadAction() {
 				let res = await getModel(this.device.product_id)

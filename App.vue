@@ -18,7 +18,9 @@
 					connectMqtt()
 					
 					//TODO 不应该放这里
-					subscribe("device/#")
+					subscribe("device/#", function(topic, payload){
+						console.log("mqtt device", topic, payload)
+					})
 				}
 			}
 		}
