@@ -6,8 +6,7 @@
 		<!-- 实时状态 -->
 		<uni-card v-if="device" :title="device.name||'-'" :sub-title="device.id" :extra="device.online?'在线':'离线'"
 			thumbnail="/static/device.png">
-			<device-values @property-click="onPropertyClick($event)"
-			 :product="device.product_id" :values="values"
+			<device-values @property-click="onPropertyClick($event)" :product="device.product_id" :values="values"
 				type="detail"></device-values>
 		</uni-card>
 
@@ -53,8 +52,12 @@
 </template>
 
 <script>
-	import { checkMqtt, subscribe, unsubscribe } from '../../utils/broker';
-import {
+	import {
+		checkMqtt,
+		subscribe,
+		unsubscribe
+	} from '../../utils/broker';
+	import {
 		getModel
 	} from '../../utils/model';
 	import {
@@ -89,25 +92,29 @@ import {
 			checkMqtt()
 		},
 		methods: {
-			subscribe(){
+			subscribe() {
 				//订阅变化
-				subscribe("device/"+this.id+"/values", (topic, payload)=>{
-					this.values = payload
+				subscribe("device/" + this.id + "/values", (topic, payload) => {
+					Object.assign(this.values, payload)
 				})
 				//订阅响应
-				subscribe("device/"+this.id+"/action/+/response", (topic, payload)=>{
+				subscribe("device/" + this.id + "/action/+/response", (topic, payload) => {
 					if (payload.ok) {
-						
-					uni.showToast({
-						icon: 'success',
-						title: "执行成功"
-					})
+						uni.showToast({
+							icon: 'success',
+							title: "执行成功"
+						})
+					} else {
+						uni.showToast({
+							icon: 'error',
+							title: "执行失败：" + payload.data
+						})
 					}
 				})
 			},
-			unsubscribe(){
-				unsubscribe("device/"+this.id+"/values") //TODO 全部取消订阅了
-				unsubscribe("device/"+this.id+"/action/response")
+			unsubscribe() {
+				unsubscribe("device/" + this.id + "/values") //TODO 全部取消订阅了
+				unsubscribe("device/" + this.id + "/action/response")
 			},
 			async load() {
 				let res = await get("table/device/detail/" + this.id)
@@ -145,20 +152,12 @@ import {
 			},
 			async actionClick(action) {
 				let res = await post("iot/device/" + this.id + "/action/" + action.name, {})
-				uni.showToast({
-					icon: 'success',
-					title: "执行成功"
-				})
 			},
 			async actionValueChange(action, $event) {
 				console.log(action, $event.detail.value)
 				let res = await post("iot/device/" + this.id + "/action/" + action.name, {
 					//[action.bind || "value"]: $event.detail.value
 					value: $event.detail.value,
-				})
-				uni.showToast({
-					icon: 'success',
-					title: "执行成功"
 				})
 			},
 			actionForm(action, index) {

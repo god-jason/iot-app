@@ -5,7 +5,7 @@
 				<uni-grid-item v-for="(p, k) in p.points" :key="k" @click="open(p)">
 					<view class="point">
 						<view class="label">{{p.label}}{{p.unit}}</view>
-						<view class="value">{{values[p.name] || '-'}}</view>
+						<view class="value">{{values.hasOwnProperty(p.name) ? values[p.name] : '-'}}</view>
 					</view>
 				</uni-grid-item>
 			</uni-grid>
