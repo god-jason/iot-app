@@ -126,9 +126,9 @@
 	$uni-spacing-sm: 8px !default;
 	$uni-border-color:$uni-border-3;
 	$uni-shadow: $uni-shadow-base;
-	$uni-card-title: 24px;
+	$uni-card-title: 15px;
 	$uni-cart-title-color:$uni-main-color;
-	$uni-card-subtitle: 18px;
+	$uni-card-subtitle: 12px;
 	$uni-cart-subtitle-color:$uni-secondary-color;
 	$uni-card-spacing: 10px;
 	$uni-card-content-color: $uni-base-color;
