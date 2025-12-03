@@ -150,7 +150,7 @@ export function unsubscribe(filter, cb) {
 	})
 
 	// 删除回调
-	if (callbacks.length > 1 && cb) {
+	if (sub.callbacks.length > 1 && cb) {
 		for (var i = 0; i < sub.callbacks.length; i++) {
 			if (sub.callbacks[i] == cb) {
 				sub.callbacks.splice(i, 1)
