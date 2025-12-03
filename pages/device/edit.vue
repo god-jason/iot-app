@@ -1,12 +1,12 @@
 <template>
 	<view>
-		<uni-card title="修改设备信息">
+		<uni-card>
 			<uni-forms ref="form" :modelValue="formData" :rules="rules" :label-width="100">
-				<uni-forms-item label="设备名称" required name="name">
+				<uni-forms-item label="名称" required name="name">
 					<uni-easyinput v-model="formData.name" placeholder="请输入设备名称" />
 				</uni-forms-item>
 
-				<uni-forms-item label="设备描述" name="description">
+				<uni-forms-item label="描述" name="description">
 					<uni-easyinput type="textarea" v-model="formData.description" placeholder="请输入设备描述" />
 				</uni-forms-item>
 			</uni-forms>

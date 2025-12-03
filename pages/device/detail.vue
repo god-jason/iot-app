@@ -120,6 +120,7 @@
 				let res = await get("table/device/detail/" + this.id)
 				this.device = res.data;
 				this.loadAction()
+				this.loadValues()
 			},
 			async loadValues() {
 
