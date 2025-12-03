@@ -92,7 +92,7 @@
 			color: black;
 			font-weight: bolder;
 			padding: 10px 0;
-			font-size: 40px;
+			font-size: 28px;
 		}
 
 	}

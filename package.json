@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/god-jason/iot-app#readme",
   "dependencies": {
+    "dayjs": "^1.11.19",
     "echarts": "^6.0.0",
     "mqtt": "^3.0.0"
   },

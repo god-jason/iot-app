@@ -8,6 +8,10 @@
 			thumbnail="/static/device.png">
 			<device-values @property-click="onPropertyClick($event)" :product="device.product_id" :values="values"
 				type="detail"></device-values>
+
+			<view class="">
+				更新时间：{{fromNow(values._update)}}
+			</view>
 		</uni-card>
 
 		<!-- 动作响应 -->
@@ -52,6 +56,8 @@
 </template>
 
 <script>
+	import dayjs from "dayjs"
+	
 	import {
 		checkMqtt,
 		subscribe,
@@ -116,6 +122,10 @@
 				unsubscribe("device/" + this.id + "/values") //TODO 全部取消订阅了
 				unsubscribe("device/" + this.id + "/action/response")
 			},
+			fromNow(d){
+				if (!d) return "--"
+				return dayjs(d).fromNow()
+			},
 			async load() {
 				let res = await get("table/device/detail/" + this.id)
 				this.device = res.data;
@@ -167,9 +177,9 @@
 						"&index=" + index
 				})
 			},
-			editDevice(){
+			editDevice() {
 				uni.navigateTo({
-					url: '/pages/device/edit?id='+this.id
+					url: '/pages/device/edit?id=' + this.id
 				});
 			}
 		}

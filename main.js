@@ -1,9 +1,17 @@
+import dayjs from "dayjs"
+import relativeTime from 'dayjs/plugin/relativeTime';
+import 'dayjs/locale/zh-cn'; // 中文包
+dayjs.extend(relativeTime);
+dayjs.locale("zh-cn")
+
 import App from './App'
 
 // #ifndef VUE3
 import Vue from 'vue'
 import store from './store'
-import {request} from '@/utils/request.js'
+import {
+	request
+} from '@/utils/request.js'
 import './uni.promisify.adaptor'
 Vue.config.productionTip = false
 Vue.prototype.$http = request
