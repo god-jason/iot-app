@@ -70,7 +70,7 @@ export const userStore = defineStore('user', {
 			
 			//获取用户
 			if (!this.group) {
-				await getGroup()
+				await this.getGroup()
 				return true
 			}
 

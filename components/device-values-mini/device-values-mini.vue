@@ -90,7 +90,7 @@
 
 		.value {
 			color: black;
-			font-weight: bolder;
+			font-weight: bold;
 			padding: 10px 0;
 			font-size: 28px;
 		}
