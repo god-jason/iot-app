@@ -125,7 +125,7 @@
 			async loadValues() {
 
 				//2、查询实时状态
-				let res = await get("iot/device/" + this.device + "/values")
+				let res = await get("iot/device/" + this.id + "/values")
 				this.values = res.data
 			},
 			async watch() {
