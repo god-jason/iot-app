@@ -11,7 +11,6 @@
 
 	</view>
 </template>
-
 <script>
 	import {
 		getModel

@@ -43,7 +43,7 @@
 				<uni-list-item title="参数配置" note="" show-arrow clickable @click="openSettings" show-extra-icon
 					:extra-icon="{color:'#1296db', size:'22', type:'settings-filled'}">
 				</uni-list-item>
-				<uni-list-item title="修改信息" note="" show-arrow clickable show-extra-icon
+				<uni-list-item title="修改信息" note="" show-arrow clickable show-extra-icon @click="editDevice"
 					:extra-icon="{color:'#1296db', size:'22', type:'compose'}">
 				</uni-list-item>
 			</uni-list>
@@ -165,6 +165,11 @@
 					url: "/pages/device/action?id=" + this.id + "&product_id=" + this.device.product_id +
 						"&index=" + index
 				})
+			},
+			editDevice(){
+				uni.navigateTo({
+					url: '/pages/device/edit?id='+this.id
+				});
 			}
 		}
 	}

@@ -136,6 +136,18 @@
 			}
 		},
 		{
+			"path": "pages/admin/group_detail",
+			"style": {
+				"navigationBarTitleText": "组织详情"
+			}
+		},
+		{
+			"path": "pages/admin/user_detail",
+			"style": {
+				"navigationBarTitleText": "用户详情"
+			}
+		},
+		{
 			"path": "pages/device/setting",
 			"style": {
 				"navigationBarTitleText": "配置参数"
@@ -145,6 +157,12 @@
 			"path": "pages/device/action",
 			"style": {
 				"navigationBarTitleText": "执行动作"
+			}
+		},
+		{
+			"path": "pages/device/edit",
+			"style": {
+				"navigationBarTitleText": "修改设备信息"
 			}
 		}
 	],
