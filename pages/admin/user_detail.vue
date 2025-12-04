@@ -275,38 +275,11 @@
 			
 			// 重置密码
 			resetPassword() {
-				uni.showModal({
-					title: '重置密码',
-					content: '确定要重置该用户的密码吗？新密码将通过其他方式通知用户。',
-					showCancel: true,
-					success: async (res) => {
-						if (res.confirm) {
-							try {
-								// 这里调用重置密码接口
-								let res = await post(`table/user/reset_password/${this.id}`, {});
-								
-								if (res && res.code === 0) {
-									uni.showToast({
-										title: '重置密码成功',
-										icon: 'success'
-									});
-								} else {
-									uni.showToast({
-										title: res?.message || '重置失败',
-										icon: 'error'
-									});
-								}
-							} catch (error) {
-								console.error('重置密码失败:', error);
-								uni.showToast({
-									title: '重置失败',
-									icon: 'error'
-								});
-							}
-						}
-					}
-				});
+			    uni.navigateTo({
+			        url: `/pages/admin/reset_password?id=${this.id}`
+			    });
 			},
+
 			
 			// 打开组织详情
 			openGroup(group) {

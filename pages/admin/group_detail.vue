@@ -32,17 +32,6 @@
 		<!-- 功能列表 -->
 		<uni-card>
 			<uni-list :border="false">
-				<!-- 成员管理 -->
-				<uni-list-item 
-					title="成员管理" 
-					note="绑定、解绑组织成员"
-					show-arrow 
-					clickable 
-					@click="openMemberManagement"
-					show-extra-icon
-					:extra-icon="{color:'#007aff', size:'22', type:'person-filled'}">
-				</uni-list-item>
-				
 				<!-- 修改信息 -->
 				<uni-list-item 
 					title="修改信息" 
@@ -56,20 +45,36 @@
 			</uni-list>
 		</uni-card>
 
+		<!-- 添加成员 -->
+		<uni-card title="添加成员">
+			<view class="add-member-section">
+				<uni-forms :modelValue="newMember" :label-width="100">
+					<uni-forms-item label="用户ID" required>
+						<uni-easyinput 
+							v-model="newMember.user_id" 
+							placeholder="请输入用户ID" 
+							:disabled="addingMember" />
+					</uni-forms-item>
+				</uni-forms>
+				
+				<button type="primary" @click="addMember" :loading="addingMember">添加成员</button>
+			</view>
+		</uni-card>
+
 		<!-- 成员列表 -->
 		<uni-card title="组织成员">
 			<view v-if="members.length > 0">
 				<uni-list>
 					<uni-list-item 
 						v-for="(member, index) in members" 
-						:key="member.id"
-						:title="member.name || member.username || member.user_id"
+						:key="member.user_id + '_' + member.group_id"
+						:title="getMemberName(member)"
 						:note="formatMemberNote(member)"
-						:rightText="member.role || '成员'"
-						:rightTextStyle="getRoleStyle(member)"
+						:rightText="member.disabled ? '已禁用' : '正常'"
+						:rightTextStyle="getMemberStatusStyle(member)"
 						show-extra-icon
 						:extra-icon="{color:'#999', size:'20', type:'person'}"
-						@click="showMemberActions(member)">
+						@click="showMemberActions(member, index)">
 					</uni-list-item>
 				</uni-list>
 			</view>
@@ -77,7 +82,6 @@
 			<view v-else class="empty-members">
 				<uni-icons type="person" size="60" color="#ccc"></uni-icons>
 				<text class="empty-text">暂无成员</text>
-				<button type="default" size="mini" @click="openMemberManagement">添加成员</button>
 			</view>
 			
 			<view v-if="membersLoading" class="loading-members">
@@ -107,7 +111,13 @@
 					alert_phone: ''
 				},
 				members: [],
-				membersLoading: false
+				newMember: {
+					user_id: ''
+				},
+				membersLoading: false,
+				addingMember: false,
+				// 存储用户详情信息
+				userDetails: {}
 			}
 		},
 		onLoad(options) {
@@ -146,71 +156,65 @@
 			async loadMembers() {
 				this.membersLoading = true;
 				try {
-					// 这里需要根据你的实际接口来调整
-					// 假设有获取组织成员的接口
-					let res = await post('table/group_member/search', {
+					// 使用正确的表名和查询参数
+					let res = await post('table/member/search', {
 						filter: {
 							group_id: this.id
+						},
+						skip: 0,
+						limit: 100,
+						sort: { created: -1 }
+					});
+					
+					if (res && res.data) {
+						this.members = res.data || [];
+						console.log('组织成员:', this.members);
+						
+						// 加载用户详情信息
+						await this.loadUserDetails();
+					}
+				} catch (error) {
+					console.error('加载成员失败:', error);
+				} finally {
+					this.membersLoading = false;
+				}
+			},
+			
+			// 加载用户详情信息
+			async loadUserDetails() {
+				if (this.members.length === 0) return;
+				
+				// 收集所有用户ID
+				const userIds = this.members.map(member => member.user_id).filter(Boolean);
+				if (userIds.length === 0) return;
+				
+				try {
+					let res = await post('table/user/search', {
+						filter: {
+							id: userIds
 						},
 						skip: 0,
 						limit: 100
 					});
 					
 					if (res && res.data) {
-						this.members = res.data || [];
-						console.log('组织成员:', this.members);
+						// 将用户信息存储到映射中
+						res.data.forEach(user => {
+							this.userDetails[user.id] = user;
+						});
 					}
 				} catch (error) {
-					console.error('加载成员失败:', error);
-					// 如果没有专门的成员表，可以使用模拟数据
-					this.loadMockMembers();
-				} finally {
-					this.membersLoading = false;
+					console.error('加载用户详情失败:', error);
 				}
 			},
 			
-			// 加载模拟成员数据（备用）
-			async loadMockMembers() {
-				// 模拟成员数据
-				this.members = [
-					{
-						id: 'user_001',
-						user_id: 'user_001',
-						name: '张三',
-						username: 'zhangsan',
-						role: '管理员',
-						email: 'zhangsan@example.com',
-						phone: '13800138001',
-						join_time: new Date().toISOString()
-					},
-					{
-						id: 'user_002',
-						user_id: 'user_002',
-						name: '李四',
-						username: 'lisi',
-						role: '成员',
-						email: 'lisi@example.com',
-						phone: '13800138002',
-						join_time: new Date(Date.now() - 86400000).toISOString()
-					},
-					{
-						id: 'user_003',
-						user_id: 'user_003',
-						name: '王五',
-						username: 'wangwu',
-						role: '成员',
-						email: 'wangwu@example.com',
-						phone: '13800138003',
-						join_time: new Date(Date.now() - 172800000).toISOString()
-					}
-				];
-			},
-			
-			// 打开成员管理页面
-			openMemberManagement() {
-				uni.navigateTo({
-					url: `/pages/group/member?group_id=${this.id}`
-				});
+			// 获取成员名称
+			getMemberName(member) {
+				const userInfo = this.userDetails[member.user_id];
+				if (userInfo) {
+					return userInfo.name || userInfo.username || userInfo.nickname || member.user_id;
+				}
+				return member.user_id || '未知成员';
 			},
 			
 			// 打开编辑组织页面
@@ -220,53 +224,149 @@
 				});
 			},
 			
-			// 显示成员操作菜单
-			showMemberActions(member) {
-				const items = ['设为管理员', '取消管理员', '移除成员'];
+			// 添加成员
+			async addMember() {
+				if (!this.newMember.user_id.trim()) {
+					uni.showToast({
+						title: '请输入用户ID',
+						icon: 'none'
+					});
+					return;
+				}
+				
+				this.addingMember = true;
+				
+				try {
+					// 检查用户是否存在
+					let userRes = await get(`table/user/detail/${this.newMember.user_id}`).catch(() => null);
+					if (!userRes || !userRes.data) {
+						uni.showToast({
+							title: '用户不存在',
+							icon: 'error'
+						});
+						return;
+					}
+					
+					// 检查是否已经是成员
+					const isMember = this.members.some(m => m.user_id === this.newMember.user_id);
+					if (isMember) {
+						uni.showToast({
+							title: '用户已是成员',
+							icon: 'none'
+						});
+						return;
+					}
+					
+					// 添加成员
+					const memberData = {
+						group_id: this.id,
+						user_id: this.newMember.user_id,
+						disabled: false
+					};
+					
+					let res = await post('table/member/create', memberData);
+					
+					if (res && (res.code === 0 || res.data === 0)) {
+						uni.showToast({
+							title: '添加成功',
+							icon: 'success'
+						});
+						
+						// 清空表单
+						this.newMember.user_id = '';
+						
+						// 添加新成员到列表
+						const newMember = {
+							group_id: this.id,
+							user_id: userRes.data.id,
+							disabled: false,
+							created: new Date().toISOString()
+						};
+						
+						this.members.unshift(newMember);
+						
+						// 缓存用户信息
+						this.userDetails[userRes.data.id] = userRes.data;
+						
+						// 重新排序
+						this.members.sort((a, b) => new Date(b.created) - new Date(a.created));
+						
+					} else {
+						uni.showToast({
+							title: res?.message || '添加失败',
+							icon: 'error'
+						});
+					}
+				} catch (error) {
+					console.error('添加成员失败:', error);
+					uni.showToast({
+						title: '添加失败',
+						icon: 'error'
+					});
+				} finally {
+					this.addingMember = false;
+				}
+			},
+			
+			// 显示成员操作菜单（简化版，只有启用/禁用和移除）
+			showMemberActions(member, index) {
+				const items = member.disabled ? ['启用成员', '移除成员'] : ['禁用成员', '移除成员'];
 				
 				uni.showActionSheet({
 					itemList: items,
 					success: (res) => {
-						const index = res.tapIndex;
-						switch(index) {
-							case 0: // 设为管理员
-								this.setMemberRole(member, 'admin');
+						const actionIndex = res.tapIndex;
+						const memberName = this.getMemberName(member);
+						
+						switch(actionIndex) {
+							case 0: // 启用/禁用成员
+								this.toggleMemberStatus(member, index, !member.disabled);
 								break;
-							case 1: // 取消管理员
-								this.setMemberRole(member, 'member');
-								break;
-							case 2: // 移除成员
-								this.removeMember(member);
+							case 1: // 移除成员
+								this.removeMember(member, index);
 								break;
 						}
 					}
 				});
 			},
 			
-			// 设置成员角色
-			async setMemberRole(member, role) {
+			// 切换成员状态（启用/禁用）
+			async toggleMemberStatus(member, index, newStatus) {
+				const action = newStatus ? '禁用' : '启用';
+				const memberName = this.getMemberName(member);
+				
 				uni.showModal({
-					title: '提示',
-					content: `确定将 ${member.name || member.username} ${role === 'admin' ? '设为管理员' : '设为普通成员'} 吗？`,
+					title: '确认操作',
+					content: `确定要${action}成员 ${memberName} 吗？`,
 					success: async (res) => {
 						if (res.confirm) {
 							try {
-								let res = await post(`table/group_member/update/${member.id}`, {
-									role: role
+								// 更新成员状态 - 使用复合主键
+								let res = await post(`table/member/update`, {
+									group_id: member.group_id,
+									user_id: member.user_id,
+									disabled: newStatus
 								});
 								
-								if (res && res.data === 0) {
+								if (res && (res.data === 0 || res.data > 0 || res.code === 0)) {
 									uni.showToast({
-										title: '操作成功',
+										title: `${action}成功`,
 										icon: 'success'
 									});
-									// 刷新成员列表
-									this.loadMembers();
+									
+									// 更新本地数据
+									this.members[index].disabled = newStatus;
+									this.$forceUpdate();
+								} else {
+									uni.showToast({
+										title: res?.message || `${action}失败`,
+										icon: 'error'
+									});
 								}
 							} catch (error) {
-								console.error('设置角色失败:', error);
+								console.error(`${action}成员失败:`, error);
 								uni.showToast({
-									title: '操作失败',
+									title: `${action}失败`,
 									icon: 'error'
 								});
 							}
@@ -276,22 +376,34 @@
 			},
 			
 			// 移除成员
-			async removeMember(member) {
+			async removeMember(member, index) {
+				const memberName = this.getMemberName(member);
+				
 				uni.showModal({
 					title: '确认移除',
-					content: `确定要移除成员 ${member.name || member.username} 吗？`,
+					content: `确定要移除成员 ${memberName} 吗？`,
 					success: async (res) => {
 						if (res.confirm) {
 							try {
-								let res = await get(`table/group_member/delete/${member.id}`);
+								// 移除成员 - 使用复合主键
+								let res = await get(`table/member/delete?group_id=${member.group_id}&user_id=${member.user_id}`);
 								
 								if (res && res.data === 0) {
 									uni.showToast({
 										title: '移除成功',
 										icon: 'success'
 									});
-									// 刷新成员列表
-									this.loadMembers();
+									
+									// 从列表中移除
+									this.members.splice(index, 1);
+									
+									// 移除用户详情缓存
+									delete this.userDetails[member.user_id];
+								} else {
+									uni.showToast({
+										title: res?.message || '移除失败',
+										icon: 'error'
+									});
 								}
 							} catch (error) {
 								console.error('移除成员失败:', error);
@@ -341,15 +453,17 @@
 			// 格式化成员备注
 			formatMemberNote(member) {
 				const notes = [];
-				if (member.email) {
-					notes.push(member.email);
+				const userInfo = this.userDetails[member.user_id];
+				
+				if (userInfo) {
+					if (userInfo.email) notes.push(userInfo.email);
+					if (userInfo.phone) notes.push(userInfo.phone);
 				}
-				if (member.phone) {
-					notes.push(member.phone);
+				
+				if (member.created) {
+					notes.push('加入: ' + this.formatMemberTime(member.created));
 				}
-				if (member.join_time) {
-					notes.push('加入: ' + this.formatMemberTime(member.join_time));
-				}
+				
 				return notes.join(' | ');
 			},
 			
@@ -377,17 +491,16 @@
 				}
 			},
 			
-			// 获取角色样式
-			getRoleStyle(member) {
-				if (member.role === 'admin' || member.role === '管理员') {
+			// 获取成员状态样式
+			getMemberStatusStyle(member) {
+				if (member.disabled) {
 					return {
-						color: '#ff9500',
-						fontSize: '26rpx',
-						fontWeight: 'bold'
+						color: '#ff3b30',
+						fontSize: '26rpx'
 					};
 				}
 				return {
-					color: '#666',
+					color: '#4cd964',
 					fontSize: '26rpx'
 				};
 			}
@@ -424,6 +537,19 @@
 		}
 	}
 	
+	.add-member-section {
+		padding: 20rpx 0;
+		
+		button {
+			margin-top: 20rpx;
+			height: 70rpx;
+			border-radius: 8rpx;
+			font-size: 28rpx;
+			background-color: #007aff;
+			color: white;
+		}
+	}
+	
 	.empty-members {
 		display: flex;
 		flex-direction: column;
@@ -435,16 +561,6 @@
 			font-size: 32rpx;
 			color: #999;
 			margin: 30rpx 0 40rpx;
-		}
-		
-		button {
-			width: 200rpx;
-			height: 70rpx;
-			line-height: 70rpx;
-			font-size: 28rpx;
-			background-color: #007aff;
-			color: white;
-			border-radius: 35rpx;
 		}
 	}
 	

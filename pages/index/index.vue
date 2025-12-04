@@ -7,6 +7,7 @@
 				<uni-list-item title="所有设备" clickable show-arrow link="navigateTo" to="/pages/admin/device"></uni-list-item>
 				<uni-list-item title="所有组织" clickable show-arrow link="navigateTo" to="/pages/admin/group"></uni-list-item>
 				<uni-list-item title="所有用户" clickable show-arrow link="navigateTo" to="/pages/admin/user"></uni-list-item>
+				<uni-list-item title="组织管理" clickable show-arrow link="navigateTo" to="/pages/admin/group_detail"></uni-list-item>
 			</uni-list>
 		</uni-card>
 

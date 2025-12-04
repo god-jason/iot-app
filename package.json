@@ -19,7 +19,8 @@
   "dependencies": {
     "dayjs": "^1.11.19",
     "echarts": "^6.0.0",
-    "mqtt": "^3.0.0"
+    "mqtt": "^3.0.0",
+    "qrcode": "^1.5.4"
   },
   "type": "module"
 }

@@ -100,6 +100,20 @@
 			}
 		},
 		{
+			"path": "pages/mine/changePassword",
+			"style": {
+				"navigationBarTitleText": "修改用户密码",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/admin/reset_password",
+			"style": {
+				"navigationBarTitleText": "重置用户密码",
+				"navigationStyle": "custom"
+			}
+		},
+		{
 			"path": "pages/mine/info",
 			"style": {
 				"navigationBarTitleText": "个人信息"
@@ -111,6 +125,7 @@
 				"navigationBarTitleText": "我的组织"
 			}
 		},
+		
 		{
 			"path": "pages/device/bind",
 			"style": {
@@ -164,7 +179,13 @@
 			"style": {
 				"navigationBarTitleText": "修改设备信息"
 			}
-		}
+		},
+		{
+			"path": "pages/mine/qrcode",
+			"style": {
+				"navigationBarTitleText": "我的二维码"
+			}
+		},
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
