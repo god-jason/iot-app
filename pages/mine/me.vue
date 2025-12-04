@@ -9,21 +9,21 @@
 
 		<uni-card>
 			<uni-list :border="false">
-				<uni-list-item title="个人信息" clickable show-arrow show-extra-icon link="navigateTo" to="/pages/mine/info"
-					:extra-icon="{color:'#1296db', size:'28', type:'person'}"></uni-list-item>
+				<uni-list-item title="我的二维码" clickable show-arrow show-extra-icon @click="navigateToQRCode"
+									:extra-icon="{color:'#1296db', size:'28', type:'info'}"></uni-list-item>
 				<uni-list-item title="我的组织" clickable show-arrow show-extra-icon link="navigateTo"
 					:right-text="group.name" to="/pages/mine/group"
 					:extra-icon="{color:'#1296db', size:'28', type:'staff'}"></uni-list-item>
 				<uni-list-item title="绑定设备" clickable show-arrow show-extra-icon link="navigateTo"
 					to="/pages/device/bind" :extra-icon="{color:'#1296db', size:'28', type:'scan'}"></uni-list-item>
 				<!-- 修改为我的二维码页面 -->
-				<uni-list-item title="我的二维码" clickable show-arrow show-extra-icon @click="navigateToQRCode"
-									:extra-icon="{color:'#1296db', size:'28', type:'qrcode'}"></uni-list-item>
 				<uni-list-item title="客户支持" clickable show-arrow show-extra-icon @click="support"
 					:extra-icon="{color:'#1296db', size:'28', type:'headphones'}"></uni-list-item>
 				<uni-list-item title="意见反馈" clickable show-arrow show-extra-icon @click="feedback"
 					:extra-icon="{color:'#1296db', size:'28', type:'flag'}"></uni-list-item>
 				<!-- 修改密码 -->
+				<uni-list-item title="修改个人信息" clickable show-arrow show-extra-icon link="navigateTo" to="/pages/mine/info"
+					:extra-icon="{color:'#1296db', size:'28', type:'person'}"></uni-list-item>
 				<uni-list-item title="修改密码" clickable show-arrow @click="changePassword" show-extra-icon
 					:extra-icon="{color:'#007aff', size:'28', type:'locked'}">
 				</uni-list-item>

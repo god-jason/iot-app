@@ -185,7 +185,7 @@
 			"style": {
 				"navigationBarTitleText": "我的二维码"
 			}
-		},
+		}
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
