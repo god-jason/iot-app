@@ -158,6 +158,6 @@ export function unsubscribe(filter, cb) {
 			}
 		}
 	} else {
-		sub.callbacks = {}
+		sub.callbacks = []
 	}
 }

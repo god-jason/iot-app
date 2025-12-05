@@ -23,6 +23,7 @@
 
 	export default {
 		name: "device-values",
+		emits:["propertyClick"],
 		props: {
 			product: String,
 			type: String,
@@ -59,7 +60,7 @@
 		},
 		methods: {
 			open(prop) {
-				this.$emit("property-click", prop)
+				this.$emit("propertyClick", prop)
 			}
 		}
 	}

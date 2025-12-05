@@ -125,7 +125,6 @@
 				"navigationBarTitleText": "我的组织"
 			}
 		},
-		
 		{
 			"path": "pages/device/bind",
 			"style": {

@@ -48,10 +48,11 @@ export async function request(options) {
 	})
 }
 
-export async function get(api, options) {
+export async function get(api, data, options) {
 	return request({
 		url: api_server + api,
 		method: "GET",
+		data: data,
 		...options
 	})
 }

@@ -14,6 +14,8 @@
 				<uni-list-item title="切换组织" clickable show-arrow @click="switchGroup" :extra-icon="{type:'redo'}"></uni-list-item>
 			</uni-list>
 		</uni-card>
+		
+		
 	</view>
 </template>
 

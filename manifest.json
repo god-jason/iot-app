@@ -164,6 +164,13 @@
                     "secure" : false
                 }
             }
+        },
+        "sdkConfigs" : {
+            "maps" : {
+                "tencent" : {
+                    "key" : "NAZBZ-3UVKT-WIFXW-VX3ZR-BKRA5-LPBDM"
+                }
+            }
         }
     },
     "fallbackLocale" : "zh-Hans",

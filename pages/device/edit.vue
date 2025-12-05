@@ -135,7 +135,7 @@
 							const submitData = {
 								name: this.formData.name,
 								description: this.formData.description,
-								location: this.formData.location,
+								//location: this.formData.location,
 								longitude: this.formData.longitude || 0,
 								latitude: this.formData.latitude || 0,
 								geo_code: this.calculateGeohash()

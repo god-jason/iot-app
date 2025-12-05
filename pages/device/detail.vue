@@ -6,8 +6,17 @@
 		<!-- 实时状态 -->
 		<uni-card v-if="device" :title="device.name||'-'" :sub-title="device.id" :extra="device.online?'在线':'离线'"
 			thumbnail="/static/device.png">
-			<device-values @property-click="onPropertyClick($event)" :product="device.product_id" :values="values"
-				type="detail"></device-values>
+			
+			<view v-for="(p, k) in model.properties" :key="k">
+				<uni-grid :column="3" :show-border="false" :square="false">
+					<uni-grid-item v-for="(p, k) in p.points" :key="k">
+						<view class="point" @click="onPropertyClick(p)">
+							<view class="label">{{p.label}}{{p.unit}}</view>
+							<view class="value">{{values.hasOwnProperty(p.name) ? values[p.name] : '-'}}</view>
+						</view>
+					</uni-grid-item>
+				</uni-grid>
+			</view>
 
 			<view class="">
 				更新时间：{{fromNow(values._update)}}
@@ -17,7 +26,7 @@
 		<!-- 动作响应 -->
 		<uni-card v-if="device">
 			<uni-grid :column="2" :show-border="false" :square="false">
-				<uni-grid-item v-for="(p, k) in actions" :key="k">
+				<uni-grid-item v-for="(p, k) in model.actions" :key="k">
 					<view v-if="p.type == 'button'" class="action-button" @click="actionClick(p)">{{p.label}}</view>
 
 					<view v-else-if="p.type == 'switch'" class="action-button">
@@ -50,6 +59,9 @@
 				<uni-list-item title="修改信息" note="" show-arrow clickable show-extra-icon @click="editDevice"
 					:extra-icon="{color:'#1296db', size:'22', type:'compose'}">
 				</uni-list-item>
+				<uni-list-item title="操作日志" note="" show-arrow clickable show-extra-icon
+					:extra-icon="{color:'#1296db', size:'22', type:'info'}">
+				</uni-list-item>
 			</uni-list>
 		</uni-card>
 	</view>
@@ -76,7 +88,10 @@
 			return {
 				id: undefined,
 				device: undefined,
-				actions: [],
+				model: {
+					properties: [],
+					actions: []
+				},
 				values: {}
 			}
 		},
@@ -145,15 +160,16 @@
 			},
 			async loadAction() {
 				let res = await getModel(this.device.product_id)
-				let model = res || {
-					actions: []
+				this.model = res || {
+					actions: [],
+					properties: [],
 				}
-				this.actions = model.actions
-				//console.log("actions", model.actions)
+				
+				console.log("model", this.model)
 			},
 			onPropertyClick(property) {
 				uni.navigateTo({
-					url: "/pages/device/history?device_id=" + this.device.id + "&property=" + property.name
+					url: "/pages/device/history?id=" + this.device.id + "&point=" + property.name
 				})
 			},
 			openSettings() {
@@ -187,6 +203,31 @@
 </script>
 
 <style lang="scss">
+	.point {
+		text-align: center;
+		font-size: 16px;
+		color: black;
+		//font-weight: bold;
+	
+		padding: 10rpx 0;
+		//border: 1px solid #c0c0c0;
+		margin: 10rpx 0;
+	
+		.label {
+			font-size: 16px;
+			text-overflow: ellipsis;
+			overflow: hidden;
+		}
+	
+		.value {
+			color: black;
+			font-weight: bold;
+			padding: 10px 0;
+			font-size: 32px;
+		}
+	
+	}
+	
 	.action-button {
 		font-size: 20px;
 		font-weight: bold;
