@@ -12,9 +12,6 @@
 				<button type="primary" size="mini" @click="switchGroup(g)">切换</button>
 			</view>
 		</uni-card>
-		
-		<button type="default">创建组织</button>
-
 	</view>
 </template>
 

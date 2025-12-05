@@ -19,6 +19,7 @@
   "dependencies": {
     "dayjs": "^1.11.19",
     "echarts": "^6.0.0",
+    "geohashing": "^2.0.1",
     "mqtt": "^3.0.0",
     "qrcode": "^1.5.4"
   },

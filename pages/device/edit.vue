@@ -9,6 +9,25 @@
 				<uni-forms-item label="描述" name="description">
 					<uni-easyinput type="textarea" v-model="formData.description" placeholder="请输入设备描述" />
 				</uni-forms-item>
+				
+				<uni-forms-item label="位置" name="location">
+					<view class="location-section" @click="chooseLocation">
+						<view v-if="formData.location" class="location-info">
+							<text>{{ formData.location }}</text>
+							<uni-icons type="location-filled" size="20" color="#007aff"></uni-icons>
+						</view>
+						<view v-else class="location-placeholder">
+							<text>点击选择位置</text>
+							<uni-icons type="location" size="20" color="#999"></uni-icons>
+						</view>
+					</view>
+					
+					<!-- 经纬度信息 -->
+					<view v-if="formData.latitude && formData.longitude" class="coordinate-info">
+						<text>经度: {{ formData.longitude }}</text>
+						<text>纬度: {{ formData.latitude }}</text>
+					</view>
+				</uni-forms-item>
 			</uni-forms>
 			
 			<view class="button-group">
@@ -19,10 +38,8 @@
 </template>
 
 <script>
-	import {
-		get,
-		post
-	} from '../../utils/request';
+	import { get, post } from '../../utils/request';
+	import { encodeBase32 } from 'geohashing';
 
 	export default {
 		data() {
@@ -30,7 +47,10 @@
 				id: undefined,
 				formData: {
 					name: '',
-					description: ''
+					description: '',
+					location: '',
+					longitude: 0,
+					latitude: 0
 				},
 				rules: {
 					name: {
@@ -57,6 +77,9 @@
 					if (res.data) {
 						this.formData.name = res.data.name || '';
 						this.formData.description = res.data.description || '';
+						this.formData.location = res.data.location || '';
+						this.formData.longitude = res.data.longitude || 0;
+						this.formData.latitude = res.data.latitude || 0;
 					}
 				} catch (error) {
 					console.error('加载设备详情失败:', error);
@@ -67,6 +90,40 @@
 				}
 			},
 			
+			// 选择位置
+			async chooseLocation() {
+				try {
+					const location = await uni.chooseLocation({
+						success: (res) => {
+							this.formData.location = res.name;
+							this.formData.longitude = res.longitude;
+							this.formData.latitude = res.latitude;
+						}
+					});
+				} catch (error) {
+					if (error.errMsg && !error.errMsg.includes('cancel')) {
+						uni.showToast({
+							title: '获取位置失败',
+							icon: 'error'
+						});
+					}
+				}
+			},
+			
+			// 计算geohash
+			calculateGeohash() {
+				const { latitude, longitude } = this.formData;
+				if (latitude && longitude) {
+					try {
+						return encodeBase32(latitude, longitude);
+					} catch (error) {
+						console.error('计算geohash失败:', error);
+						return '';
+					}
+				}
+				return '';
+			},
+			
 			// 提交修改
 			async submit() {
 				this.$refs.form.validate().then(async (valid) => {
@@ -74,84 +131,108 @@
 						this.loading = true;
 						
 						try {
-							// 提交数据
-							const submitData = this.formData;
-							console.log('提交数据:', submitData);
+							// 准备提交数据
+							const submitData = {
+								name: this.formData.name,
+								description: this.formData.description,
+								location: this.formData.location,
+								longitude: this.formData.longitude || 0,
+								latitude: this.formData.latitude || 0,
+								geo_code: this.calculateGeohash()
+							};
+							
+							// 移除空值
+							Object.keys(submitData).forEach(key => {
+								if (submitData[key] === '' || submitData[key] === null) {
+									delete submitData[key];
+								}
+							});
 							
 							let res = await post(`table/device/update/${this.id}`, submitData);
-							console.log('接口响应:', res);
 							
-							// 根据实际响应结构判断成功
-							// 如果返回 {data: 0} 表示成功（0可能是影响的行数）
-							// 或者返回 {code: 0, data: ...}
-							if (res) {
-								if (res.data === 0 || res.data > 0 || res.code === 0) {
-									uni.showToast({
-										title: '修改成功',
-										icon: 'success'
-									});
-									
-									// 触发刷新事件
-									uni.$emit('device-updated', this.id);
-									
-									setTimeout(() => {
-										uni.navigateBack();
-									}, 1500);
-								} else if (res.message) {
-									uni.showToast({
-										title: res.message,
-										icon: 'error'
-									});
-								} else {
-									// 如果没有明确的错误信息，但data不是0，可能是部分成功
-									uni.showToast({
-										title: '修改完成',
-										icon: 'success'
-									});
-									setTimeout(() => uni.navigateBack(), 1500);
-								}
+							if (res.data === 0 || res.data > 0 || res.code === 0) {
+								uni.showToast({
+									title: '修改成功',
+									icon: 'success'
+								});
+								
+								uni.$emit('device-updated', this.id);
+								setTimeout(() => uni.navigateBack(), 1500);
 							} else {
 								uni.showToast({
-									title: '接口无响应',
+									title: res.message || '修改失败',
 									icon: 'error'
 								});
 							}
 						} catch (error) {
 							console.error('修改设备失败:', error);
-							
-							// 更详细的错误处理
-							if (error.response) {
-								// 服务器响应错误
-								uni.showToast({
-									title: `服务器错误: ${error.response.status}`,
-									icon: 'error'
-								});
-							} else if (error.request) {
-								// 请求未收到响应
-								uni.showToast({
-									title: '网络连接失败',
-									icon: 'error'
-								});
-							} else {
-								// 其他错误
-								uni.showToast({
-									title: error.message || '操作失败',
-									icon: 'error'
-								});
-							}
+							uni.showToast({
+								title: '操作失败',
+								icon: 'error'
+							});
 						} finally {
 							this.loading = false;
 						}
 					}
-				}).catch((err) => {
-					console.log('表单验证失败:', err);
 				});
 			}
 		}
 	}
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+	.location-section {
+		padding: 20rpx;
+		border: 1rpx solid #e5e5e5;
+		border-radius: 8rpx;
+		background-color: #fafafa;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 20rpx;
+		
+		&:active {
+			background-color: #f0f0f0;
+		}
+		
+		.location-info {
+			flex: 1;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			
+			text {
+				font-size: 28rpx;
+				color: #333;
+				margin-right: 20rpx;
+			}
+		}
+		
+		.location-placeholder {
+			flex: 1;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			
+			text {
+				font-size: 28rpx;
+				color: #999;
+			}
+		}
+	}
+	
+	.coordinate-info {
+		display: flex;
+		flex-direction: column;
+		gap: 10rpx;
+		margin-top: 20rpx;
+		
+		text {
+			font-size: 26rpx;
+			color: #666;
+		}
+	}
+	
 	.button-group {
 		padding: 40rpx 30rpx;
 		
@@ -161,9 +242,6 @@
 			font-size: 32rpx;
 			background-color: #007aff;
 			color: #fff;
-			display: flex;
-			align-items: center;
-			justify-content: center;
 		}
 	}
 	
@@ -177,11 +255,6 @@
 			
 			&:last-child {
 				border-bottom: none;
-			}
-			
-			::v-deep .uni-forms-item__label {
-				font-weight: bold;
-				color: #333;
 			}
 		}
 	}
