@@ -5,8 +5,7 @@
       <view class="map-header">
         <text class="map-title">设备位置监控</text>
         <view class="device-count">
-          <image class="count-icon" src="/static/icon_maps/online.png" mode="aspectFit"></image>
-          <text>在线设备: {{ onlineDevices.length }}</text>
+          <text>设备数量: {{ markers.length }}</text>
         </view>
       </view>
       
@@ -20,76 +19,11 @@
           :polyline="polyline"
           :scale="scale"
           :show-location="true"
-		  provider="tencent"
+		      provider="tencent"
           @markertap="onMarkerTap"
           @regionchange="onRegionChange"
           class="tencent-map"
-        >
-          <!-- 地图控件 -->
-          <cover-view class="map-controls">
-            <cover-view class="control-group">
-              <cover-view class="control-btn" @click="zoomIn">
-                <cover-image src="/static/icon_maps/zoom-in.png" class="control-icon"></cover-image>
-              </cover-view>
-              <cover-view class="control-btn" @click="zoomOut">
-                <cover-image src="/static/icon_maps/zoom-out.png" class="control-icon"></cover-image>
-              </cover-view>
-            </cover-view>
-            <cover-view class="control-btn location-btn" @click="moveToCurrentLocation">
-              <cover-image src="/static/icon_maps/location.png" class="control-icon"></cover-image>
-            </cover-view>
-          </cover-view>
-        </map>
-        
-        <!-- 设备列表面板 -->
-        <view class="device-panel" :class="{ collapsed: isPanelCollapsed }">
-          <view class="panel-header" @click="togglePanel">
-            <image class="panel-icon" src="/static/icon_maps/devices.png" mode="aspectFit"></image>
-            <text class="panel-title">设备列表</text>
-            <image class="collapse-icon" :src="isPanelCollapsed ? '/static/icon_maps/collapse-right.png' : '/static/icon_maps/collapse-down.png'" mode="aspectFit"></image>
-          </view>
-          <scroll-view class="panel-content" scroll-y v-if="!isPanelCollapsed">
-            <view 
-              v-for="device in onlineDevices" 
-              :key="device.id"
-              class="device-item"
-              :class="{ active: selectedDevice && selectedDevice.id === device.id }"
-              @click="selectDevice(device)"
-            >
-              <view class="device-info">
-                <view class="device-name-section">
-                  <image class="device-icon" :src="device.statusIcon" mode="aspectFit"></image>
-                  <text class="device-name">{{ device.name }}</text>
-                </view>
-                <view class="device-status" :class="device.status">
-                  <text class="device-status-text">{{ device.statusText }}</text>
-                </view>
-              </view>
-              <view class="device-distance">
-                <image class="distance-icon" src="/static/icon_maps/distance.png" mode="aspectFit"></image>
-                <text>{{ device.distance }}km</text>
-              </view>
-            </view>
-          </scroll-view>
-        </view>
-
-        <!-- 加载状态提示 -->
-        <view class="loading-tip" v-if="isLoading">
-          <view class="loading-content">
-            <image class="loading-icon" src="/static/icon_maps/loading.png" mode="aspectFit"></image>
-            <text>正在加载地图...</text>
-          </view>
-        </view>
-
-        <!-- 权限提示 -->
-        <!-- <view class="permission-tip" v-if="showPermissionTip">
-          <view class="permission-content">
-            <image class="permission-icon" src="/static/icon_maps/location.png" mode="aspectFit"></image>
-            <text class="permission-title">需要位置权限</text>
-            <text class="permission-desc">请授权位置权限以使用地图功能</text>
-            <button class="permission-btn" @click="requestLocationPermission">授权位置权限</button>
-          </view>
-        </view> -->
+        />
       </view>
     </view>
 
@@ -97,10 +31,13 @@
 </template>
 
 <script>
+import { post } from '../../utils/request';
+import geohash from 'geohashing';
+
 export default {
   data() {
     return {
-      // 地图中心点（示例坐标：北京市）
+      // 地图中心点（默认北京）
       mapCenter: {
         latitude: 39.916527,
         longitude: 116.397128
@@ -108,104 +45,13 @@ export default {
       // 地图缩放级别
       scale: 14,
       // 地图标记点
-      markers: [
-        {
-          id: 1,
-          latitude: 39.916527,
-          longitude: 116.397128,
-          title: '设备001',
-          iconPath: '/static/icon_maps/marker-online.png',
-          width: 36,
-          height: 36,
-          callout: {
-            content: '设备001\n状态: 在线\n温度: 25°C',
-            bgColor: '#ffffff',
-            padding: 10,
-            borderRadius: 8,
-            display: 'ALWAYS'
-          }
-        },
-        {
-          id: 2,
-          latitude: 39.906527,
-          longitude: 116.407128,
-          title: '设备002',
-          iconPath: '/static/icon_maps/marker-warning.png',
-          width: 36,
-          height: 36,
-          callout: {
-            content: '设备002\n状态: 警告\n水位: 1.2m',
-            bgColor: '#fffbe6',
-            padding: 10,
-            borderRadius: 8,
-            display: 'ALWAYS'
-          }
-        },
-        {
-          id: 3,
-          latitude: 39.926527,
-          longitude: 116.387128,
-          title: '设备003',
-          iconPath: '/static/icon_maps/marker-offline.png',
-          width: 36,
-          height: 36,
-          callout: {
-            content: '设备003\n状态: 离线',
-            bgColor: '#f5f5f5',
-            padding: 10,
-            borderRadius: 8,
-            display: 'ALWAYS'
-          }
-        }
-      ],
+      markers: [],
       // 折线（设备连线）
-      polyline: [{
-        points: [
-          { latitude: 39.916527, longitude: 116.397128 },
-          { latitude: 39.906527, longitude: 116.407128 },
-          { latitude: 39.926527, longitude: 116.387128 }
-        ],
-        color: '#1890ff',
-        width: 4,
-        dottedLine: true
-      }],
-      // 在线设备列表
-      onlineDevices: [
-        {
-          id: 1,
-          name: '水泵设备-001',
-          status: 'online',
-          statusIcon: '/static/icon_maps/status-online.png',
-          statusText: '在线',
-          distance: 0.5,
-          latitude: 39.916527,
-          longitude: 116.397128
-        },
-        {
-          id: 2,
-          name: '水箱设备-002',
-          status: 'warning',
-          statusIcon: '/static/icon_maps/status-warning.png',
-          statusText: '警告',
-          distance: 1.2,
-          latitude: 39.906527,
-          longitude: 116.407128
-        },
-        {
-          id: 3,
-          name: '控制设备-003',
-          status: 'offline',
-          statusIcon: '/static/icon_maps/status-offline.png',
-          statusText: '离线',
-          distance: 0.8,
-          latitude: 39.926527,
-          longitude: 116.387128
-        }
-      ],
+      polyline: [],
+      // 当前坐标
+      currentLocation: null,
       // 选中的设备
       selectedDevice: null,
-      // 设备面板是否折叠
-      isPanelCollapsed: false,
       // 当前页面
       currentPage: 'maps',
       // 加载状态
@@ -218,7 +64,6 @@ export default {
   },
   onLoad() {
     this.initMap()
-    this.loadDeviceData()
   },
   onShow() {
     // 页面显示时重新检查权限
@@ -290,6 +135,10 @@ export default {
         altitude: true,
         success: (res) => {
           console.log('获取位置成功:', res)
+          this.currentLocation = {
+            latitude: res.latitude,
+            longitude: res.longitude
+          }
           this.mapCenter = {
             latitude: res.latitude,
             longitude: res.longitude
@@ -299,6 +148,9 @@ export default {
           
           // 添加当前位置标记
           this.addCurrentLocationMarker(res.latitude, res.longitude)
+
+          // 重新按当前位置加载附近设备
+          this.loadDeviceData()
         },
         fail: (err) => {
           console.log('获取位置失败:', err)
@@ -312,8 +164,6 @@ export default {
               icon: 'none',
               duration: 2000
             })
-            // 使用默认位置继续显示地图
-            this.isLoading = false
           }
         }
       })
@@ -326,7 +176,6 @@ export default {
         latitude: latitude,
         longitude: longitude,
         title: '我的位置',
-        iconPath: '/static/icon_maps/current-location.png',
         width: 32,
         height: 32
       }
@@ -335,13 +184,62 @@ export default {
       this.markers.unshift(currentLocationMarker)
     },
     
-    // 加载设备数据
-    loadDeviceData() {
-      // 模拟API调用获取设备数据
-      setTimeout(() => {
-        console.log('设备数据加载完成')
-        // 这里可以添加实际的数据加载逻辑
-      }, 1000)
+    // 加载设备数据（按 geo_code 前缀就近查询，若失败则全量）
+    async loadDeviceData() {
+      if (!this.currentLocation) {
+        uni.showToast({ title: '未获取到位置', icon: 'none' })
+        return
+      }
+
+      this.isLoading = true
+      try {
+        const prefix = this.buildGeoPrefix(this.currentLocation.latitude, this.currentLocation.longitude)
+        let res = await post('table/device/search', {
+          filter: prefix ? { geo_code: prefix } : {},
+          limit: 200
+        })
+
+        // 若按前缀无结果，降级全量
+        if (!res.data || res.data.length === 0) {
+          res = await post('table/device/search', { filter: {}, limit: 200 })
+        }
+
+        const devices = res.data || []
+
+        // 计算距离并排序
+        const processed = devices
+          .filter(d => d.latitude && d.longitude)
+          .map(d => {
+            const distance = this.calcDistanceKm(this.currentLocation.latitude, this.currentLocation.longitude, d.latitude, d.longitude)
+            return {
+              ...d,
+              distance
+            }
+          })
+          .sort((a, b) => (a.distance || 0) - (b.distance || 0))
+
+        this.markers = processed.map(d => ({
+          id: d.id,
+          latitude: d.latitude,
+          longitude: d.longitude,
+          title: d.name || `设备-${d.id}`,
+          callout: {
+            content: `${d.name || '设备'}${d.distance !== null && d.distance !== undefined ? `\n距离: ${d.distance}km` : ''}`,
+            bgColor: '#ffffff',
+            padding: 10,
+            borderRadius: 8,
+            display: 'ALWAYS'
+          }
+        }))
+      } catch (error) {
+        console.error('加载设备数据失败:', error)
+        uni.showToast({
+          title: '设备加载失败',
+          icon: 'none'
+        })
+      } finally {
+        this.isLoading = false
+      }
     },
     
     // 标记点点击事件
@@ -378,12 +276,6 @@ export default {
       }
     },
     
-    // 选择设备
-    selectDevice(device) {
-      this.selectedDevice = device
-      this.moveToLocation(device.latitude, device.longitude)
-    },
-    
     // 移动到指定位置
     moveToLocation(latitude, longitude) {
       this.mapCenter = { latitude, longitude }
@@ -401,29 +293,29 @@ export default {
       }
     },
     
-    // 移动到当前位置
-    moveToCurrentLocation() {
-      this.getCurrentLocation()
-      this.scale = 14
-    },
-    
-    // 放大
-    zoomIn() {
-      if (this.scale < 20) {
-        this.scale += 1
+    // 构建 geo_code 前缀
+    buildGeoPrefix(latitude, longitude) {
+      try {
+        // 取 6 位 geohash，作为附近区域前缀
+        return geohash.encode(latitude, longitude, 6)
+      } catch (e) {
+        console.error('生成 geohash 失败:', e)
+        return ''
       }
     },
-    
-    // 缩小
-    zoomOut() {
-      if (this.scale > 3) {
-        this.scale -= 1
-      }
-    },
-    
-    // 切换设备面板
-    togglePanel() {
-      this.isPanelCollapsed = !this.isPanelCollapsed
+
+    // 计算两点距离（km）
+    calcDistanceKm(lat1, lon1, lat2, lon2) {
+      const toRad = (deg) => deg * Math.PI / 180
+      const R = 6371
+      const dLat = toRad(lat2 - lat1)
+      const dLon = toRad(lon2 - lon1)
+      const a = 
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2)
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+      return Number((R * c).toFixed(2))
     },
     
     // 导航到对应页面
@@ -508,218 +400,6 @@ export default {
 .tencent-map {
   width: 100%;
   height: 100%;
-}
-
-/* 地图控件 */
-.map-controls {
-  position: absolute;
-  right: 30rpx;
-  bottom: 200rpx;
-  display: flex;
-  flex-direction: column;
-  gap: 20rpx;
-}
-
-.control-group {
-  display: flex;
-  flex-direction: column;
-  background: white;
-  border-radius: 8rpx;
-  overflow: hidden;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
-}
-
-.control-btn {
-  width: 80rpx;
-  height: 80rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: white;
-}
-
-.control-btn:active {
-  background: #f0f0f0;
-}
-
-.location-btn {
-  border-radius: 8rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
-}
-
-.control-icon {
-  width: 32rpx;
-  height: 32rpx;
-}
-
-/* 设备面板 */
-.device-panel {
-  position: absolute;
-  left: 30rpx;
-  top: 30rpx;
-  width: 420rpx;
-  background: white;
-  border-radius: 16rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
-  z-index: 100;
-}
-
-.device-panel.collapsed {
-  width: 200rpx;
-}
-
-.panel-header {
-  display: flex;
-  align-items: center;
-  padding: 24rpx 30rpx;
-  border-bottom: 1rpx solid #eee;
-  background: #fafafa;
-  border-radius: 16rpx 16rpx 0 0;
-  gap: 12rpx;
-}
-
-.panel-icon {
-  width: 24rpx;
-  height: 24rpx;
-}
-
-.panel-title {
-  font-size: 28rpx;
-  font-weight: bold;
-  color: #333;
-  flex: 1;
-}
-
-.collapse-icon {
-  width: 16rpx;
-  height: 16rpx;
-}
-
-.panel-content {
-  max-height: 400rpx;
-  padding: 20rpx;
-}
-
-.device-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20rpx;
-  border-radius: 12rpx;
-  margin-bottom: 16rpx;
-  background: #f8f9fa;
-  border: 2rpx solid transparent;
-  transition: all 0.2s ease;
-}
-
-.device-item.active {
-  border-color: #1890ff;
-  background: #f0f8ff;
-}
-
-.device-item:last-child {
-  margin-bottom: 0;
-}
-
-.device-info {
-  flex: 1;
-}
-
-.device-name-section {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8rpx;
-  gap: 10rpx;
-}
-
-.device-icon {
-  width: 16rpx;
-  height: 16rpx;
-}
-
-.device-name {
-  font-size: 26rpx;
-  font-weight: bold;
-  color: #333;
-}
-
-.device-status {
-  display: inline-flex;
-  align-items: center;
-  font-size: 22rpx;
-  padding: 4rpx 12rpx;
-  border-radius: 12rpx;
-}
-
-.device-status.online {
-  background: #f6ffed;
-  color: #52c41a;
-  border: 1rpx solid #b7eb8f;
-}
-
-.device-status.warning {
-  background: #fff2e8;
-  color: #fa541c;
-  border: 1rpx solid #ffbb96;
-}
-
-.device-status.offline {
-  background: #f5f5f5;
-  color: #999;
-  border: 1rpx solid #d9d9d9;
-}
-
-.device-distance {
-  display: flex;
-  align-items: center;
-  font-size: 24rpx;
-  color: #666;
-  gap: 6rpx;
-}
-
-.distance-icon {
-  width: 16rpx;
-  height: 16rpx;
-}
-
-/* 加载提示 */
-.loading-tip {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.loading-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: white;
-  padding: 40rpx;
-  border-radius: 16rpx;
-  gap: 20rpx;
-}
-
-.loading-icon {
-  width: 60rpx;
-  height: 60rpx;
-  animation: rotate 1s linear infinite;
-}
-
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 /* 权限提示 */

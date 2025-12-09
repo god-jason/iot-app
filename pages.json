@@ -184,6 +184,12 @@
 			"style": {
 				"navigationBarTitleText": "我的二维码"
 			}
+		},
+		{
+			"path": "pages/index/members",
+			"style": {
+				"navigationBarTitleText": "成员管理"
+			}
 		}
 	],
 	"globalStyle": {
