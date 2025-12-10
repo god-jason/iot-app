@@ -11,7 +11,7 @@
 		<uni-card title="组织管理" extra="我的组织">
 			<uni-list :border="false">
 				<uni-list-item title="组织详情" clickable show-arrow link="navigateTo" to="/pages/admin/group_detail"></uni-list-item>
-				<uni-list-item title="成员管理" clickable show-arrow link="navigateTo" to="/pages/index/members"></uni-list-item>
+				<uni-list-item title="切换组织" clickable show-arrow @click="switchGroup" :extra-icon="{type:'redo'}"></uni-list-item>
 			</uni-list>
 		</uni-card>
 		

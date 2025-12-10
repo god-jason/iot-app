@@ -32,7 +32,7 @@
 
 <script>
 import { post } from '../../utils/request';
-import geohash from 'geohashing';
+import { encodeBase32 } from 'geohashing';
 
 export default {
   data() {
@@ -52,6 +52,8 @@ export default {
       currentLocation: null,
       // 选中的设备
       selectedDevice: null,
+      // 设备数据（用于点击标记时查找）
+      deviceList: [],
       // 当前页面
       currentPage: 'maps',
       // 加载状态
@@ -59,12 +61,23 @@ export default {
       // 显示权限提示
       showPermissionTip: false,
       // 地图上下文
-      mapContext: null
+      mapContext: null,
+      // 当前组织
+      groupId: null
     }
   },
   onLoad() {
+    this.initGroup()
     this.initMap()
   },
+    // 初始化组织信息
+    initGroup() {
+      const stored = uni.getStorageSync('group')
+      if (stored && stored.id) {
+        this.groupId = stored.id
+      }
+    },
+
   onShow() {
     // 页面显示时重新检查权限
     this.checkLocationPermission()
@@ -184,7 +197,7 @@ export default {
       this.markers.unshift(currentLocationMarker)
     },
     
-    // 加载设备数据（按 geo_code 前缀就近查询，若失败则全量）
+    // 加载设备数据（按 geo 前缀与缩放动态限制数量）
     async loadDeviceData() {
       if (!this.currentLocation) {
         uni.showToast({ title: '未获取到位置', icon: 'none' })
@@ -193,44 +206,96 @@ export default {
 
       this.isLoading = true
       try {
-        const prefix = this.buildGeoPrefix(this.currentLocation.latitude, this.currentLocation.longitude)
+        const geoPrefix = this.buildGeoPrefix(this.currentLocation.latitude, this.currentLocation.longitude, this.scale)
+        const limit = this.getLimitByScale(this.scale)
+
+        const filter = {}
+        if (this.groupId) filter.group_id = this.groupId
+        if (geoPrefix) filter.geo_code = `${geoPrefix}%`
+
         let res = await post('table/device/search', {
-          filter: prefix ? { geo_code: prefix } : {},
-          limit: 200
+          filter,
+          limit
         })
 
-        // 若按前缀无结果，降级全量
+        // 若按 geo 前缀无结果，则退化为仅按组织过滤
         if (!res.data || res.data.length === 0) {
-          res = await post('table/device/search', { filter: {}, limit: 200 })
+          const fallbackFilter = {}
+          if (this.groupId) fallbackFilter.group_id = this.groupId
+          res = await post('table/device/search', { filter: fallbackFilter, limit })
         }
 
         const devices = res.data || []
 
-        // 计算距离并排序
+        // 过滤并处理设备数据：只显示有有效位置信息的设备
         const processed = devices
-          .filter(d => d.latitude && d.longitude)
+          .filter(d => {
+            const lat = Number(d.latitude)
+            const lon = Number(d.longitude)
+            return Number.isFinite(lat) && Number.isFinite(lon)
+          })
           .map(d => {
-            const distance = this.calcDistanceKm(this.currentLocation.latitude, this.currentLocation.longitude, d.latitude, d.longitude)
+            const lat = Number(d.latitude)
+            const lon = Number(d.longitude)
+            const distance = this.calcDistanceKm(this.currentLocation.latitude, this.currentLocation.longitude, lat, lon)
             return {
               ...d,
+              // 保留原始字符串以便完整显示
+              latRaw: d.latitude,
+              lonRaw: d.longitude,
+              latitude: lat,
+              longitude: lon,
               distance
             }
           })
           .sort((a, b) => (a.distance || 0) - (b.distance || 0))
 
-        this.markers = processed.map(d => ({
-          id: d.id,
-          latitude: d.latitude,
-          longitude: d.longitude,
-          title: d.name || `设备-${d.id}`,
-          callout: {
-            content: `${d.name || '设备'}${d.distance !== null && d.distance !== undefined ? `\n距离: ${d.distance}km` : ''}`,
-            bgColor: '#ffffff',
-            padding: 10,
-            borderRadius: 8,
-            display: 'ALWAYS'
+        // 保存设备数据
+        this.deviceList = processed
+
+        // 生成地图标记
+        const deviceMarkers = processed.map(d => {
+          // 构建标记气泡内容：设备名称 + 位置名称（如果有）+ 距离
+          let calloutContent = d.name || `设备-${d.id}`
+          if (d.location) {
+            calloutContent += `\n${d.location}`
           }
-        }))
+          if (d.distance !== null && d.distance !== undefined) {
+            calloutContent += `\n距离: ${d.distance}km`
+          }
+          
+          return {
+            id: d.id,
+            latitude: d.latitude,
+            longitude: d.longitude,
+            title: d.name || `设备-${d.id}`,
+           
+            iconPath: '/static/tabs/map.png',
+            width: 32,
+            height: 32,
+            callout: {
+              content: calloutContent,
+              bgColor: '#ffffff',
+              padding: 10,
+              borderRadius: 8,
+              display: 'ALWAYS'
+            }
+          }
+        })
+
+        // 把当前位置标记放在最前，保证不会被设备标记覆盖
+        if (this.currentLocation) {
+          deviceMarkers.unshift({
+            id: 0,
+            latitude: this.currentLocation.latitude,
+            longitude: this.currentLocation.longitude,
+            title: '我的位置',
+            width: 32,
+            height: 32
+          })
+        }
+
+        this.markers = deviceMarkers
       } catch (error) {
         console.error('加载设备数据失败:', error)
         uni.showToast({
@@ -247,7 +312,10 @@ export default {
       const markerId = e.markerId
       console.log('点击标记:', markerId)
       
-      const device = this.onlineDevices.find(d => d.id === markerId)
+      // 跳过当前位置标记（id为0）
+      if (markerId === 0) return
+      
+      const device = this.deviceList.find(d => d.id === markerId)
       if (device) {
         this.selectedDevice = device
         this.moveToLocation(device.latitude, device.longitude)
@@ -259,9 +327,25 @@ export default {
     
     // 显示设备详情
     showDeviceDetail(device) {
+      const statusText = device.online === 1 ? '在线' : (device.online === 0 ? '离线' : '未知')
+      
+      // 构建详情内容
+      let content = `设备状态: ${statusText}`
+      if (device.location) {
+        content += `\n位置: ${device.location}`
+      }
+      if (device.distance !== null && device.distance !== undefined) {
+        content += `\n距离: ${device.distance}km`
+      }
+      if (device.latitude && device.longitude) {
+        const latDisplay = device.latRaw !== undefined ? device.latRaw : device.latitude
+        const lonDisplay = device.lonRaw !== undefined ? device.lonRaw : device.longitude
+        content += `\n坐标: ${latDisplay}, ${lonDisplay}`
+      }
+      
       uni.showModal({
-        title: device.name,
-        content: `设备状态: ${device.statusText}\n距离: ${device.distance}km\n坐标: ${device.latitude.toFixed(6)}, ${device.longitude.toFixed(6)}`,
+        title: device.name || `设备-${device.id}`,
+        content: content,
         showCancel: false,
         confirmText: '确定'
       })
@@ -270,9 +354,14 @@ export default {
     // 区域变化事件
     onRegionChange(e) {
       if (e.type === 'end') {
-        // 地图拖动结束，可以在这里加载新区域的设备
-        console.log('地图区域变化', e)
-        // 实际项目中可以在这里加载新区域的设备数据
+        const newScale = e.detail && Number.isFinite(e.detail.scale) ? e.detail.scale : this.scale
+        const scaleChanged = newScale !== this.scale
+        this.scale = newScale
+
+        // 缩放变化时重新拉取（数量随缩放调整）
+        if (scaleChanged) {
+          this.loadDeviceData()
+        }
       }
     },
     
@@ -293,15 +382,33 @@ export default {
       }
     },
     
-    // 构建 geo_code 前缀
-    buildGeoPrefix(latitude, longitude) {
+    // 构建 geo_code 前缀，随缩放级别调整长度
+    buildGeoPrefix(latitude, longitude, scale) {
       try {
-        // 取 6 位 geohash，作为附近区域前缀
-        return geohash.encode(latitude, longitude, 6)
+        // 根据缩放级别设定 geohash 长度
+        let len = 6
+        if (scale >= 17) len = 8
+        else if (scale >= 15) len = 7
+        else if (scale >= 13) len = 6
+        else if (scale >= 11) len = 5
+        else len = 4
+
+        // 生成完整 geohash，截取前缀
+        const fullHash = encodeBase32(latitude, longitude)
+        return fullHash ? fullHash.substring(0, len) : ''
       } catch (e) {
         console.error('生成 geohash 失败:', e)
         return ''
       }
+    },
+
+    // 根据缩放动态调整请求数量，缩放越大取越多
+    getLimitByScale(scale) {
+      if (scale >= 17) return 500
+      if (scale >= 15) return 400
+      if (scale >= 13) return 300
+      if (scale >= 11) return 200
+      return 150
     },
 
     // 计算两点距离（km）
