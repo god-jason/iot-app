@@ -31,16 +31,23 @@
 </template>
 
 <script>
+import { mapState } from 'pinia'
 import { post } from '../../utils/request';
 import { encodeBase32 } from 'geohashing';
+import { userStore } from '../../store'
 
 export default {
   data() {
     return {
-      // 地图中心点（默认北京）
+      // 地图中心点（默认南京 GCJ02，未获取定位也使用）
       mapCenter: {
-        latitude: 39.916527,
-        longitude: 116.397128
+        latitude: 32.054783, // 南京 WGS84 转 GCJ02 近似
+        longitude: 118.803909
+      },
+      // 兜底中心点（WGS84，用于计算与请求）
+      fallbackCenter: {
+        latitude: 32.060255,
+        longitude: 118.796877
       },
       // 地图缩放级别
       scale: 14,
@@ -48,8 +55,10 @@ export default {
       markers: [],
       // 折线（设备连线）
       polyline: [],
-      // 当前坐标
+      // 当前坐标（WGS84，用于查询/计算）
       currentLocation: null,
+      // 当前坐标（GCJ02，用于地图展示）
+      currentLocationGcj: null,
       // 选中的设备
       selectedDevice: null,
       // 设备数据（用于点击标记时查找）
@@ -66,23 +75,24 @@ export default {
       groupId: null
     }
   },
+  computed: {
+    ...mapState(userStore, ['user', 'group'])
+  },
   onLoad() {
-    this.initGroup()
+    this.syncGroupFromStore()
     this.initMap()
   },
-    // 初始化组织信息
-    initGroup() {
-      const stored = uni.getStorageSync('group')
-      if (stored && stored.id) {
-        this.groupId = stored.id
-      }
-    },
 
   onShow() {
     // 页面显示时重新检查权限
     this.checkLocationPermission()
+    this.syncGroupFromStore()
   },
   methods: {
+    // 同步 store 中的组织信息
+    syncGroupFromStore() {
+      this.groupId = this.group && this.group.id ? this.group.id : null
+    },
     // 初始化地图
     initMap() {
       // 初始化地图上下文
@@ -103,11 +113,11 @@ export default {
         })
         
         if (result.authSetting['scope.userLocation'] === false) {
-          // 用户之前拒绝了权限
+        
           this.showPermissionTip = true
           this.isLoading = false
         } else {
-          // 有权限或未询问过
+         
           this.getCurrentLocation()
         }
       } catch (error) {
@@ -144,7 +154,7 @@ export default {
       this.isLoading = true
       
       uni.getLocation({
-        type: 'gcj02',
+        type: 'wgs84',
         altitude: true,
         success: (res) => {
           console.log('获取位置成功:', res)
@@ -152,15 +162,14 @@ export default {
             latitude: res.latitude,
             longitude: res.longitude
           }
-          this.mapCenter = {
-            latitude: res.latitude,
-            longitude: res.longitude
-          }
+          const gcj = this.wgs84ToGcj02(res.latitude, res.longitude)
+          this.currentLocationGcj = gcj
+          this.mapCenter = gcj
           this.isLoading = false
           this.showPermissionTip = false
           
           // 添加当前位置标记
-          this.addCurrentLocationMarker(res.latitude, res.longitude)
+          this.addCurrentLocationMarker(gcj.latitude, gcj.longitude)
 
           // 重新按当前位置加载附近设备
           this.loadDeviceData()
@@ -168,6 +177,14 @@ export default {
         fail: (err) => {
           console.log('获取位置失败:', err)
           this.isLoading = false
+          // 使用南京兜底坐标继续加载设备
+          if (!this.currentLocation) {
+            this.currentLocation = { ...this.fallbackCenter }
+            const gcj = this.wgs84ToGcj02(this.fallbackCenter.latitude, this.fallbackCenter.longitude)
+            this.currentLocationGcj = gcj
+            this.mapCenter = gcj
+            this.loadDeviceData()
+          }
           
           if (err.errMsg.includes('auth deny') || err.errMsg.includes('permission')) {
             this.showPermissionTip = true
@@ -199,30 +216,31 @@ export default {
     
     // 加载设备数据（按 geo 前缀与缩放动态限制数量）
     async loadDeviceData() {
-      if (!this.currentLocation) {
-        uni.showToast({ title: '未获取到位置', icon: 'none' })
-        return
-      }
-
+      const location = this.currentLocation || this.fallbackCenter
+      const displayLocation = this.currentLocationGcj || this.mapCenter || this.wgs84ToGcj02(this.fallbackCenter.latitude, this.fallbackCenter.longitude)
       this.isLoading = true
       try {
-        const geoPrefix = this.buildGeoPrefix(this.currentLocation.latitude, this.currentLocation.longitude, this.scale)
+        const geoPrefix = this.buildGeoPrefix(location.latitude, location.longitude, this.scale)
         const limit = this.getLimitByScale(this.scale)
 
         const filter = {}
         if (this.groupId) filter.group_id = this.groupId
         if (geoPrefix) filter.geo_code = `${geoPrefix}%`
 
+     
+        const fields = ['id', 'longitude', 'latitude', 'online', 'name']
+
         let res = await post('table/device/search', {
           filter,
-          limit
+          limit,
+          fields
         })
 
         // 若按 geo 前缀无结果，则退化为仅按组织过滤
         if (!res.data || res.data.length === 0) {
           const fallbackFilter = {}
           if (this.groupId) fallbackFilter.group_id = this.groupId
-          res = await post('table/device/search', { filter: fallbackFilter, limit })
+          res = await post('table/device/search', { filter: fallbackFilter, limit, fields })
         }
 
         const devices = res.data || []
@@ -231,20 +249,23 @@ export default {
         const processed = devices
           .filter(d => {
             const lat = Number(d.latitude)
-            const lon = Number(d.longitude)
+            const lon = Number(d.longitude ?? d.longtitude)
             return Number.isFinite(lat) && Number.isFinite(lon)
           })
           .map(d => {
             const lat = Number(d.latitude)
-            const lon = Number(d.longitude)
-            const distance = this.calcDistanceKm(this.currentLocation.latitude, this.currentLocation.longitude, lat, lon)
+            const lon = Number(d.longitude ?? d.longtitude)
+            const distance = this.calcDistanceKm(location.latitude, location.longitude, lat, lon)
+            const gcj = this.wgs84ToGcj02(lat, lon)
             return {
               ...d,
               // 保留原始字符串以便完整显示
               latRaw: d.latitude,
-              lonRaw: d.longitude,
+              lonRaw: d.longitude ?? d.longtitude,
               latitude: lat,
               longitude: lon,
+              latitudeGcj: gcj.latitude,
+              longitudeGcj: gcj.longitude,
               distance
             }
           })
@@ -266,8 +287,8 @@ export default {
           
           return {
             id: d.id,
-            latitude: d.latitude,
-            longitude: d.longitude,
+            latitude: d.latitudeGcj,
+            longitude: d.longitudeGcj,
             title: d.name || `设备-${d.id}`,
            
             iconPath: '/static/tabs/map.png',
@@ -283,13 +304,14 @@ export default {
           }
         })
 
-        // 把当前位置标记放在最前，保证不会被设备标记覆盖
-        if (this.currentLocation) {
+      
+        if (displayLocation) {
           deviceMarkers.unshift({
             id: 0,
-            latitude: this.currentLocation.latitude,
-            longitude: this.currentLocation.longitude,
+            latitude: displayLocation.latitude,
+            longitude: displayLocation.longitude,
             title: '我的位置',
+            iconPath: '/static/tabs/map.png',
             width: 32,
             height: 32
           })
@@ -318,7 +340,10 @@ export default {
       const device = this.deviceList.find(d => d.id === markerId)
       if (device) {
         this.selectedDevice = device
-        this.moveToLocation(device.latitude, device.longitude)
+        this.moveToLocation(
+          device.latitudeGcj || device.latitude,
+          device.longitudeGcj || device.longitude
+        )
         
         // 显示设备详情
         this.showDeviceDetail(device)
@@ -423,6 +448,47 @@ export default {
         Math.sin(dLon / 2) * Math.sin(dLon / 2)
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
       return Number((R * c).toFixed(2))
+    },
+
+    // WGS84 -> GCJ02（地图组件使用 GCJ02）
+    wgs84ToGcj02(lat, lon) {
+      if (this.outOfChina(lat, lon)) {
+        return { latitude: lat, longitude: lon }
+      }
+      const a = 6378245.0
+      const ee = 0.00669342162296594323
+
+      let dLat = this.transformLat(lon - 105.0, lat - 35.0)
+      let dLon = this.transformLon(lon - 105.0, lat - 35.0)
+      const radLat = lat / 180.0 * Math.PI
+      let magic = Math.sin(radLat)
+      magic = 1 - ee * magic * magic
+      const sqrtMagic = Math.sqrt(magic)
+      dLat = (dLat * 180.0) / ((a * (1 - ee)) / (magic * sqrtMagic) * Math.PI)
+      dLon = (dLon * 180.0) / (a / sqrtMagic * Math.cos(radLat) * Math.PI)
+      const mgLat = lat + dLat
+      const mgLon = lon + dLon
+      return { latitude: Number(mgLat.toFixed(6)), longitude: Number(mgLon.toFixed(6)) }
+    },
+
+    outOfChina(lat, lon) {
+      return lon < 72.004 || lon > 137.8347 || lat < 0.8293 || lat > 55.8271
+    },
+
+    transformLat(x, y) {
+      let ret = -100.0 + 2.0 * x + 3.0 * y + 0.2 * y * y + 0.1 * x * y + 0.2 * Math.sqrt(Math.abs(x))
+      ret += (20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) * 2.0 / 3.0
+      ret += (20.0 * Math.sin(y * Math.PI) + 40.0 * Math.sin(y / 3.0 * Math.PI)) * 2.0 / 3.0
+      ret += (160.0 * Math.sin(y / 12.0 * Math.PI) + 320 * Math.sin(y * Math.PI / 30.0)) * 2.0 / 3.0
+      return ret
+    },
+
+    transformLon(x, y) {
+      let ret = 300.0 + x + 2.0 * y + 0.1 * x * x + 0.1 * x * y + 0.1 * Math.sqrt(Math.abs(x))
+      ret += (20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) * 2.0 / 3.0
+      ret += (20.0 * Math.sin(x * Math.PI) + 40.0 * Math.sin(x / 3.0 * Math.PI)) * 2.0 / 3.0
+      ret += (150.0 * Math.sin(x / 12.0 * Math.PI) + 300.0 * Math.sin(x / 30.0 * Math.PI)) * 2.0 / 3.0
+      return ret
     },
     
     // 导航到对应页面

@@ -5,33 +5,29 @@
 				<text class="label">创建者</text>
 				<text class="value">{{ group.user_id || '-' }}</text>
 			</view>
+			<view class="creator-actions">
+				<button type="primary" size="mini" @click="scanAndAddMember" :loading="scanning">扫码添加成员</button>
+			</view>
 		</uni-card>
 
 		<uni-card title="成员管理">
-			<uni-list v-if="members.length">
-				<uni-list-item
+			<view v-if="members.length" class="member-card-list">
+				<uni-card
 					v-for="member in members"
 					:key="member.user_id"
 					:title="member.user_id"
-					:note="formatTime(member.created)"
-					:rightText="member.disabled ? '已禁用' : '正常'"
-					:rightTextStyle="member.disabled ? errorStyle : normalStyle"
-					:extra-icon="{type:'person'}">
-					<template v-slot:footer>
-						<view class="member-actions">
-							<button class="delete-btn" @click.stop="removeMember(member)">移除</button>
-						</view>
-					</template>
-				</uni-list-item>
-			</uni-list>
+					:sub-title="formatTime(member.created)">
+					<view class="member-status" :style="member.disabled ? errorStyle : normalStyle">
+						{{ member.disabled ? '已禁用' : '正常' }}
+					</view>
+					<view class="member-actions-card">
+						<button class="delete-btn" size="mini" @click.stop="removeMember(member)">移除</button>
+					</view>
+				</uni-card>
+			</view>
 
 			<view v-else class="empty">
 				<text>暂无成员</text>
-			</view>
-
-			<view class="action-row">
-				<button type="primary" size="mini" @click="scanAndAddMember" :loading="scanning">扫码添加成员</button>
-				<button size="mini" @click="loadMembers" :loading="loading">刷新列表</button>
 			</view>
 		</uni-card>
 	</view>
@@ -54,6 +50,11 @@ export default {
 	},
 	async onShow() {
 		await this.init();
+	},
+	onPullDownRefresh() {
+		this.init().finally(() => {
+			uni.stopPullDownRefresh();
+		});
 	},
 	methods: {
 		async init() {
@@ -219,18 +220,37 @@ export default {
 	color: #333;
 }
 
-.member-actions {
+.creator-actions {
+	padding-top: 12rpx;
 	display: flex;
-	justify-content: flex-end;
-	padding: 10rpx 0;
+	justify-content: flex-start;
+}
+
+.member-card-list {
+	display: flex;
+	flex-direction: column;
+	gap: 16rpx;
+}
+
+.member-status {
+	font-size: 26rpx;
+}
+
+.member-actions-card {
+	display: flex;
+	justify-content: center;
+	padding: 16rpx 0 4rpx;
 }
 
 .delete-btn {
 	background: #ff4d4f;
 	color: #fff;
 	border: none;
-	padding: 12rpx 24rpx;
+	height: 64rpx;
+	line-height: 64rpx;
+	padding: 0 28rpx; /* 与 mini 按钮相近的长宽比 */
 	border-radius: 8rpx;
+	min-width: 160rpx;
 }
 
 .empty {
