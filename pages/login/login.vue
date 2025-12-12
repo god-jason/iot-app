@@ -115,10 +115,12 @@ const user = userStore()
 						password: md5(this.form.password),
 					})
 
-					console.log("auth:", res.data)
+					// 兼容后端返回格式：可能直接是 {token,user}，也可能是 {data:{token,user}}
+					const payload = res?.data || res
+					console.log("auth:", payload)
 
-					setToken(res.data.token)
-					user.setUser(res.data.user)
+					if (payload?.token) setToken(payload.token)
+					if (payload?.user) user.setUser(payload.user)
 				} catch (e) {
 
 				}
@@ -148,11 +150,62 @@ const user = userStore()
 			},
 
 			// 微信登录
-			wechatLogin() {
-				uni.showToast({
-					title: '微信登录功能开发中',
-					icon: 'none'
-				})
+			async wechatLogin() {
+				if (this.loading) return;
+				
+				this.loading = true;
+				
+				try {
+					// 调用微信登录接口获取 code
+					const loginRes = await new Promise((resolve, reject) => {
+						uni.login({
+							provider: 'weixin',
+							success: resolve,
+							fail: reject
+						});
+					});
+					
+					if (!loginRes.code) {
+						uni.showToast({
+							title: '获取登录凭证失败',
+							icon: 'none'
+						});
+						this.loading = false;
+						return;
+					}
+					
+					// 将 code 发送到后端进行登录
+					const res = await post("weixin/auth", {
+						code: loginRes.code
+					});
+					
+					// 兼容后端返回格式
+					const payload = res?.data || res;
+					console.log("微信登录成功:", payload);
+					
+					// 保存 token 和用户信息
+					if (payload?.token) {
+						setToken(payload.token);
+					}
+					if (payload?.user) {
+						user.setUser(payload.user);
+					}
+					
+					// 跳转到设备页面
+					uni.reLaunch({
+						url: '/pages/device/device'
+					});
+					
+				} catch (e) {
+					console.error("微信登录失败:", e);
+					uni.showToast({
+						title: e.message || '微信登录失败，请重试',
+						icon: 'none',
+						duration: 2000
+					});
+				} finally {
+					this.loading = false;
+				}
 			},
 
 			// 跳转到忘记密码页面
