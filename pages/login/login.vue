@@ -33,13 +33,17 @@
 				{{ loading ? '登录中...' : '登录' }}
 			</button>
 
+			<!-- #ifdef MP -->
 			<view class="other-login">
 				<text class="divider">或使用以下方式登录</text>
 				<view class="wechat-login" @click="wechatLogin">
 					<uni-icons type="weixin" size="24"></uni-icons>
 					<text>微信小程序授权登录</text>
 				</view>
-			</view>
+			</view>			
+			<!-- #endif -->
+			
+			
 		</uni-card>
 	</view>
 </template>
@@ -49,7 +53,7 @@
 		md5
 	} from '@/utils/md5.js';
 	import { userStore } from '../../store';
-	import { post,setToken} from '@/utils/request.js';
+	import { get, post,setToken} from '@/utils/request.js';
 
 const user = userStore()
 
@@ -165,6 +169,8 @@ const user = userStore()
 						});
 					});
 					
+					console.log("weixin login", loginRes)
+					
 					if (!loginRes.code) {
 						uni.showToast({
 							title: '获取登录凭证失败',
@@ -175,7 +181,7 @@ const user = userStore()
 					}
 					
 					// 将 code 发送到后端进行登录
-					const res = await post("weixin/auth", {
+					const res = await get("weixin/code2session", {
 						code: loginRes.code
 					});
 					
