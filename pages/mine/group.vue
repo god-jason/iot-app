@@ -12,6 +12,10 @@
 				<button type="primary" size="mini" @click="switchGroup(g)">切换</button>
 			</view>
 		</uni-card>
+
+		<view class="create-group">
+			<button type="primary" @click="createGroup">创建组织</button>
+		</view>
 	</view>
 </template>
 
@@ -102,6 +106,54 @@
 			switchGroup(group){
 				user.setGroup(group)
 				uni.navigateBack()
+			},
+
+			// 创建组织
+			createGroup() {
+				uni.showModal({
+					title: '创建组织',
+					editable: true,
+					placeholderText: '请输入组织名称',
+					success: async (res) => {
+						if (res.confirm) {
+							const name = (res.content || '').trim()
+							if (!name) {
+								uni.showToast({
+									title: '组织名称不能为空',
+									icon: 'none'
+								})
+								return
+							}
+
+							try {
+								const data = {
+									name,
+									user_id: this.user.id,
+									disabled: false
+								}
+								const result = await post('table/group/create', data)
+								if (result && (result.code === 0 || result.data)) {
+									uni.showToast({
+										title: '创建成功',
+										icon: 'success'
+									})
+									// 重新加载组织列表
+									this.load()
+								} else {
+									uni.showToast({
+										title: (result && result.message) || '创建失败',
+										icon: 'none'
+									})
+								}
+							} catch (e) {
+								uni.showToast({
+									title: '创建失败，请稍后重试',
+									icon: 'none'
+								})
+							}
+						}
+					}
+				})
 			}
 		}
 	}
@@ -117,5 +169,8 @@
 		button {
 			margin: 0 10rpx;
 		}
+	}
+	.create-group {
+		margin: 20rpx;
 	}
 </style>

@@ -109,10 +109,13 @@
 		onShow() {
 
 			//有变化重新加载
-			if (this.last_group_id != this.group.id) {
-				this.loadStats().then()
-				this.refresh().then()
-				this.last_group_id = this.group.id
+			const currentGroupId = this.group && this.group.id ? this.group.id : undefined
+			if (this.last_group_id != currentGroupId) {
+				if (currentGroupId) {
+					this.loadStats().then()
+					this.refresh().then()
+				}
+				this.last_group_id = currentGroupId
 			}
 		},
 		onPullDownRefresh() {
@@ -129,8 +132,8 @@
 		methods: {
 			//统一加载
 			async load() {
-				//先加载
-				if (this.group) {
+				//先加载（仅在有组织时加载）
+				if (this.group && this.group.id) {
 					this.loadStats().then()
 					this.loadDevices().then()
 					this.last_group_id = this.group.id
@@ -138,7 +141,7 @@
 
 				//有变化重新加载
 				user.checkGroup().then(change => {
-					if (change) {
+					if (change && this.group && this.group.id) {
 						this.loadStats().then()
 						this.refresh().then()
 						this.last_group_id = this.group.id
@@ -148,6 +151,9 @@
 
 			//统计信息
 			async loadStats() {
+				if (!this.group || !this.group.id) {
+					return
+				}
 				let res = await post("table/device/count", {
 					filter: {
 						group_id: this.group.id
@@ -165,6 +171,9 @@
 			},
 			//加载设备
 			async loadDevices() {
+				if (!this.group || !this.group.id) {
+					return
+				}
 				let res = await post("table/device/search", {
 					filter: {
 						group_id: this.group.id
