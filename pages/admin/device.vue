@@ -122,20 +122,20 @@
 			}
 		},
 		methods: {
-			// 构建搜索参数（修正版本）
+			
 			buildSearchParams(isRefresh = false) {
 				const skip = isRefresh ? 0 : this.devices.length;
 				
-				// 基础过滤条件 - 按你的实际数据结构调整
+			
 				const filter = {
 					group_id: this.group?.id || ''
 				};
 				
-				// 添加搜索关键词过滤 - 使用简单条件
+				
 				
 				if (this.searchKeyword.trim()) {
 					
-					//  like 操作符或直接字符串匹配
+					
 					filter['name'] = this.searchKeyword;
 				}
 				
@@ -148,11 +148,11 @@
 				};
 			},
 			
-			// 构建搜索参数（替代方案）
+			
 			buildSearchParamsAlternative(isRefresh = false) {
 				const skip = isRefresh ? 0 : this.devices.length;
 				
-				// 最简化的参数 - 只传必须的
+				
 				const params = {
 					filter: {
 						group_id: this.group?.id || ''
@@ -164,8 +164,12 @@
 				
 				
 				if (this.searchKeyword.trim()) {
-				
-					params.keyword = this.searchKeyword;
+					// 通过接口过滤（name 或 id 任一匹配）
+					params.filter.$or = [{
+						name: this.searchKeyword
+					}, {
+						id: this.searchKeyword
+					}];
 					
 				}
 				
@@ -184,7 +188,7 @@
 				}
 				
 				try {
-					// 先尝试简化版本
+					
 					const params = this.buildSearchParamsAlternative(isRefresh);
 					console.log('搜索参数（简化）:', params);
 					
@@ -195,15 +199,6 @@
 						let newDevices = res.data || [];
 						const total = res.total || 0;
 						
-						// 如果有搜索关键词，在前端进行过滤
-						if (this.searchKeyword.trim() && newDevices.length > 0) {
-							const keyword = this.searchKeyword.toLowerCase();
-							newDevices = newDevices.filter(device => {
-								return (device.name && device.name.toLowerCase().includes(keyword)) ||
-									   (device.id && device.id.toLowerCase().includes(keyword));
-							});
-						}
-						
 						if (isRefresh) {
 							this.devices = newDevices;
 						} else {
@@ -212,11 +207,6 @@
 						
 						this.totalCount = total;
 						this.hasMore = this.devices.length < total;
-						
-						// 如果前端过滤后数据变少，重新计算 hasMore
-						if (this.searchKeyword && newDevices.length < this.pageSize) {
-							this.hasMore = false;
-						}
 						
 						// 更新加载状态
 						this.loadMoreStatus = this.hasMore ? 'more' : 'noMore';
@@ -249,7 +239,7 @@
 				}
 			},
 			
-			// 尝试更简化的参数
+			
 			async trySimplerParams(isRefresh = false) {
 				try {
 					const skip = isRefresh ? 0 : this.devices.length;
@@ -262,6 +252,15 @@
 						skip: skip,
 						limit: this.pageSize
 					};
+
+					// 通过接口过滤（name 或 id 任一匹配）
+					if (this.searchKeyword.trim()) {
+						params.filter.$or = [{
+							name: this.searchKeyword
+						}, {
+							id: this.searchKeyword
+						}];
+					}
 					
 					console.log('尝试最简参数:', params);
 					
@@ -269,15 +268,6 @@
 					
 					if (res && res.data) {
 						let newDevices = res.data || [];
-						
-						// 前端过滤搜索关键词
-						if (this.searchKeyword.trim()) {
-							const keyword = this.searchKeyword.toLowerCase();
-							newDevices = newDevices.filter(device => {
-								return (device.name && device.name.toLowerCase().includes(keyword)) ||
-									   (device.id && device.id.toLowerCase().includes(keyword));
-							});
-						}
 						
 						if (isRefresh) {
 							this.devices = newDevices;
@@ -305,7 +295,7 @@
 				this.searchTimer = setTimeout(() => {
 					this.loadDevices(true);
 					this.searching = false;
-				}, 500);
+				}, 500);   
 			},
 			
 			// 清除搜索
@@ -338,15 +328,6 @@
 					
 					if (res && res.data) {
 						let newDevices = res.data || [];
-						
-						// 前端过滤搜索关键词
-						if (this.searchKeyword.trim()) {
-							const keyword = this.searchKeyword.toLowerCase();
-							newDevices = newDevices.filter(device => {
-								return (device.name && device.name.toLowerCase().includes(keyword)) ||
-									   (device.id && device.id.toLowerCase().includes(keyword));
-							});
-						}
 						
 						this.devices = [...this.devices, ...newDevices];
 						this.hasMore = newDevices.length === this.pageSize;
