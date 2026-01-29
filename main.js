@@ -9,9 +9,7 @@ import App from './App'
 // #ifndef VUE3
 import Vue from 'vue'
 import store from './store'
-import {
-	request
-} from '@/utils/request.js'
+import {request} from '@/utils/request.js'
 import './uni.promisify.adaptor'
 Vue.config.productionTip = false
 Vue.prototype.$http = request

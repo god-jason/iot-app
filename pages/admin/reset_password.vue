@@ -1,5 +1,5 @@
 <template>
-	<view>
+	<view class="page">
 		<uni-card :title="title">
 			<view class="user-info" v-if="user">
 				<image :src="getUserAvatar(user)" class="user-avatar" mode="aspectFill"></image>

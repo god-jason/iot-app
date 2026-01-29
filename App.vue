@@ -1,5 +1,8 @@
 <script>
-	import { connectMqtt, subscribe } from './utils/broker.js'
+	import {
+		connectMqtt,
+		subscribe
+	} from './utils/broker.js'
 
 	export default {
 		onLaunch: function() {
@@ -27,5 +30,12 @@
 
 <style>
 	/*每个页面公共css */
-	
+
+	.page {
+		color: white;
+		background-color: #1c1f21;
+		padding: 15rpx 0;
+		min-height: 100vh;
+		
+	}
 </style>

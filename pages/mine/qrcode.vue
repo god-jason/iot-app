@@ -1,13 +1,17 @@
 <template>
-	<view class="qrcode">
-		<ikun-qrcode 
-		    width="400"
-		    height="400"
-		    unit="rpx" 
-		    color="#000000"
-		    :data="user.id || 'no-id'"
-		/>
-	</view>
+	<view class="page">
+		<uni-card>
+			<view class="qrcode">
+				<ikun-qrcode 
+					width="400"
+					height="400"
+					unit="rpx" 
+					color="#000000"
+					:data="user.id || 'no-id'"
+				/>
+			</view>
+		</uni-card>		
+	</view>	
 </template>
 
 <script>
@@ -40,6 +44,6 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		padding-top: 100rpx;
+		padding: 100rpx;
 	}
 </style>

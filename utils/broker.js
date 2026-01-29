@@ -65,12 +65,13 @@ export function connectMqtt() {
 
 	client.on("error", console.error)
 	client.on("message", function(topic, payload) {
-		//console.log("mqtt message", topic, payload.toString())
+		console.log("mqtt", topic, payload.toString())
+
 		let ts = topic.split("/")
 		let data
-		try{
+		try {
 			data = JSON.parse(payload.toString())
-		}catch(e){
+		} catch (e) {
 			data = payload
 		}
 		find_callback(sub_tree, ts, topic, data)
@@ -85,7 +86,7 @@ export function connectMqtt() {
 	})
 }
 
-export function checkMqtt(){
+export function checkMqtt() {
 	if (!client) connectMqtt()
 }
 
@@ -94,10 +95,13 @@ export function publish(topic, payload) {
 	checkMqtt()
 	if (typeof payload == "object")
 		payload = JSON.stringify(payload)
+	console.log("mqtt publish", topic, payload)
 	client && client.publish(topic, payload)
 }
 
 export function subscribe(filter, cb) {
+	console.log("mqtt subscribe", filter)
+
 	// 计数，避免重复订阅
 	if (subs[filter] && subs[filter] > 0) {
 		subs[filter] = subs[filter] + 1
@@ -127,6 +131,8 @@ export function subscribe(filter, cb) {
 }
 
 export function unsubscribe(filter, cb) {
+	console.log("mqtt unsubscribe", filter)
+
 	// 取消订阅
 	if (subs[filter]) {
 		if (cb) {
@@ -134,6 +140,7 @@ export function unsubscribe(filter, cb) {
 			if (subs[filter] <= 0)
 				client.unsubscribe(filter)
 		} else {
+			subs[filter] = 0
 			client.unsubscribe(filter)
 		}
 	}

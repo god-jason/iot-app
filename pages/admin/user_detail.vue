@@ -1,5 +1,5 @@
 <template>
-	<view>
+	<view class="page">
 		<!-- 用户基本信息卡片 -->
 		<uni-card :title="user.name || '未知用户'" :sub-title="user.id || user._id">
 			<view class="user-header">

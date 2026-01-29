@@ -1,5 +1,5 @@
 <template>
-	<view>
+	<view class="page">
 
 		<uni-card :title="setting.label||setting.name">
 			<uni-forms ref="form" :modelValue="formData" :label-width="100">
@@ -35,8 +35,12 @@
 
 
 			<button type="primary" @click="submit">保存</button>
+			
 		</uni-card>
-
+		
+		<uni-card>
+			<button type="primary" @click="batch">批量保存</button>
+		</uni-card>
 
 	</view>
 </template>
@@ -46,6 +50,12 @@
 import {
 		getModel
 	} from '../../utils/model'
+	import {
+		mapState
+	} from 'pinia';
+	import {
+		userStore
+	} from '../../store';
 	import {
 		get,
 		post
@@ -61,6 +71,9 @@ import {
 				formData: {},
 			}
 		},
+		computed: {
+			...mapState(userStore, ['user', 'group']),
+		},
 		onLoad(options) {
 			this.id = options.id
 			this.product_id = options.product_id
@@ -73,7 +86,7 @@ import {
 		methods: {
 			async load() {
 				let model = await getModel(this.product_id)
-				this.setting = model.settings[this.index]
+				this.setting = model.settings.filter(s=>this.user.admin || !s.hidden)[this.index]
 				this.setting.fields.forEach(f => {
 					if (f.type == "select" && !f.localdata) {
 						f.localdata = f.options.map(o => {
@@ -108,6 +121,25 @@ import {
 				uni.showToast({
 					title: "保存成功",
 					icon: "success"
+				})
+			},
+			batch(){
+				uni.navigateTo({
+					url: "/pages/device/select",
+					events: {
+						devices: (devices) => {
+							//console.log("get batches", devices)
+							for (var index = 0; index < devices.length; index++) {
+								var id = devices[index];
+								post("iot/device/" + id + "/setting/" + this.setting.name,
+								 this.formData).then(() => {})
+							}
+							uni.showToast({
+								title: "批量保存成功",
+								icon: "success"
+							})
+						}
+					}
 				})
 			},
 

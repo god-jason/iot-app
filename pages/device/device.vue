@@ -1,17 +1,21 @@
 <template>
-	<view>
+	<view class="page">
 		<!-- 组织信息显示 -->
-		<view v-if="group" class="organization-info" @click="openGroup">
-			<text class="org-name">{{ group.name || '神秘组织' }}</text>
+		<view v-if="group" class="organization-info">
+			<view class="org" @click="openGroup">				
+				<uni-icons type="staff" color="white" size="22" @click="searchable = !searchable"></uni-icons>
+				<text class="org-name">{{ group.name || '组织' }}</text>
+			</view>
+			<uni-icons type="search" color="white" size="22" @click="searchable = !searchable"></uni-icons>
 		</view>
 
 		<view v-else class="no-organization" @click="openGroup">
 			<uni-notice-bar show-icon text="您还没有加入任何组织，请联系管理员将您添加到组织中"></uni-notice-bar>
 		</view>
 
-		<uni-search-bar placeholder="搜索设备" @confirm="search" @cancel="cancelSearch"></uni-search-bar>
+		<uni-search-bar v-if="group && searchable" placeholder="搜索设备" @confirm="search" @cancel="cancelSearch"></uni-search-bar>
 
-		<uni-grid :column="4" :show-border="false" :square="false">
+		<uni-grid v-if="group" :column="4" :show-border="false" :square="false">
 			<uni-grid-item>
 				<view class="item">
 					<view class="label">总数</view>
@@ -38,17 +42,29 @@
 			</uni-grid-item>
 		</uni-grid>
 
-		<uni-section title="设备列表" type="square">
-		</uni-section>
+<!-- 		<uni-section title="设备列表" type="square" class="section">
+		</uni-section> -->
 
 		<!-- 有设备的情况 -->
 		<view v-if="devices.length > 0">
-			<uni-card v-for="(device, index) in devices" :key="device.id" @click="open(device)"
+			<view v-for="(device, index) in devices" :key="device.id" @click="open(device)"
 			 :title="device.name || '-'"
 				:sub-title="device.id" :extra="device.online?'在线':'离线'" thumbnail="/static/device.png"
-				:style="{backgroundColor: (device.online ? '': '#f6f6f6')}">
-				<device-values-mini :product="device.product_id" :device="device.id" type="simple"></device-values-mini>
-			</uni-card>
+				class="device-card"
+				:class="{online: device.online, offline: !device.online}">
+				
+				<view class="title">
+					<view class="name">
+						{{device.name || device.id}}
+					</view>
+					<view class="status">
+						{{device.online?'在线':'离线'}}
+					</view>					 
+				</view>
+				
+				<device-values-mini v-if="device.online"
+					 :product="device.product_id" :device="device.id" type="simple"></device-values-mini>
+			</view>
 		</view>
 
 		<!-- 没有设备的情况 -->
@@ -83,6 +99,8 @@
 	export default {
 		data() {
 			return {
+				searchable: false,
+				
 				total: 0,
 				online: 0,
 				offline: 0,
@@ -174,11 +192,17 @@
 				if (!this.group || !this.group.id) {
 					return
 				}
+				let filter = {
+					group_id: this.group.id
+				}
+				if (this.keyword) {
+					filter.$or = {
+						id: "%"+this.keyword+"%",
+						name: "%"+this.keyword+"%",
+					}
+				}
 				let res = await post("table/device/search", {
-					filter: {
-						group_id: this.group.id
-					},
-					keyword: this.keyword,
+					filter: filter,
 					skip: this.devices.length,
 					limit: this.pageSize,
 				})
@@ -237,20 +261,36 @@
 <style lang="scss" scoped>
 	.organization-info {
 		padding: 20rpx;
-		background: #f0f8ff;
-		border-bottom: 1rpx solid #e0e0e0;
+		//background: #f0f8ff;
+		color: white;
+		//background-color: transparent;
+		background-color: #474747;
+		//border-bottom: 1rpx solid #e0e0e0;
+		//text-align: center;
+		
+		.icon{
+			color: white;
+			font-size: 2em;
+		}
+		
+		display: flex;
+		.org{
+			flex: 1;
+			display: flex;
+			color: white
+		}
 
 		.org-name {
 			display: block;
 			font-size: 32rpx;
 			font-weight: bold;
-			color: #333;
+			//color: #333;
 			margin-bottom: 10rpx;
 		}
 
 		.org-role {
 			font-size: 28rpx;
-			color: #666;
+			//color: #666;
 		}
 	}
 
@@ -259,6 +299,7 @@
 	}
 
 	.item {
+		padding: 10rpx 0;
 		//color: #808080;
 		text-align: center;
 
@@ -277,6 +318,44 @@
 			}
 		}
 	}
+	
+	.section{
+		background-color: transparent;
+		color: white;
+	}
+	
+	.device-card{
+		//color: grey;
+		background-color: #2a2a2a;
+		color: white;
+		margin: 20rpx 0;
+		padding: 10rpx 20rpx;
+		
+		.title {
+			padding: 15rpx;
+			display: flex;
+			//background-color: #666;
+			
+			.name{
+				flex: 1;
+				font-weight: bold;
+				font-size: 1.2em;
+			}
+			.online{
+				
+			}
+		}
+	}
+	
+	.online{
+		//background-color: #f2f9ff;
+	}
+	
+	.offline{
+		background-color: #666;
+		color: #ccc;
+	}
+		
 
 	.device-info {
 		padding: 10rpx 0;

@@ -1,9 +1,11 @@
 <template>
-	<view>
+	<view class="page">
 
 		<uni-card>
 			<uni-list :border="false">
-				<uni-list-item v-for="(setting, index) in model.settings" :key="index"
+				
+				<uni-list-item v-for="(setting, index) in model.settings.filter(s=>user.admin || !s.hidden)"
+				 :key="index"
 					:title="setting.label||setting.name" show-arrow clickable
 					@click="openSetting(index)"></uni-list-item>
 			</uni-list>
@@ -15,6 +17,12 @@
 	import {
 		getModel
 	} from '../../utils/model'
+	import {
+		mapState
+	} from 'pinia';
+	import {
+		userStore
+	} from '../../store';
 
 	export default {
 		data() {
@@ -23,6 +31,9 @@
 				product_id: undefined,
 				model: {}
 			}
+		},
+		computed: {
+			...mapState(userStore, ['user', 'group']),
 		},
 		onLoad(options) {
 			this.id = options.id

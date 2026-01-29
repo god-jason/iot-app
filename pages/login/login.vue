@@ -118,6 +118,8 @@ const user = userStore()
 						...this.form,
 						password: md5(this.form.password),
 					})
+					
+					console.log("res", res)
 
 					// 兼容后端返回格式：可能直接是 {token,user}，也可能是 {data:{token,user}}
 					const payload = res?.data || res
@@ -125,21 +127,17 @@ const user = userStore()
 
 					if (payload?.token) setToken(payload.token)
 					if (payload?.user) user.setUser(payload.user)
+					
+					uni.reLaunch({
+						url: '/pages/device/device'
+					})
+					
 				} catch (e) {
-
+					console.log(e)
 				}
 
-				uni.reLaunch({
-					url: '/pages/device/device'
-				})
 
 				this.loading = false
-
-
-				// 跳转到首页
-				setTimeout(() => {
-					console.log('执行跳转...');
-				}, 1500)
 			},
 
 			// 检查保存的登录信息

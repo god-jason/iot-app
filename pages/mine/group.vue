@@ -1,5 +1,5 @@
 <template>
-	<view>
+	<view class="page">
 
 		<uni-card v-for="(g, index) in groups" :title="g.name" :key="g.id"
 		:extra="g.id==group.id?'当前选择':''"	>

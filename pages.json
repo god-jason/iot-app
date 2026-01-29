@@ -1,8 +1,8 @@
 {
 	"tabBar": {
-		"color": "#4a4a4a",
-		"selectedColor": "#1890ff",
-		"backgroundColor": "#F8F8F8",
+		"color": "#ffffff",
+		"selectedColor": "#ffffff",
+		"backgroundColor": "#181818",
 		"fontSize": "18px",
 		"iconWidth": "32px",
 		"height": "70px",
@@ -95,22 +95,19 @@
 		{
 			"path": "pages/mine/password",
 			"style": {
-				"navigationBarTitleText": "修改密码",
-				"navigationStyle": "custom"
+				"navigationBarTitleText": "修改密码"
 			}
 		},
 		{
 			"path": "pages/mine/changePassword",
 			"style": {
-				"navigationBarTitleText": "修改用户密码",
-				"navigationStyle": "custom"
+				"navigationBarTitleText": "修改用户密码"
 			}
 		},
 		{
 			"path": "pages/admin/reset_password",
 			"style": {
-				"navigationBarTitleText": "重置用户密码",
-				"navigationStyle": "custom"
+				"navigationBarTitleText": "重置用户密码"
 			}
 		},
 		{
@@ -174,6 +171,12 @@
 			}
 		},
 		{
+			"path": "pages/device/select",
+			"style": {
+				"navigationBarTitleText": "选择设备"
+			}
+		},
+		{
 			"path": "pages/device/edit",
 			"style": {
 				"navigationBarTitleText": "修改设备信息"
@@ -190,12 +193,19 @@
 			"style": {
 				"navigationBarTitleText": "成员管理"
 			}
+		},
+		{
+			"path": "pages/device/log",
+			"style": {
+				"navigationBarTitleText": "设备日志",
+				"enablePullDownRefresh": true
+			}
 		}
 	],
 	"globalStyle": {
-		"navigationBarTextStyle": "black",
+		"navigationBarTextStyle": "white",
 		"navigationBarTitleText": "物联网",
-		"navigationBarBackgroundColor": "#F8F8F8",
+		"navigationBarBackgroundColor": "#181818",
 		"backgroundColor": "#F8F8F8"
 	},
 	"uniIdRouter": {}

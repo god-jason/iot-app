@@ -1,5 +1,5 @@
 <template>
-	<view>
+	<view class="page">
 		<!-- 组织基本信息 -->
 		<uni-card :title="group.name" :sub-title="group.id" :extra="group.disabled ? '已禁用' : '正常'">
 			<view class="info-item">

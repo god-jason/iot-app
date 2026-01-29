@@ -1,5 +1,5 @@
 <template>
-	<view class="container">
+	<view class="page">
 		<uni-card v-if="group" :title="group.name || '当前组织'" :sub-title="group.id">
 			<view class="info-item">
 				<text class="label">创建者</text>

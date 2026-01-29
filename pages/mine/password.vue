@@ -1,5 +1,5 @@
 <template>
-  <view class="change-password-container">
+  <view class="page">
     <!-- 顶部标题 -->
     <view class="page-header">
       <image class="page-icon" src="/static/icon_password/lock.png" mode="aspectFit"></image>

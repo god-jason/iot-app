@@ -75,7 +75,7 @@
 		series: [{
 			//name: '-',
 			type: 'line',
-			smooth: true,
+			//smooth: true,
 			symbol: 'none',
 			data: [],
 		}]

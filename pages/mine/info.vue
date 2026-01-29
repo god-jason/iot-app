@@ -1,5 +1,5 @@
 <template>
-	<view>
+	<view class="page">
 		<uni-card title="个人信息">
 			<uni-forms ref="form" :modelValue="formData" :rules="rules" :label-width="100">
 				<uni-forms-item label="用户ID" required>

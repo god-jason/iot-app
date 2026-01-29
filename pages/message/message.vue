@@ -1,5 +1,5 @@
 <template>
-	<view class="container">
+	<view class="page">
 
 		<uni-card v-for="(message, index) in messages"
 		 @click="open(message)"

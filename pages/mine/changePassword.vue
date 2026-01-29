@@ -1,5 +1,5 @@
 <template>
-	<view>
+	<view class="page">
 		<uni-card title="修改密码">
 			<uni-forms ref="form" :modelValue="formData" :rules="rules" :label-width="120">
 				<!-- 当前密码 -->

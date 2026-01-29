@@ -1,5 +1,5 @@
 <template>
-	<view class="container">
+	<view class="page">
 		<view class="head">
 			<image class="avatar" mode="aspectFill" :src="user.avatar || avatar"></image>
 			<view class="nickname">
@@ -8,9 +8,11 @@
 		</view>
 
 		<uni-card>
+
+
 			<uni-list :border="false">
 				<uni-list-item title="我的二维码" clickable show-arrow show-extra-icon @click="navigateToQRCode"
-									:extra-icon="{color:'#1296db', size:'28', type:'info'}"></uni-list-item>
+					:extra-icon="{color:'#1296db', size:'28', type:'info'}"></uni-list-item>
 				<uni-list-item title="我的组织" clickable show-arrow show-extra-icon link="navigateTo"
 					:right-text="group.name" to="/pages/mine/group"
 					:extra-icon="{color:'#1296db', size:'28', type:'staff'}"></uni-list-item>
@@ -23,15 +25,16 @@
 				<uni-list-item title="意见反馈" clickable show-arrow show-extra-icon @click="feedback"
 					:extra-icon="{color:'#1296db', size:'28', type:'flag'}"></uni-list-item>
 				-->
-	
-				<uni-list-item title="修改个人信息" clickable show-arrow show-extra-icon link="navigateTo" to="/pages/mine/info"
-					:extra-icon="{color:'#1296db', size:'28', type:'person'}"></uni-list-item>
-				<uni-list-item title="修改密码" clickable show-arrow @click="changePassword" show-extra-icon
-					:extra-icon="{color:'#007aff', size:'28', type:'locked'}">
+
+				<uni-list-item class="list-item" title="修改个人信息" clickable show-arrow show-extra-icon link="navigateTo"
+					to="/pages/mine/info" :extra-icon="{color:'#1296db', size:'28', type:'person'}"></uni-list-item>
+				<uni-list-item class="list-item" title="修改密码" clickable show-arrow @click="changePassword"
+					show-extra-icon :extra-icon="{color:'#007aff', size:'28', type:'locked'}">
 				</uni-list-item>
-				<uni-list-item title="退出" clickable show-extra-icon @click="logout"
+				<uni-list-item class="list-item" title="退出" clickable show-extra-icon @click="logout"
 					:extra-icon="{color:'#1296db', size:'28', type:'close'}"></uni-list-item>
 			</uni-list>
+			
 		</uni-card>
 	</view>
 </template>
@@ -66,7 +69,7 @@
 			async load() {
 				await user.checkGroup()
 			},
-			
+
 			// 跳转到二维码页面
 			navigateToQRCode() {
 				// 创建一个专门的二维码页面
@@ -74,14 +77,14 @@
 					url: '/pages/mine/qrcode'
 				});
 			},
-			
+
 			// 修改密码
 			changePassword() {
 				uni.navigateTo({
 					url: '/pages/mine/changePassword'
 				});
 			},
-			
+
 			// 客户支持
 			support() {
 				uni.showModal({
@@ -91,7 +94,7 @@
 					confirmText: '知道了'
 				});
 			},
-			
+
 			// 意见反馈
 			feedback() {
 				uni.showModal({
@@ -101,7 +104,7 @@
 					confirmText: '知道了'
 				});
 			},
-			
+
 			// 退出登录
 			logout() {
 				uni.showModal({
@@ -115,7 +118,7 @@
 							} catch (e) {
 								console.error('清除存储失败:', e);
 							}
-							
+
 							uni.reLaunch({
 								url: '/pages/login/login'
 							});
@@ -138,7 +141,7 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		padding: 120rpx 0 60rpx;
+		padding: 60rpx 0;
 	}
 
 	.avatar {
@@ -152,10 +155,10 @@
 		font-weight: bolder;
 		margin-top: 20rpx;
 	}
-	
+
 	.uni-list-item {
 		transition: all 0.3s ease;
-		
+
 		&:active {
 			background-color: #f5f5f5;
 			transform: translateX(10rpx);

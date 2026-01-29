@@ -1,5 +1,5 @@
 <template>
-	<view>
+	<view class="page">
 		<!-- 绑定设备 -->
 		<uni-card title="绑定设备">
 			<uni-forms ref="form" :modelValue="formData" :rules="rules" :label-width="100">

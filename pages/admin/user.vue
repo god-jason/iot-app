@@ -1,5 +1,5 @@
 <template>
-	<view>
+	<view class="page">
 		<!-- 搜索框 -->
 		<uni-search-bar 
 			:placeholder="searchPlaceholder" 
