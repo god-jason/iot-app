@@ -141,15 +141,27 @@
 			}
 		},
 		{
-			"path": "pages/admin/group",
+			"path": "pages/group/group",
 			"style": {
 				"navigationBarTitleText": "所有组织"
 			}
 		},
 		{
-			"path": "pages/admin/group_detail",
+			"path": "pages/group/detail",
 			"style": {
 				"navigationBarTitleText": "组织详情"
+			}
+		},
+		{
+			"path": "pages/group/edit",
+			"style": {
+				"navigationBarTitleText": "修改组织信息"
+			}
+		},
+		{
+			"path": "pages/group/members",
+			"style": {
+				"navigationBarTitleText": "成员管理"
 			}
 		},
 		{
@@ -188,12 +200,7 @@
 				"navigationBarTitleText": "我的二维码"
 			}
 		},
-		{
-			"path": "pages/index/members",
-			"style": {
-				"navigationBarTitleText": "成员管理"
-			}
-		},
+ 
 		{
 			"path": "pages/device/log",
 			"style": {
