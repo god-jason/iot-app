@@ -15,21 +15,11 @@
 				<uni-list-item 
 					v-for="(device, index) in devices" 
 					:key="device.id" 
-					:title="device.name || device.id" 
-					:note="formatDeviceNote(device)"
+					:title="device.name || '-'" 
+					:note="device.id"
 					:rightText="device.online ? '在线' : '离线'"
-					:rightTextStyle="device.online ? onlineStyle : offlineStyle"
 					clickable 
 					@click="openDevice(device)">
-					
-					<template v-slot:footer>
-						<view class="device-footer">
-							<text class="device-id">ID: {{ device.id }}</text>
-							<text class="device-time" v-if="device.update_time">
-								{{ formatTime(device.update_time) }}
-							</text>
-						</view>
-					</template>
 				</uni-list-item>
 			</uni-list>
 		</view>
@@ -57,12 +47,6 @@
 	import {
 		post
 	} from '../../utils/request';
-	import {
-		mapState
-	} from 'pinia';
-	import {
-		userStore
-	} from '../../store';
 
 	export default {
 		data() {
@@ -85,16 +69,6 @@
 				loadingMore: false,
 				searching: false,
 				
-				// 样式
-				onlineStyle: {
-					color: '#4cd964',
-					fontSize: '28rpx'
-				},
-				offlineStyle: {
-					color: '#999',
-					fontSize: '28rpx'
-				},
-				
 				// 加载更多状态
 				loadMoreStatus: 'loading',
 				loadMoreText: {
@@ -103,8 +77,6 @@
 					contentnomore: '没有更多设备了'
 				}
 			}
-		},
-		computed: {
 		},
 		onLoad() {
 			// 初始加载
@@ -129,44 +101,22 @@
 				const filter = {
 				};
 				
-				// 添加搜索关键词过滤 - 使用简单条件
-				
-				if (this.searchKeyword.trim()) {
-					
+				// 添加搜索关键词过滤 - 使用简单条件				
+				if (this.searchKeyword) {					
 					//  like 操作符或直接字符串匹配
-					filter['name'] = this.searchKeyword;
+					filter.$or = {
+						id: "%"+this.searchKeyword+"%",
+						name: "%"+this.searchKeyword+"%",
+					}
 				}
 				
 				return {
 					filter: filter,
 					skip: skip,
 					limit: this.pageSize,
-					sort: { update_time: -1 }, // 按更新时间倒序
+					//sort: { created: -1 }, // 按创建时间倒序
 					columns: ['id', 'name', 'online', 'product_id', 'location', 'update_time', 'create_time']
 				};
-			},
-			
-			// 构建搜索参数（替代方案）
-			buildSearchParamsAlternative(isRefresh = false) {
-				const skip = isRefresh ? 0 : this.devices.length;
-				
-				// 最简化的参数 - 只传必须的
-				const params = {
-					filter: {
-					},
-					skip: skip,
-					limit: this.pageSize,
-					columns: ['id', 'name', 'online', 'product_id', 'location', 'update_time', 'create_time']
-				};
-				
-				
-				if (this.searchKeyword.trim()) {
-				
-					params.keyword = this.searchKeyword;
-					
-				}
-				
-				return params;
 			},
 			
 			// 加载设备列表
@@ -181,31 +131,15 @@
 				}
 				
 				try {
-					// 先尝试简化版本
-					const params = this.buildSearchParamsAlternative(isRefresh);
+					const params = this.buildSearchParams(isRefresh);
 					console.log('搜索参数（简化）:', params);
 					
 					let res = await post('table/device/search', params);
 					console.log('接口响应:', res);
 					
 					if (res && res.data) {
-						let newDevices = res.data || [];
+						this.devices = res.data || [];
 						const total = res.total || 0;
-						
-						// 如果有搜索关键词，在前端进行过滤
-						if (this.searchKeyword.trim() && newDevices.length > 0) {
-							const keyword = this.searchKeyword.toLowerCase();
-							newDevices = newDevices.filter(device => {
-								return (device.name && device.name.toLowerCase().includes(keyword)) ||
-									   (device.id && device.id.toLowerCase().includes(keyword));
-							});
-						}
-						
-						if (isRefresh) {
-							this.devices = newDevices;
-						} else {
-							this.devices = [...this.devices, ...newDevices];
-						}
 						
 						this.totalCount = total;
 						this.hasMore = this.devices.length < total;
@@ -230,65 +164,16 @@
 				} catch (error) {
 					console.error('加载设备失败:', error);
 					
-					// 尝试更简化的参数
-					if (error.message.includes('column')) {
-						console.log('尝试使用更简化的参数...');
-						await this.trySimplerParams(isRefresh);
-					} else {
-						uni.showToast({
-							title: '加载失败，请重试',
-							icon: 'error'
-						});
-					}
+					uni.showToast({
+						title: '加载失败，请重试',
+						icon: 'error'
+					});
 				} finally {
 					this.loading = false;
 					uni.stopPullDownRefresh();
 				}
 			},
-			
-			// 尝试更简化的参数
-			async trySimplerParams(isRefresh = false) {
-				try {
-					const skip = isRefresh ? 0 : this.devices.length;
-					
-					// 最简参数
-					const params = {
-						filter: {
-						},
-						skip: skip,
-						limit: this.pageSize
-					};
-					
-					console.log('尝试最简参数:', params);
-					
-					let res = await post('table/device/search', params);
-					
-					if (res && res.data) {
-						let newDevices = res.data || [];
 						
-						// 前端过滤搜索关键词
-						if (this.searchKeyword.trim()) {
-							const keyword = this.searchKeyword.toLowerCase();
-							newDevices = newDevices.filter(device => {
-								return (device.name && device.name.toLowerCase().includes(keyword)) ||
-									   (device.id && device.id.toLowerCase().includes(keyword));
-							});
-						}
-						
-						if (isRefresh) {
-							this.devices = newDevices;
-						} else {
-							this.devices = [...this.devices, ...newDevices];
-						}
-						
-						this.hasMore = newDevices.length === this.pageSize;
-						this.loadMoreStatus = this.hasMore ? 'more' : 'noMore';
-					}
-				} catch (error) {
-					console.error('最简参数也失败:', error);
-				}
-			},
-			
 			// 搜索处理
 			handleSearch() {
 				if (this.searching) return;
@@ -335,15 +220,6 @@
 					if (res && res.data) {
 						let newDevices = res.data || [];
 						
-						// 前端过滤搜索关键词
-						if (this.searchKeyword.trim()) {
-							const keyword = this.searchKeyword.toLowerCase();
-							newDevices = newDevices.filter(device => {
-								return (device.name && device.name.toLowerCase().includes(keyword)) ||
-									   (device.id && device.id.toLowerCase().includes(keyword));
-							});
-						}
-						
 						this.devices = [...this.devices, ...newDevices];
 						this.hasMore = newDevices.length === this.pageSize;
 						this.loadMoreStatus = this.hasMore ? 'more' : 'noMore';
@@ -361,62 +237,8 @@
 				uni.navigateTo({
 					url: '/pages/device/detail?id=' + device.id
 				});
-			},
+			},			
 			
-			// 格式化设备备注
-			formatDeviceNote(device) {
-				let notes = [];
-				if (device.location) {
-					notes.push(device.location);
-				}
-				if (device.product_id) {
-					notes.push(`产品: ${device.product_id}`);
-				}
-				return notes.join(' · ');
-			},
-			
-			// 格式化时间
-			formatTime(timeString) {
-				if (!timeString) return '';
-				try {
-					const date = new Date(timeString);
-					const now = new Date();
-					
-					// 如果是今天
-					if (date.toDateString() === now.toDateString()) {
-						return date.toLocaleTimeString('zh-CN', { 
-							hour: '2-digit', 
-							minute: '2-digit' 
-						});
-					}
-					
-					// 如果是昨天
-					const yesterday = new Date(now);
-					yesterday.setDate(yesterday.getDate() - 1);
-					if (date.toDateString() === yesterday.toDateString()) {
-						return '昨天 ' + date.toLocaleTimeString('zh-CN', { 
-							hour: '2-digit', 
-							minute: '2-digit' 
-						});
-					}
-					
-					// 一周内
-					const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-					if (diffDays < 7) {
-						const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-						return days[date.getDay()] + ' ' + date.toLocaleTimeString('zh-CN', { 
-							hour: '2-digit', 
-							minute: '2-digit' 
-						});
-					}
-					
-					// 更早的时间
-					return date.toLocaleDateString('zh-CN');
-					
-				} catch (e) {
-					return timeString;
-				}
-			}
 		}
 	}
 </script>

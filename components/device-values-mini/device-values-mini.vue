@@ -75,7 +75,7 @@
 	.point {
 		text-align: center;
 		font-size: 16px;
-		color: black;
+		//color: black;
 		//font-weight: bold;
 
 		padding: 10rpx 0;
@@ -89,7 +89,7 @@
 		}
 
 		.value {
-			color: black;
+			//color: black;
 			font-weight: bold;
 			padding: 10px 0;
 			font-size: 28px;

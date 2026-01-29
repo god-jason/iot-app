@@ -1,6 +1,6 @@
 <template>
 	<view class="page">
-		<view class="head">
+		<view class="head" v-if="user">
 			<image class="avatar" mode="aspectFill" :src="user.avatar || avatar"></image>
 			<view class="nickname">
 				{{user.nickname || user.name || '无名'}}
@@ -14,7 +14,7 @@
 				<uni-list-item title="我的二维码" clickable show-arrow show-extra-icon @click="navigateToQRCode"
 					:extra-icon="{color:'#1296db', size:'28', type:'info'}"></uni-list-item>
 				<uni-list-item title="我的组织" clickable show-arrow show-extra-icon link="navigateTo"
-					:right-text="group.name" to="/pages/mine/group"
+					:right-text="group && group.name || '无'" to="/pages/mine/group"
 					:extra-icon="{color:'#1296db', size:'28', type:'staff'}"></uni-list-item>
 				<uni-list-item title="绑定设备" clickable show-arrow show-extra-icon link="navigateTo"
 					to="/pages/device/bind" :extra-icon="{color:'#1296db', size:'28', type:'scan'}"></uni-list-item>

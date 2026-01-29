@@ -15,21 +15,10 @@
 				<uni-list-item 
 					v-for="(group, index) in groups" 
 					:key="group.id" 
-					:title="group.name || '未命名组织'"
-					:note="formatGroupNote(group)"
-					:rightText="formatStatus(group)"
-					:rightTextStyle="getStatusStyle(group)"
+					:title="group.name || '-'" 
+					:note="group.id"
 					clickable 
 					@click="openGroup(group)">
-					
-					<template v-slot:footer>
-						<view class="group-footer">
-							<text class="group-id">ID: {{ group.id }}</text>
-							<text class="group-time" v-if="group.created">
-								创建时间: {{ formatTime(group.created) }}
-							</text>
-						</view>
-					</template>
 				</uni-list-item>
 			</uni-list>
 		</view>
@@ -110,9 +99,13 @@
 				// 基础过滤条件
 				const filter = {};
 				
-				// 添加搜索关键词过滤
-				if (this.searchKeyword.trim()) {
-					filter['name'] = this.searchKeyword;
+				// 添加搜索关键词过滤 - 使用简单条件				
+				if (this.searchKeyword) {					
+					//  like 操作符或直接字符串匹配
+					filter.$or = {
+						id: "%"+this.searchKeyword+"%",
+						name: "%"+this.searchKeyword+"%",
+					}
 				}
 				
 				return {
@@ -143,22 +136,8 @@
 					console.log('组织接口响应:', res);
 					
 					if (res && res.data) {
-						let newGroups = res.data || [];
+						this.groups = res.data || [];
 						const total = res.total || 0;
-						
-						// 如果有搜索关键词，在前端进行过滤
-						if (this.searchKeyword.trim() && newGroups.length > 0) {
-							const keyword = this.searchKeyword.toLowerCase();
-							newGroups = newGroups.filter(group => {
-								return (group.name && group.name.toLowerCase().includes(keyword));
-							});
-						}
-						
-						if (isRefresh) {
-							this.groups = newGroups;
-						} else {
-							this.groups = [...this.groups, ...newGroups];
-						}
 						
 						this.totalCount = total;
 						this.hasMore = this.groups.length < total;
@@ -179,8 +158,6 @@
 								duration: 1500
 							});
 						}
-						
-						console.log('加载的组织数据:', newGroups);
 					}
 				} catch (error) {
 					console.error('加载组织失败:', error);
@@ -240,14 +217,6 @@
 					if (res && res.data) {
 						let newGroups = res.data || [];
 						
-						// 前端过滤搜索关键词
-						if (this.searchKeyword.trim()) {
-							const keyword = this.searchKeyword.toLowerCase();
-							newGroups = newGroups.filter(group => {
-								return (group.name && group.name.toLowerCase().includes(keyword));
-							});
-						}
-						
 						this.groups = [...this.groups, ...newGroups];
 						this.hasMore = newGroups.length === this.pageSize;
 						this.loadMoreStatus = this.hasMore ? 'more' : 'noMore';
@@ -265,94 +234,8 @@
 				uni.navigateTo({
 					url: '/pages/admin/group_detail?id=' + group.id
 				});
-			},
+			},			
 			
-			// 格式化组织备注
-			formatGroupNote(group) {
-				return '';
-			},
-			
-			// 格式化状态
-			formatStatus(group) {
-				if (group.disabled === 1 || group.disabled === true) {
-					return '已禁用';
-				}
-				return '正常';
-			},
-			
-			// 获取状态样式
-			getStatusStyle(group) {
-				if (group.disabled === 1 || group.disabled === true) {
-					return {
-						color: '#ff3b30',
-						fontSize: '28rpx'
-					};
-				}
-				return {
-					color: '#4cd964',
-					fontSize: '28rpx'
-				};
-			},
-			
-			// 格式化时间
-			formatTime(timestamp) {
-				if (!timestamp) return '';
-				
-				try {
-					// 假设 created 是时间戳或日期字符串
-					const date = new Date(timestamp);
-					
-					// 如果是无效日期
-					if (isNaN(date.getTime())) {
-						// 尝试将 created 当作时间戳
-						const timestampNum = parseInt(timestamp);
-						if (!isNaN(timestampNum)) {
-							const dateFromTimestamp = new Date(timestampNum);
-							if (!isNaN(dateFromTimestamp.getTime())) {
-								return dateFromTimestamp.toLocaleDateString('zh-CN');
-							}
-						}
-						return timestamp; // 直接返回原始值
-					}
-					
-					const now = new Date();
-					
-					// 如果是今天
-					if (date.toDateString() === now.toDateString()) {
-						return date.toLocaleTimeString('zh-CN', { 
-							hour: '2-digit', 
-							minute: '2-digit' 
-						});
-					}
-					
-					// 如果是昨天
-					const yesterday = new Date(now);
-					yesterday.setDate(yesterday.getDate() - 1);
-					if (date.toDateString() === yesterday.toDateString()) {
-						return '昨天 ' + date.toLocaleTimeString('zh-CN', { 
-							hour: '2-digit', 
-							minute: '2-digit' 
-						});
-					}
-					
-					// 一周内
-					const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-					if (diffDays < 7) {
-						const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-						return days[date.getDay()] + ' ' + date.toLocaleTimeString('zh-CN', { 
-							hour: '2-digit', 
-							minute: '2-digit' 
-						});
-					}
-					
-					// 更早的时间
-					return date.toLocaleDateString('zh-CN');
-					
-				} catch (e) {
-					console.error('格式化时间失败:', e, '原始值:', timestamp);
-					return timestamp;
-				}
-			}
 		}
 	}
 </script>
