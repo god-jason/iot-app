@@ -2,15 +2,11 @@
 	<view class="page">
 		<uni-card v-for="(job, index) in jobs" :key="index" :title="job.time">
 			{{job.name || job.action}}
-			<text v-if="job.data && job.data.hasOwnProperty('value')">
-				：{{job.data.value ? '打开':'关闭'}}
-			</text>
-
 			<view class="btns">
-				<button type="default" size="mini" @click="execute(index)">执行</button>
-				<button type="default" size="mini" @click="remove(index)">删除</button>
-				<button type="default" size="mini" :disabled="!job.disabled" @click="enable(index)">启用</button>
-				<button type="default" size="mini" :disabled="job.disabled" @click="disable(index)">禁用</button>
+				<button type="default" size="mini" @click="edit(index, job)">编辑</button>
+				<button type="default" size="mini" @click="remove(index, job)">删除</button>
+				<button type="default" size="mini" :disabled="!job.disabled" @click="enable(index, job)">启用</button>
+				<button type="default" size="mini" :disabled="job.disabled" @click="disable(index, job)">禁用</button>
 			</view>
 		</uni-card>
 
@@ -33,14 +29,7 @@
 		data() {
 			return {
 				pageSize: 20,
-				jobs: [{
-					time: "09:00",
-					action: "open",
-					name: '控制',
-					data: {
-						value: true
-					}
-				}]
+				jobs: []
 			}
 		},
 		computed: {
@@ -52,6 +41,7 @@
 			this.load()
 		},
 		onPullDownRefresh() {
+			uni.stopPullDownRefresh()
 			this.jobs = []
 			this.load()
 		},
@@ -68,7 +58,7 @@
 					skip: this.jobs.length,
 					limit: this.pageSize,
 					sort: {
-						name: 1
+						time: 1
 					}
 				})
 
@@ -77,12 +67,17 @@
 					//this.total = res.total
 				}
 			},
-			async execute(index) {
+			async edit(index,job) {
+				uni.navigateTo({
+					url: "/sub/job/edit?id="+job.id+"&gateway_id="+this.id
+				})
+			},
+			async execute(index,job) {
 				
 			},
-			async remove(index) {
+			async remove(index, job) {
 				this.jobs.splice(index, 1)
-				await get("table/job/delete/" + this.jobs[index].id + "/" + this.id)
+				await get("table/job/delete/" + job.id + "/" + job.gateway_id)
 			},
 			add() {
 				uni.navigateTo({

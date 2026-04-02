@@ -14,10 +14,6 @@
 					<uni-data-checkbox mode="tag" multiple v-model="formData.weekdays"
 						:localdata="weekdays"></uni-data-checkbox>
 				</uni-forms-item>
-				
-				<uni-forms-item label="单次">
-					<switch :checked="formData.single" @change="formData.single = $event.detail.value" />
-				</uni-forms-item>
 
 				<button type="default" size="mini" @click="selectAction">选择执行的操作</button>
 
@@ -32,7 +28,11 @@
 				<uni-forms-item label="数据">
 					{{formData.data}}
 				</uni-forms-item>
-				
+
+				<uni-forms-item label="单次">
+					<switch :checked="formData.single" @change="formData.single = $event.detail.value" />
+				</uni-forms-item>
+
 				<uni-forms-item label="禁用">
 					<switch :checked="formData.disabled" @change="formData.disabled = $event.detail.value" />
 				</uni-forms-item>
@@ -46,6 +46,11 @@
 </template>
 
 <script>
+	import {
+		get,
+		post
+	} from '../../utils/request'
+
 	export default {
 		data() {
 			return {
@@ -78,8 +83,17 @@
 			this.id = options.id
 			this.gateway_id = options.gateway_id
 			this.product_id = options.product_id
+			if (this.id) {
+				this.load()
+			} else {
+				this.formData.gateway_id = this.gateway_id
+			}
 		},
 		methods: {
+			async load() {
+				let res = await get("table/job/detail/" + this.id + "/" + this.gateway_id)
+				this.formData = res.data
+			},
 			selectAction() {
 				uni.navigateTo({
 					url: "/sub/job/action?product_id=" + this.product_id,
@@ -92,8 +106,14 @@
 					}
 				})
 			},
-			submit() {
+			async submit() {
 				console.log(this.formData)
+				if (this.id) {
+					await post("table/job/" + this.id + "/" + this.gateway_id, this.formData)
+				} else {
+					await post("table/job/create", this.formData)
+				}
+				uni.navigateBack()
 			}
 		}
 	}
