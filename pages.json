@@ -256,13 +256,28 @@
 			{
 				"path": "job/job",
 				"style": {
-					"navigationBarTitleText": "定时任务"
+					"navigationBarTitleText": "定时任务",
+					"enablePullDownRefresh": true
+				}
+			},
+			{
+				"path": "job/edit",
+				"style": {
+					"navigationBarTitleText": "编辑任务"
 				}
 			},
 			{
 				"path": "scene/scene",
 				"style": {
-					"navigationBarTitleText": "智能场景"
+					"navigationBarTitleText": "智能场景",
+					"enablePullDownRefresh": true
+					
+				}
+			},
+			{
+				"path": "job/action",
+				"style": {
+					"navigationBarTitleText": "选择动作"
 				}
 			}
 		]

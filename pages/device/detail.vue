@@ -193,12 +193,12 @@
 			},
 			scene() {
 				uni.navigateTo({
-					url: '/sub/scene/scene?id=' + this.id
+					url: '/sub/scene/scene?id=' + this.id +"&product_id=" + this.device.product_id
 				})
 			},
 			job() {
 				uni.navigateTo({
-					url: '/sub/job/job?id=' + this.id
+					url: '/sub/job/job?id=' + this.id +"&product_id=" + this.device.product_id
 				})
 			}
 		}

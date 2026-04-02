@@ -71,8 +71,8 @@
 			this.index = options.index
 			this.load()
 
-			const eventChannel = this.getOpenerEventChannel();
-			eventChannel.on('devices', (data) => {
+			this.eventChannel = this.getOpenerEventChannel();
+			this.eventChannel.on('devices', (data) => {
 				console.log("devices", data)
 				this.devices = data
 			})
@@ -146,6 +146,12 @@
 			async submit() {
 				//中文名称
 				this.formData.name = this.action.label
+				
+				if (!this.id) {
+					this.eventChannel.emit("data", this.formData)
+					uni.navigateBack()
+					return
+				}
 
 				if (this.devices && this.devices.length > 0) {
 					uni.showLoading({
