@@ -166,7 +166,7 @@
 				try {
 					// 这里需要根据实际接口调整
 					// 假设通过 group_member 表查询
-					let res = await post('table/group_member/search', {
+					let res = await post('table/member/search', {
 						filter: {
 							user_id: this.id
 						},
@@ -201,18 +201,6 @@
 			// 加载模拟组织数据
 			loadMockGroups() {
 				this.groups = [
-					{
-						id: 'group_001',
-						name: '南京真格智能科技有限公司',
-						disabled: false,
-						role: '管理员'
-					},
-					{
-						id: 'group_002',
-						name: '南京本易物联网有限公司',
-						disabled: false,
-						role: '成员'
-					}
 				];
 			},
 			
@@ -276,7 +264,7 @@
 			// 重置密码
 			resetPassword() {
 			    uni.navigateTo({
-			        url: `/pages/admin/reset_password?id=${this.id}`
+			        url: `/admin/reset_password?id=${this.id}`
 			    });
 			},
 
@@ -284,7 +272,7 @@
 			// 打开组织详情
 			openGroup(group) {
 				uni.navigateTo({
-					url: `/pages/group/detail?id=${group.id}`
+					url: `/sub/group/detail?id=${group.id}`
 				});
 			},
 			

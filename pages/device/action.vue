@@ -10,8 +10,33 @@
 						:min="field.min||0" :max="field.max||1000" :step="field.step || 1"
 						:placeholder="field.placeholder" />
 
-					<uni-easyinput v-else-if="field.type=='text'" :type="field.type" v-model="formData[field.key]"
-						:placeholder="field.placeholder" :maxlength="field.max || 256" />
+					<uni-easyinput v-else-if="field.type=='text' || field.type=='textarea'" :type="field.type"
+						v-model="formData[field.key]" :placeholder="field.placeholder" :maxlength="field.max || 256" />
+
+					<!-- 					<uni-data-select v-else-if="field.type=='select'" :localdata="field.localdata"
+						v-model="formData[field.key]" placement="top" /> -->
+
+					<slider v-if="field.type=='slider'" show-value :value="formData[field.key]" :min="field.min||0"
+						:max="field.max||1000" :step="field.step || 1" @change="onChange($event, field.key)" />
+
+					<picker v-else-if="field.type=='date'" mode="date" :value="formData[field.key]"
+						@change="onChange($event, field.key)">
+						<view>{{formData[field.key] || "0000-00-00"}}</view>
+					</picker>
+
+					<picker v-else-if="field.type=='time'" mode="time" :value="formData[field.key]"
+						@change="onChange($event, field.key)">
+						<view>{{formData[field.key] || "--:--"}}</view>
+					</picker>
+
+					<picker v-else-if="field.type=='select'" mode="selector" :range="field.localdata" range-key="name"
+						@change="onSelectChange($event, field.key, field)">
+						<view>
+							{{field.index!=undefined ? field.localdata[field.index].name : '请选择'}}
+						</view>
+						<!-- <view style="word-break: break-all;">{{formData[field.key] || "点击选择"}}</view> -->
+					</picker>
+
 				</uni-forms-item>
 			</uni-forms>
 
@@ -23,7 +48,7 @@
 
 <script>
 	import {
-		getModel
+		getSetting
 	} from '../../utils/model';
 	import {
 		get,
@@ -37,6 +62,7 @@
 				devices: [],
 				action: {},
 				formData: {},
+				batch_result: {}
 			}
 		},
 		onLoad(options) {
@@ -53,11 +79,11 @@
 		},
 		methods: {
 			async load() {
-				let res = await getModel(this.product_id)
+				let res = await getSetting(this.product_id, "action")
 				let model = res || {
-					actions: []
+					content: []
 				}
-				this.action = model.actions[this.index]
+				this.action = model.content[this.index]
 				console.log("action", this.action)
 
 				//默认参数
@@ -69,40 +95,85 @@
 						case "number":
 							this.formData[p.key] = 0
 							break;
-					}
-				})
-
-				//订阅响应
-				subscribe("device/" + this.id + "/action/" + this.action.name + "/response", (topic, payload) => {
-					if (payload.ok) {
-						uni.showToast({
-							icon: 'success',
-							title: "执行成功"
-						})
-					} else {
-						uni.showToast({
-							icon: 'error',
-							title: "执行失败：" + payload.data
-						})
+						case "slider":
+							this.formData[p.key] = 0
+							break;
+						case "select":
+							p.index = undefined //清空历史记录							
+							if (p.data_api) {
+								get(p.data_api).then(res => {
+									p.localdata = res.data
+								})
+							}
+							break;
 					}
 				})
 			},
+			checkBatchResult(succ) {
+				//console.log("checkbatch_result", succ)
+				if (succ) this.batch_result.success++
+				else this.batch_result.fail++
+				let pro = this.batch_result.success + this.batch_result.fail
+
+				if (pro >= this.batch_result.total) {
+					uni.hideLoading()
+
+					let text = "批量操作完成"
+					if (this.batch_result.success > 0)
+						text += ", 成功" + this.batch_result.success + "条"
+					if (this.batch_result.fail > 0)
+						text += ", 失败" + this.batch_result.fail + "条"
+					// uni.showToast({
+					// 	icon: 'success',
+					// 	title: text,
+					// 	duration: 5000
+					// })
+					uni.showModal({
+						title: "提示",
+						content: text
+					})
+				} else {
+					let text = "批量操作执行中"
+					if (this.batch_result.success > 0)
+						text += ", 成功" + this.batch_result.success + "条"
+					if (this.batch_result.fail > 0)
+						text += ", 失败" + this.batch_result.fail + "条"
+					uni.showLoading({
+						title: text
+					})
+				}
+			},
 			async submit() {
-				
+				//中文名称
+				this.formData.name = this.action.label
+
 				if (this.devices && this.devices.length > 0) {
+					uni.showLoading({
+						title: "执行中"
+					})
+
+					this.batch_result = {
+						total: this.devices.length,
+						success: 0,
+						fail: 0,
+					}
+
+
 					for (var index = 0; index < this.devices.length; index++) {
 						var id = this.devices[index];
-						post("iot/device/" + id + "/action/" + this.action.name, this.formData).then(()=>{})
-						//TODO 执行结果
+						post("device/" + id + "/action/" + this.action.name, this.formData)
+							.then((res) => {
+								console.log("batch_result then", res)
+								this.checkBatchResult(true)
+							}).catch(err => {
+								console.log("batch_result catch", err)
+								this.checkBatchResult(false)
+							})
 					}
-					uni.showToast({
-						icon: 'success',
-						title: "批量执行成功"
-					})
 					return
 				}
-				
-				let res = await post("iot/device/" + this.id + "/action/" + this.action.name, this.formData)
+
+				let res = await post("device/" + this.id + "/action/" + this.action.name, this.formData)
 				uni.showToast({
 					icon: 'success',
 					title: "执行成功"
@@ -111,7 +182,11 @@
 			},
 			onChange($event, key) {
 				this.formData[key] = $event.detail.value
-			}
+			},
+			onSelectChange($event, key, field) {
+				field.index = $event.detail.value
+				this.formData[key] = field.localdata[$event.detail.value].value
+			},
 		}
 	}
 </script>

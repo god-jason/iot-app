@@ -12,14 +12,15 @@
 
 			<uni-list :border="false">
 				<uni-list-item title="我的二维码" clickable show-arrow show-extra-icon @click="navigateToQRCode"
-					:extra-icon="{color:'#1296db', size:'28', type:'info'}"></uni-list-item>
+					:extra-icon="{color:'#aaaaff', size:'28', type:'info'}"></uni-list-item>
 				<uni-list-item title="我的组织" clickable show-arrow show-extra-icon link="navigateTo"
 					:right-text="group && group.name || '无'" to="/pages/mine/group"
-					:extra-icon="{color:'#1296db', size:'28', type:'staff'}"></uni-list-item>
-				<uni-list-item title="绑定设备" clickable show-arrow show-extra-icon link="navigateTo"
-					to="/pages/device/bind" :extra-icon="{color:'#1296db', size:'28', type:'scan'}"></uni-list-item>
+					:extra-icon="{color:'#55aa00', size:'28', type:'staff'}"></uni-list-item>
+				<uni-list-item title="我的钱包" clickable show-arrow show-extra-icon link="navigateTo"
+					to="/sub/wallet/wallet"
+					:extra-icon="{color:'#ffaa00', size:'28', type:'wallet'}"></uni-list-item>
 
-				<!--
+				<!-- 
 				<uni-list-item title="客户支持" clickable show-arrow show-extra-icon @click="support"
 					:extra-icon="{color:'#1296db', size:'28', type:'headphones'}"></uni-list-item>
 				<uni-list-item title="意见反馈" clickable show-arrow show-extra-icon @click="feedback"
@@ -27,12 +28,12 @@
 				-->
 
 				<uni-list-item class="list-item" title="修改个人信息" clickable show-arrow show-extra-icon link="navigateTo"
-					to="/pages/mine/info" :extra-icon="{color:'#1296db', size:'28', type:'person'}"></uni-list-item>
+					to="/pages/mine/info" :extra-icon="{color:'#55aaff', size:'28', type:'person'}"></uni-list-item>
 				<uni-list-item class="list-item" title="修改密码" clickable show-arrow @click="changePassword"
-					show-extra-icon :extra-icon="{color:'#007aff', size:'28', type:'locked'}">
+					show-extra-icon :extra-icon="{color:'#aaaa00', size:'28', type:'locked'}">
 				</uni-list-item>
 				<uni-list-item class="list-item" title="退出" clickable show-extra-icon @click="logout"
-					:extra-icon="{color:'#1296db', size:'28', type:'close'}"></uni-list-item>
+					:extra-icon="{color:'#ffaaff', size:'28', type:'close'}"></uni-list-item>
 			</uni-list>
 			
 		</uni-card>
@@ -58,6 +59,9 @@
 			return {
 				avatar: '/static/avatar.jpg'
 			}
+		},
+		onShareAppMessage() {
+			return {title: "邀请您使用龙源小管家", imageUrl:"/static/logo.jpg"}
 		},
 		computed: {
 			...mapState(userStore, ['user', 'group']),
@@ -113,8 +117,15 @@
 					success: (res) => {
 						if (res.confirm) {
 							try {
+								// 清空 store 中的 user 和 group
+								user.setUser(null);
+								user.setGroup(null);
+								
+								// 清除存储
 								uni.removeStorageSync('token');
 								uni.removeStorageSync('userInfo');
+								uni.removeStorageSync('user');
+								uni.removeStorageSync('group');
 							} catch (e) {
 								console.error('清除存储失败:', e);
 							}

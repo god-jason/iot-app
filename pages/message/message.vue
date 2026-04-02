@@ -1,18 +1,33 @@
 <template>
 	<view class="page">
 
-		<uni-card v-for="(message, index) in messages"
-		 @click="open(message)"
-		  :title="message.title"
-			:extra="message.updateTime">
+		<uni-card v-for="(message, index) in messages" @click="open(message)"
+		   :title="message.title"
+			:extra="message.created">
+			{{message.device}}
 			{{message.message}}
 		</uni-card>
+		
+		<view class="empty" v-if="messages.length == 0">
+			无记录
+		</view>
 
 	</view>
 
 </template>
 
 <script>
+	import {
+		mapState
+	} from 'pinia';
+	import {
+		userStore
+	} from '../../store';
+
+	import {
+		get,
+		post
+	} from '../../utils/request'
 	export default {
 		data() {
 			return {
@@ -20,55 +35,50 @@
 				searchKeyword: '',
 
 				// 模拟设备数据
-				messages: [{
-						id: "123123",
-						title: '设备离线',
-						message: '发电设备-003',
-						updateTime: '2024-01-20 14:30:25'
-					},
-					{
-						id: "123124",
-						title: '设备离线',
-						message: '温控设备-004',
-						updateTime: '2024-01-20 14:28:10'
-					},
-					{
-						id: "123125",
-						title: '设备离线',
-						message: '水泵设备-005',
-						updateTime: '2024-01-20 14:25:45'
-					},
-					{
-						id: "123126",
-						title: '设备离线',
-						message: '控制设备-006',
-						updateTime: '2024-01-20 13:45:30'
-					}
-				]
+				messages: []
 			}
+		},
+		onLoad(options) {
+			this.load()
 		},
 		onPullDownRefresh() {
 			uni.stopPullDownRefresh()
-			//TODO 加载
+			this.messages = []
+			this.load()
 		},
 		onReachBottom() {
-			console.log("bottom")
-			//TODO 加载更多
+			this.load()
 		},
-		mounted() {
-			//TODO 加载
+		computed: {
+			...mapState(userStore, ['user', 'group']),
 		},
 		methods: {
+			async load() {
+				let res = await post("table/alarm/search", {
+					filter: {
+						group_id: this.group.id
+					},
+					joins: [{
+						"table": "device",
+						"local_field": "device_id",
+						"foreign_field": "id",
+						"field": "name",
+						"as": "device"
+					}],
+					skip: this.messages.length,
+					limit: 20,
+					sort: {
+						"id": -1
+					}
+				})
+				if (res.data)
+					this.messages = this.messages.concat(res.data)
+			},
 			open(message) {
 				uni.navigateTo({
-					url: "/pages/message/detail?id=" + message.id,
+					url: "/pages/device/detail?id=" + message.device_id,
 				})
-			},
-
-			onPropertyClick(message, property) {
-				//alert(JSON.stringify(property))
-			},
-
+			}
 		}
 	}
 </script>
@@ -77,5 +87,11 @@
 	.item {
 		text-align: center;
 		padding: 5rpx 0;
+	}
+	.empty{
+		padding: 15px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 </style>

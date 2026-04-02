@@ -3,13 +3,13 @@
 
 		<!-- 有设备的情况 -->
 		<uni-card v-if="devices.length> 0">
-
+			<button type="default" @click="selectAll">全选</button>
 			<checkbox-group @change="selectChange">
 				<view class="device" v-for="(device, index) in devices" :key="device.id">
 					<label>
-						<checkbox :value="device.id" />
-						<text>{{device.id}} </text>
+						<checkbox :value="device.id" :checked="device.checked"/>
 						<text>{{device.name}} </text>
+						<text>{{device.id}} </text>
 						<text>{{device.online?'[在线]':'[离线]'}}</text>
 					</label>
 				</view>
@@ -96,6 +96,13 @@
 					this.last_group_id = this.group.id
 				}
 			},
+			
+			selectAll(){
+				this.devices.forEach(d=>{
+					d.checked = true
+				})
+				this.selects = this.devices.map(d=>d.id)
+			},
 
 			//加载设备
 			async loadDevices() {
@@ -115,6 +122,9 @@
 					filter: filter,
 					skip: this.devices.length,
 					limit: this.pageSize,
+					sort: {
+						name: 1
+					}
 				})
 
 				if (res.data && res.data.length > 0) {

@@ -138,14 +138,21 @@
 					console.log('接口响应:', res);
 					
 					if (res && res.data) {
-						this.devices = res.data || [];
+						const newDevices = res.data || [];
+						
+						if (isRefresh) {
+							this.devices = newDevices;
+						} else {
+							this.devices = [...this.devices, ...newDevices];
+						}
+						
 						const total = res.total || 0;
 						
 						this.totalCount = total;
 						this.hasMore = this.devices.length < total;
 						
-						// 如果前端过滤后数据变少，重新计算 hasMore
-						if (this.searchKeyword && newDevices.length < this.pageSize) {
+						// 如果返回的数据少于页面大小，说明没有更多了
+						if (newDevices.length < this.pageSize) {
 							this.hasMore = false;
 						}
 						
@@ -153,7 +160,7 @@
 						this.loadMoreStatus = this.hasMore ? 'more' : 'noMore';
 						
 						// 如果是搜索，显示结果提示
-						if (this.searchKeyword && isRefresh) {
+						if (this.searchKeyword && isRefresh && newDevices.length > 0) {
 							uni.showToast({
 								title: `找到${newDevices.length}个设备`,
 								icon: 'none',
@@ -214,18 +221,30 @@
 				this.loadMoreStatus = 'loading';
 				
 				try {
-					const params = this.buildSearchParamsAlternative(false);
+					const params = this.buildSearchParams(false);
 					let res = await post('table/device/search', params);
 					
 					if (res && res.data) {
 						let newDevices = res.data || [];
 						
 						this.devices = [...this.devices, ...newDevices];
-						this.hasMore = newDevices.length === this.pageSize;
+						
+						const total = res.total || 0;
+						this.hasMore = this.devices.length < total;
+						
+						// 如果返回的数据少于页面大小，说明没有更多了
+						if (newDevices.length < this.pageSize) {
+							this.hasMore = false;
+						}
+						
 						this.loadMoreStatus = this.hasMore ? 'more' : 'noMore';
 					}
 				} catch (error) {
 					console.error('加载更多失败:', error);
+					uni.showToast({
+						title: '加载更多失败',
+						icon: 'error'
+					});
 				} finally {
 					this.loading = false;
 				}

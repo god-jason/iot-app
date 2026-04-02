@@ -1,8 +1,5 @@
 <script>
-	import {
-		connectMqtt,
-		subscribe
-	} from './utils/broker.js'
+	import { connectMqtt, subscribe } from './utils/broker.js'
 
 	export default {
 		onLaunch: function() {
@@ -16,8 +13,8 @@
 					uni.redirectTo({
 						url: '/pages/login/login'
 					})
-				} else {	
-					connectMqtt()					
+				} else {
+					connectMqtt()
 					//测试
 					// subscribe("device/#", function(topic, payload){
 					// 	console.log("mqtt device", topic, payload)

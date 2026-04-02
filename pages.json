@@ -44,6 +44,11 @@
 			"style": {
 				"navigationStyle": "custom"
 			}
+		}, {
+			"path": "pages/login/license",
+			"style": {
+				"navigationBarTitleText": "用户协议"
+			}
 		},
 		{
 			"path": "pages/device/device",
@@ -56,13 +61,6 @@
 			"path": "pages/device/detail",
 			"style": {
 				"navigationBarTitleText": "设备详情",
-				"enablePullDownRefresh": true
-			}
-		},
-		{
-			"path": "pages/device/history",
-			"style": {
-				"navigationBarTitleText": "历史曲线",
 				"enablePullDownRefresh": true
 			}
 		},
@@ -105,12 +103,6 @@
 			}
 		},
 		{
-			"path": "pages/admin/reset_password",
-			"style": {
-				"navigationBarTitleText": "重置用户密码"
-			}
-		},
-		{
 			"path": "pages/mine/info",
 			"style": {
 				"navigationBarTitleText": "个人信息"
@@ -123,51 +115,9 @@
 			}
 		},
 		{
-			"path": "pages/device/bind",
+			"path": "pages/common/select_user",
 			"style": {
-				"navigationBarTitleText": "绑定设备"
-			}
-		},
-		{
-			"path": "pages/admin/device",
-			"style": {
-				"navigationBarTitleText": "所有设备"
-			}
-		},
-		{
-			"path": "pages/admin/user",
-			"style": {
-				"navigationBarTitleText": "所有用户"
-			}
-		},
-		{
-			"path": "pages/group/group",
-			"style": {
-				"navigationBarTitleText": "所有组织"
-			}
-		},
-		{
-			"path": "pages/group/detail",
-			"style": {
-				"navigationBarTitleText": "组织详情"
-			}
-		},
-		{
-			"path": "pages/group/edit",
-			"style": {
-				"navigationBarTitleText": "修改组织信息"
-			}
-		},
-		{
-			"path": "pages/group/members",
-			"style": {
-				"navigationBarTitleText": "成员管理"
-			}
-		},
-		{
-			"path": "pages/admin/user_detail",
-			"style": {
-				"navigationBarTitleText": "用户详情"
+				"navigationBarTitleText": "选择用户"
 			}
 		},
 		{
@@ -200,7 +150,6 @@
 				"navigationBarTitleText": "我的二维码"
 			}
 		},
- 
 		{
 			"path": "pages/device/log",
 			"style": {
@@ -209,6 +158,109 @@
 			}
 		}
 	],
+	"subPackages": [{
+		"root": "sub",
+		"pages": [{
+				"path": "device/history",
+				"style": {
+					"navigationBarTitleText": "历史曲线",
+					"enablePullDownRefresh": true
+				}
+			},
+			{
+				"path": "admin/device",
+				"style": {
+					"navigationBarTitleText": "所有设备"
+				}
+			},
+			{
+				"path": "admin/user",
+				"style": {
+					"navigationBarTitleText": "所有用户"
+				}
+			},
+			{
+				"path": "admin/reset_password",
+				"style": {
+					"navigationBarTitleText": "重置用户密码"
+				}
+			},
+			{
+				"path": "admin/agent",
+				"style": {
+					"navigationBarTitleText": "经销商管理",
+					"enablePullDownRefresh": true
+				}
+			},
+			{
+				"path": "group/group",
+				"style": {
+					"navigationBarTitleText": "所有组织"
+				}
+			},
+			{
+				"path": "group/detail",
+				"style": {
+					"navigationBarTitleText": "组织详情"
+				}
+			},
+			{
+				"path": "group/transfer",
+				"style": {
+					"navigationBarTitleText": "转移组织"
+				}
+			},
+			{
+				"path": "group/bind_agent",
+				"style": {
+					"navigationBarTitleText": "绑定代理商"
+				}
+			},
+			{
+				"path": "wallet/wallet",
+				"style": {
+					"navigationBarTitleText": "我的钱包"
+				}
+			},
+			{
+				"path": "wallet/recharge",
+				"style": {
+					"navigationBarTitleText": "充值"
+				}
+			},
+			{
+				"path": "wallet/bill",
+				"style": {
+					"navigationBarTitleText": "账单明细",
+					"enablePullDownRefresh": true
+				}
+			},
+			{
+				"path": "group/edit",
+				"style": {
+					"navigationBarTitleText": "修改组织信息"
+				}
+			},
+			{
+				"path": "group/members",
+				"style": {
+					"navigationBarTitleText": "成员管理"
+				}
+			},
+			{
+				"path": "admin/user_detail",
+				"style": {
+					"navigationBarTitleText": "用户详情"
+				}
+			}
+		]
+	}],
+	"preloadRule": {
+		"pages/index/index": {
+			"network": "all",
+			"packages": ["sub"]
+		}
+	},
 	"globalStyle": {
 		"navigationBarTextStyle": "white",
 		"navigationBarTitleText": "物联网",

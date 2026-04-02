@@ -1,15 +1,24 @@
 <template>
 	<view class="page">
 
-		<uni-card v-for="(g, index) in groups" :title="g.name" :key="g.id"
-		:extra="g.id==group.id?'当前选择':''"	>
-			<uni-list :border="false">
-				<uni-list-item title="角色权限" :rightText="g.role"></uni-list-item>
-				<uni-list-item title="成员管理" clickable show-arrow v-if="g.user_id==user.id"></uni-list-item>
-			</uni-list>
-			<view class="buttons">
-				<button type="warn" size="mini" v-if="g.user_id!=user.id" @click="quitGroup(g)">退出</button>
-				<button type="primary" size="mini" @click="switchGroup(g)">切换</button>
+		<uni-card
+			v-for="(g, index) in groups"
+			:title="g.name"
+			:key="g.id"
+			class="group-card"
+			:extra="g.id==group.id?'当前选择':''">
+			<view class="card-row">
+				<view class="left">
+					<text class="role">{{ roleText(g) }}</text>
+					<text v-if="g.agent_id" class="hosted-tag">托管</text>
+					<button
+						v-if="g.user_id!=user.id"
+						class="quit-btn"
+						size="mini"
+						plain
+						@click="quitGroup(g)">退出</button>
+				</view>
+				<button class="switch-btn" type="primary" size="mini" @click="switchGroup(g)">切换</button>
 			</view>
 		</uni-card>
 
@@ -46,9 +55,16 @@
 			this.load()
 		},
 		methods: {
+			roleText(g) {
+				if (!g) return ''
+				if (g.user_id == this.user.id) return '拥有者'
+				return g.role || '成员'
+			},
 			async load(){
+				this.groups = []
 				this.loadOwns().then()
 				this.loadMembers().then()
+				this.loadAgentGroups().then()
 			},
 			async loadOwns(){
 				let res = await post("table/group/search", {
@@ -59,7 +75,7 @@
 				if (res.data && res.data.length > 0) {
 					this.groups = res.data
 					this.groups.forEach(group=>{
-						group.role = "超级管理员"
+						group.role = "拥有者"
 					})
 				}
 			},
@@ -84,9 +100,40 @@
 						let group = res2.data[index]
 						get("table/group/detail/" + group.group_id).then(res=>{
 							Object.assign(group, res.data)
+							group.role = res2.data[index].role
 							this.groups.push(group)
 						})
 					}
+				}
+			},
+			
+			// 加载代理商托管的组织（agent_id 存储的是 user_id）
+			async loadAgentGroups() {
+				if (!this.user || !this.user.id) {
+					return
+				}
+				
+				try {
+					// 按 agent_id（user_id）搜索组织
+					const groupRes = await post("table/group/search", {
+						filter: {
+							agent_id: this.user.id
+						}
+					})
+					
+					if (groupRes && groupRes.data && groupRes.data.length > 0) {
+						// 添加托管的组织，避免重复
+						groupRes.data.forEach(group => {
+							const exists = this.groups.find(g => g.id === group.id)
+							if (!exists) {
+								group.role = "托管"
+								this.groups.push(group)
+							}
+						})
+					}
+				} catch (error) {
+					console.error('加载代理商托管组织失败:', error)
+					// 静默失败，不影响其他组织加载
 				}
 			},
 			
@@ -160,14 +207,65 @@
 </script>
 
 <style lang="scss" scoped>
-	.buttons {
-		//display: flex;
-		//align-items: end;
-		//justify-content: end;
-		text-align: right;
+	.group-card {
+		.card-row {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 16rpx;
+		}
 
-		button {
-			margin: 0 10rpx;
+		.left {
+			display: flex;
+			align-items: center;
+			gap: 12rpx;
+			min-width: 0;
+		}
+
+		.role {
+			font-size: 26rpx;
+			color: #666;
+			white-space: nowrap;
+		}
+		
+		.hosted-tag {
+			font-size: 22rpx;
+			color: #ff9500;
+			background-color: #fff4e6;
+			padding: 4rpx 12rpx;
+			border-radius: 4rpx;
+			margin-left: 8rpx;
+		}
+
+		.quit-btn {
+			padding: 0 18rpx;
+			height: 56rpx;
+			line-height: 56rpx;
+			font-size: 24rpx;
+		}
+
+		.switch-btn {
+			padding: 0 20rpx;
+			height: 56rpx;
+			line-height: 56rpx;
+			font-size: 24rpx;
+		}
+
+		/* 尽量压缩 uni-card 默认留白（不同端 class 可能略有差异，不影响功能） */
+		::v-deep .uni-card {
+			margin: 16rpx 20rpx;
+		}
+		::v-deep .uni-card__title {
+			padding: 16rpx 20rpx 0;
+		}
+		::v-deep .uni-card__title-text {
+			font-size: 28rpx;
+		}
+		::v-deep .uni-card__title-extra {
+			font-size: 24rpx;
+		}
+		::v-deep .uni-card__content {
+			padding: 12rpx 20rpx 16rpx;
 		}
 	}
 	.create-group {

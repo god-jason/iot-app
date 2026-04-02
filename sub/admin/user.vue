@@ -241,7 +241,7 @@
 			openUserDetail(user) {
 				console.log('打开用户详情:', user);
 				uni.navigateTo({
-					url: '/pages/admin/user_detail?id=' + (user.id || user._id)
+					url: '/admin/user_detail?id=' + (user.id || user._id)
 				});
 			},
 						

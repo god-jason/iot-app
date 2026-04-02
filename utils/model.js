@@ -2,47 +2,48 @@ import {
 	get
 } from "./request"
 
-const models = {}
+const settings = {}
 
-export async function getModel(id) {
-	let model = models[id]
-	if (model) {
-		if (model.loading) {
+export async function getSetting(id, name) {
+	let key = id + "@" + name
+	let setting = settings[key]
+	if (setting) {
+		if (setting.loading) {
 			return await new Promise((resolve, reject) => {
-				model.waits.push({
+				setting.waits.push({
 					resolve,
 					reject
 				})
 			})
 		}
-		return model.object;
+		return setting.object;
 	} else {
 		//
-		model = {
+		setting = {
 			loading: true,
 			waits: []
 		}
-		models[id] = model
+		settings[key] = setting
 	}
 
 	try {
-		//model.loading = true
-		let res = await get("iot/product/" + id + "/model")
-		model.loading = false
-		model.object = res.data
-		//console.log("waits", id, model.waits.length)
-		model.waits.forEach(w => {
+		//setting.loading = true
+		let res = await get("product/" + id + "/setting/" + name)
+		setting.loading = false
+		setting.object = res.data
+		//console.log("waits", id, setting.waits.length)
+		setting.waits.forEach(w => {
 			w.resolve(res.data)
 		})
-		model.waits = []
+		setting.waits = []
 	} catch (e) {
-		model.loading = false
-		model.waits.forEach(w => {
+		setting.loading = false
+		setting.waits.forEach(w => {
 			w.reject(e)
 		})
-		model.waits = []
+		setting.waits = []
 		throw e
 	}
 
-	return model.object
+	return setting.object
 }

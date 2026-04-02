@@ -1,7 +1,7 @@
 <template>
 	<view class="page">
 
-		<uni-card :title="setting.label||setting.name">
+		<uni-card>
 			<uni-forms ref="form" :modelValue="formData" :label-width="100">
 				<uni-forms-item v-for="(field, index) in setting.fields" :label="field.label" :name="field.key">
 					<switch v-if="field.type=='switch'" :checked="formData[field.key]"
@@ -32,23 +32,26 @@
 
 				</uni-forms-item>
 			</uni-forms>
-
-
-			<button type="primary" @click="submit">保存</button>
-			
 		</uni-card>
-		
-		<uni-card>
-			<button type="primary" @click="batch">批量保存</button>
-		</uni-card>
+
+		<view class="buttons">
+			<button type="default" @click="clear">清空内容</button>
+			<button type="default" @click="batch">批量保存</button>
+			<button type="primary" @click="submit">保存配置</button>
+		</view>
 
 	</view>
 </template>
 
 <script>
-	import { checkMqtt, publish, subscribe } from '../../utils/broker'
-import {
-		getModel
+	import {
+		checkMqtt,
+		publish,
+		subscribe,
+		unsubscribe,
+	} from '../../utils/broker'
+	import {
+		getSetting
 	} from '../../utils/model'
 	import {
 		mapState
@@ -69,6 +72,7 @@ import {
 				setting: {},
 				index: 0,
 				formData: {},
+				batch_result: {}
 			}
 		},
 		computed: {
@@ -81,12 +85,18 @@ import {
 			this.load()
 		},
 		onUnload() {
-			unsubscribe("device/"+this.id+"/setting/"+this.setting.name+"/read/response")
+			unsubscribe("device/" + this.id + "/setting/" + this.setting.name + "/read/response")
 		},
 		methods: {
+			sleep(ms) {
+				return new Promise(resolve => setTimeout(resolve, ms))
+			},
 			async load() {
-				let model = await getModel(this.product_id)
-				this.setting = model.settings.filter(s=>this.user.admin || !s.hidden)[this.index]
+				let model = await getSetting(this.product_id, "setting")
+
+				this.setting = model.content.filter(s => this.user.admin || !s.hidden)[this.index]
+				//this.setting.multiple = true //TODO 测试用，需要删除
+
 				this.setting.fields.forEach(f => {
 					if (f.type == "select" && !f.localdata) {
 						f.localdata = f.options.map(o => {
@@ -98,46 +108,122 @@ import {
 					}
 					//默认值
 					if (f.type == "number" || f.type == "slider") {
-						this.formData[f.key] = f.min || f.default || 0
+							this.formData[f.key] = f.min || f.default || 0
 					}
 				})
 				console.log("setting form", this.setting)
 
-				let res = await get("iot/device/" + this.id + "/setting/" + this.setting.name)
-				console.log("原始配置", res.data)
-				Object.assign(this.formData, res.data)
-				//this.formData = res.data || {};
-				
-				subscribe("device/"+this.id+"/setting/"+this.setting.name+"/read/response", (topic, payload)=>{
-					Object.assign(this.formData, payload)
+				uni.setNavigationBarTitle({
+					title: this.setting.label || this.setting.name
 				})
-				publish("device/"+this.id+"/setting/"+this.setting.name+"/read", "{}")
-				
+
+				let res = await get("device/" + this.id + "/setting/" + this.setting.name)
+				console.log("原始配置", res.data)
+					//this.formData = res.data || {}
+					Object.assign(this.formData, res.data)
+
+				//TODO 需要取消订阅
+				subscribe("device/" + this.id + "/setting/" + this.setting.name + "/read/response", (topic,
+					payload) => {
+					Object.assign(this.formData, payload)
+					//this.formData = payload
+				})
+				publish("device/" + this.id + "/setting/" + this.setting.name + "/read", "{}")
+
+			},
+			clear(){
+				this.formData = {}
+				this.setting.fields.forEach(f => {
+					//默认值
+					if (f.type == "number" || f.type == "slider") {
+							this.formData[f.key] = f.min || f.default || 0
+					}
+				})
 			},
 			async submit() {
-				publish("device/"+this.id+"/setting/"+this.setting.name, this.formData)
-				let res = await post("iot/device/" + this.id + "/setting/" + this.setting.name, this.formData)
+				// 小程序端存在表单数据未及时同步的问题：延迟 200ms 再读取/提交
+				await this.sleep(200)
+				//publish("device/"+this.id+"/setting/"+this.setting.name, this.formData)
+				let data = this.formData
+				let res = await post("device/" + this.id + "/setting/" + this.setting.name, data)
+
 				//uni.navigateBack()
 				uni.showToast({
 					title: "保存成功",
 					icon: "success"
 				})
 			},
-			batch(){
+
+			checkBatch(succ) {
+				console.log("checkBatch", succ)
+				if (succ) this.batch_result.success++
+				else this.batch_result.fail++
+				let pro = this.batch_result.success + this.batch_result.fail
+
+				if (pro >= this.batch_result.total) {
+					uni.hideLoading()
+
+					let text = "批量操作完成"
+					if (this.batch_result.success > 0)
+						text += ", 成功" + this.batch_result.success + "条"
+					if (this.batch_result.fail > 0)
+						text += ", 失败" + this.batch_result.fail + "条"
+					// uni.showToast({
+					// 	icon: 'success',
+					// 	title: text,
+					// 	duration: 5000
+					// })
+					uni.showModal({
+						title: "提示",
+						content: text
+					})
+				} else {
+					let text = "批量操作执行中"
+					if (this.batch_result.success > 0)
+						text += ", 成功" + this.batch_result.success + "条"
+					if (this.batch_result.fail > 0)
+						text += ", 失败" + this.batch_result.fail + "条"
+					uni.showLoading({
+						title: text
+					})
+				}
+			},
+
+			async batch() {
+				// 小程序端存在表单数据未及时同步的问题：延迟 200ms 再读取/提交
+				await this.sleep(200)
+
 				uni.navigateTo({
 					url: "/pages/device/select",
 					events: {
 						devices: (devices) => {
+							if (devices.length == 0)
+								return
+
+							uni.showLoading({
+								title: "执行中"
+							})
+
+							this.batch_result = {
+								total: devices.length,
+								success: 0,
+								fail: 0,
+							}
+
+							let data = this.formData
+
 							//console.log("get batches", devices)
 							for (var index = 0; index < devices.length; index++) {
 								var id = devices[index];
-								post("iot/device/" + id + "/setting/" + this.setting.name,
-								 this.formData).then(() => {})
+								post("device/" + id + "/setting/" + this.setting.name, data).then((
+									res) => {
+									console.log("batch then", res)
+									this.checkBatch(true)
+								}).catch(err => {
+									console.log("batch catch", err)
+									this.checkBatch(false)
+								})
 							}
-							uni.showToast({
-								title: "批量保存成功",
-								icon: "success"
-							})
 						}
 					}
 				})
@@ -145,8 +231,7 @@ import {
 
 			onChange($event, key) {
 				this.formData[key] = $event.detail.value
-			}
-
+			},
 		}
 	}
 </script>
@@ -158,4 +243,8 @@ import {
 	// 	//justify-content: center;
 	// 	align-items: center;
 	// }
+	.buttons{
+		padding: 20px;
+		display: flex;
+	}
 </style>

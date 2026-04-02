@@ -15,7 +15,7 @@
 
 <script>
 	import {
-		getModel
+		getSetting
 	} from '../../utils/model';
 	import {
 		get
@@ -38,28 +38,28 @@
 			//console.log(this.device, this.product)
 
 			//1、查询属性表，防止并发，重复
-			getModel(this.product).then(res => {
+			getSetting(this.product, "model").then(res => {
 				let model = res || {
-					properties: [{}]
+					content: [{}]
 				}
 				switch (this.type) {
 					case "simple":
 						//只保留第一个
 						this.properties = [{
-							points: model.properties[0].points
+							points: model.content[0].points
 						}]
 						break;
 					case "full":
-						this.properties = model.properties
+						this.properties = model.content
 						break;
 					default:
-						this.properties = model.properties
+						this.properties = model.content
 						break
 				}
 			})
 
 			//2、查询实时状态
-			get("iot/device/" + this.device + "/values").then(res => {
+			get("device/" + this.device + "/values").then(res => {
 				this.values = res.data
 			})
 		},

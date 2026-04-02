@@ -18,13 +18,9 @@
 					<uni-easyinput type="password" v-model="form.password" placeholder="请输入密码" prefix-icon="locked" />
 				</uni-forms-item>
 				<uni-forms-item>
-					<view class="form-actions">
-						<view class="remember-password">
-							<checkbox :checked="rememberPassword" @click="toggleRememberPassword" />
-							<text @click="toggleRememberPassword">记住密码</text>
-						</view>
-						<text class="forgot-password" @click="navigateToForgot">忘记密码?</text>
-					</view>
+					<checkbox :checked="accepted" @click="toggleAccepted" />
+					<text @click="toggleAccepted">我已接受小程序用户协议和隐私政策</text>
+					<text @click="showLicense" style="color: royalblue;"> 查看</text>
 				</uni-forms-item>
 			</uni-forms>
 
@@ -40,10 +36,10 @@
 					<uni-icons type="weixin" size="24"></uni-icons>
 					<text>微信小程序授权登录</text>
 				</view>
-			</view>			
+			</view>
 			<!-- #endif -->
-			
-			
+
+
 		</uni-card>
 	</view>
 </template>
@@ -52,10 +48,16 @@
 	import {
 		md5
 	} from '@/utils/md5.js';
-	import { userStore } from '../../store';
-	import { get, post,setToken} from '@/utils/request.js';
+	import {
+		userStore
+	} from '../../store';
+	import {
+		get,
+		post,
+		setToken
+	} from '@/utils/request.js';
 
-const user = userStore()
+	const user = userStore()
 
 	export default {
 		data() {
@@ -65,7 +67,14 @@ const user = userStore()
 					password: ''
 				},
 				rememberPassword: false,
+				accepted: false,
 				loading: false
+			}
+		},
+		onShareAppMessage() {
+			return {
+				title: "邀请您使用龙源小管家",
+				imageUrl: "/static/logo.jpg"
 			}
 		},
 		computed: {
@@ -84,6 +93,14 @@ const user = userStore()
 			// 切换记住密码状态
 			toggleRememberPassword() {
 				this.rememberPassword = !this.rememberPassword;
+			},
+			toggleAccepted() {
+				this.accepted = !this.accepted;
+			},
+			showLicense() {
+				uni.navigateTo({
+					url: '/pages/login/license'
+				})
 			},
 
 			// 检查网络状态
@@ -109,6 +126,15 @@ const user = userStore()
 			// 处理登录
 			async handleLogin() {
 				if (!this.canLogin) return
+				
+				if (!this.accepted) {
+					uni.showToast({
+						title: '请先查看并接受用户使用协议和隐私政策',
+						icon: 'none'
+					});
+					return
+				}
+				
 
 				this.loading = true
 
@@ -118,20 +144,19 @@ const user = userStore()
 						...this.form,
 						password: md5(this.form.password),
 					})
-					
+
 					console.log("res", res)
 
-					// 兼容后端返回格式：可能直接是 {token,user}，也可能是 {data:{token,user}}
 					const payload = res?.data || res
 					console.log("auth:", payload)
 
 					if (payload?.token) setToken(payload.token)
 					if (payload?.user) user.setUser(payload.user)
-					
+
 					uni.reLaunch({
 						url: '/pages/device/device'
 					})
-					
+
 				} catch (e) {
 					console.log(e)
 				}
@@ -154,9 +179,17 @@ const user = userStore()
 			// 微信登录
 			async wechatLogin() {
 				if (this.loading) return;
+
+				if (!this.accepted) {
+					uni.showToast({
+						title: '请先查看并接受用户使用协议和隐私政策',
+						icon: 'none'
+					});
+					return
+				}
 				
 				this.loading = true;
-				
+
 				try {
 					// 调用微信登录接口获取 code
 					const loginRes = await new Promise((resolve, reject) => {
@@ -166,9 +199,9 @@ const user = userStore()
 							fail: reject
 						});
 					});
-					
+
 					console.log("weixin login", loginRes)
-					
+
 					if (!loginRes.code) {
 						uni.showToast({
 							title: '获取登录凭证失败',
@@ -177,16 +210,16 @@ const user = userStore()
 						this.loading = false;
 						return;
 					}
-					
+
 					// 将 code 发送到后端进行登录
 					const res = await get("weixin/code2session", {
 						code: loginRes.code
 					});
-					
+
 					// 兼容后端返回格式
 					const payload = res?.data || res;
 					console.log("微信登录成功:", payload);
-					
+
 					// 保存 token 和用户信息
 					if (payload?.token) {
 						setToken(payload.token);
@@ -194,12 +227,12 @@ const user = userStore()
 					if (payload?.user) {
 						user.setUser(payload.user);
 					}
-					
+
 					// 跳转到设备页面
 					uni.reLaunch({
 						url: '/pages/device/device'
 					});
-					
+
 				} catch (e) {
 					console.error("微信登录失败:", e);
 					uni.showToast({

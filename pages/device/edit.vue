@@ -32,6 +32,7 @@
 			
 			<view class="button-group">
 				<button type="primary" @click="submit" :loading="loading">保存修改</button>
+				<button type="primary" @click="unbindDevice" :loading="unbindLoading" class="unbind-btn">解除绑定</button>
 			</view>
 		</uni-card>
 	</view>
@@ -60,7 +61,8 @@
 						}]
 					}
 				},
-				loading: false
+				loading: false,
+				unbindLoading: false
 			}
 		},
 		onLoad(options) {
@@ -175,6 +177,64 @@
 						}
 					}
 				});
+			},
+			
+			// 解除绑定
+			async unbindDevice() {
+				if (!this.id) {
+					uni.showToast({
+						title: '设备ID不存在',
+						icon: 'error'
+					});
+					return;
+				}
+				
+				uni.showModal({
+					title: '确认解绑',
+					content: `确定要解绑设备 ${this.formData.name || this.id} 吗？`,
+					success: async (res) => {
+						if (res.confirm) {
+							this.unbindLoading = true;
+							
+							try {
+								// 调用解绑接口
+								let updateRes = await post(`table/device/update/${this.id}`, {
+									group_id: ''
+								});
+								
+								if (updateRes && (updateRes.data === 0 || updateRes.data > 0 || updateRes.code === 0)) {
+									uni.showToast({
+										title: '解绑成功',
+										icon: 'success'
+									});
+									
+									// 触发设备列表更新
+									uni.$emit('device-unbound', this.id);
+									
+									// 返回首页
+									setTimeout(() => {
+										uni.reLaunch({
+											url: '/pages/index/index'
+										});
+									}, 1500);
+								} else {
+									uni.showToast({
+										title: updateRes.message || '解绑失败',
+										icon: 'error'
+									});
+								}
+							} catch (error) {
+								console.error('解绑设备失败:', error);
+								uni.showToast({
+									title: '解绑失败',
+									icon: 'error'
+								});
+							} finally {
+								this.unbindLoading = false;
+							}
+						}
+					}
+				});
 			}
 		}
 	}
@@ -242,6 +302,11 @@
 			font-size: 32rpx;
 			background-color: #007aff;
 			color: #fff;
+			margin-bottom: 20rpx;
+			
+			&:last-child {
+				margin-bottom: 0;
+			}
 		}
 	}
 	
