@@ -190,6 +190,16 @@
 				uni.navigateTo({
 					url: '/pages/device/log?id=' + this.id
 				})
+			},
+			scene() {
+				uni.navigateTo({
+					url: '/sub/scene/scene?id=' + this.id
+				})
+			},
+			job() {
+				uni.navigateTo({
+					url: '/sub/job/job?id=' + this.id
+				})
 			}
 		}
 	}

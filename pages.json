@@ -156,18 +156,18 @@
 				"navigationBarTitleText": "设备日志",
 				"enablePullDownRefresh": true
 			}
+		},
+		{
+			"path": "pages/device/history",
+			"style": {
+				"navigationBarTitleText": "历史曲线",
+				"enablePullDownRefresh": true
+			}
 		}
 	],
 	"subPackages": [{
 		"root": "sub",
 		"pages": [{
-				"path": "device/history",
-				"style": {
-					"navigationBarTitleText": "历史曲线",
-					"enablePullDownRefresh": true
-				}
-			},
-			{
 				"path": "admin/device",
 				"style": {
 					"navigationBarTitleText": "所有设备"
@@ -251,6 +251,18 @@
 				"path": "admin/user_detail",
 				"style": {
 					"navigationBarTitleText": "用户详情"
+				}
+			},
+			{
+				"path": "job/job",
+				"style": {
+					"navigationBarTitleText": "定时任务"
+				}
+			},
+			{
+				"path": "scene/scene",
+				"style": {
+					"navigationBarTitleText": "智能场景"
 				}
 			}
 		]

@@ -90,7 +90,7 @@
 				if (typeof this.values[property.name] != "number")
 					return
 				uni.navigateTo({
-					url: "/sub/device/history?id=" + this.id + "&point=" + property.name
+					url: "/pages/device/history?id=" + this.id + "&point=" + property.name
 				})
 			},
 		}
