@@ -4,6 +4,10 @@
 		<view class="error" v-if="values.error_string || device.error_string" @click="clearError">
 			错误：{{values.error_string || device.error_string}}
 		</view>
+		
+		<!-- #ifndef MP-WEIXIN	-->
+		<ez-camera sn="FR7033737" channel="1"></ez-camera>
+		<!-- #endif	-->
 
 		<view class="opers">
 			<view class="oper" @click="editDevice">
@@ -27,6 +31,7 @@
 				日志
 			</view>
 		</view>
+		
 
 		<!-- 实时变量 -->
 		<device-values v-if="device.product_id" :id="id" :product="device.product_id" :values="values"></device-values>

@@ -7,7 +7,8 @@
 		<!-- #endif -->
 
 		<!-- #ifdef MP-WEIXIN -->
-		<ezplayer id="ezplayer" :accessToken="accessToken" :url="video_url" plugins="talk,voice,ptz,privacy,mirror"
+		<ezplayer id="ezplayer" :accessToken="accessToken" :url="video_url"
+		    plugins="talk,voice,ptz,privacy,mirror"
 			recPlayTime=""
 			theme="{{ { showCapture: true, showBottomBar: true, showDatePicker: true, showTypeSwitch: true } }}"
 			bind:handleError="handleError" bind:onControlEvent="onControlEvent" />
@@ -25,6 +26,7 @@
 		EZUIKitPlayer
 	} from "ezuikit-js";
 import { onBeforeUnmount, onUnmounted } from "vue";
+import { ez_app_key, ez_secret } from "../../app.config";
 	// #endif
 
 	export default {
@@ -41,23 +43,21 @@ import { onBeforeUnmount, onUnmounted } from "vue";
 			};
 		},
 		mounted() {
-			const appKey = "90dc82af3ea04d68883e3d8d25a23cde"
-			const secret = "36e3eb420eed2a1ef3d61f543dffb0e9"
-			this.auth(appKey, secret);
+			this.auth();
 		},
 		onUnmounted() {
 			this.player.stop();
 			this.player.destroy();
 		},
 		methods: {
-			auth(appKey, appSecret) {
+			auth() {
 				uni.request({
 					url: "https://open.ys7.com/api/lapp/token/get",
 					method: "POST",
 					header: {
 						"Content-Type": "application/x-www-form-urlencoded"
 					},
-					data: "appKey=" + appKey + "&appSecret=" + appSecret,
+					data: "appKey=" + ez_app_key + "&appSecret=" + ez_secret,
 					dataType: "json",
 					success: (res) => {
 						console.log("ez-camera token", res.data)
@@ -65,7 +65,7 @@ import { onBeforeUnmount, onUnmounted } from "vue";
 							this.accessToken = res.data.data.accessToken
 							// #ifdef MP-WEIXIN							
 							//rtmp://open.ys7.com/BA7248908/1/live
-							this.video_url = "rtmp://open.ys7.com/" + this.sn + "/" + this.channel +
+							this.video_url = "rtmp://open.ys7.com/" + this.sn + "/" + (this.channel || 1) +
 								"/live" //GB4667293
 							// #endif
 
@@ -105,17 +105,27 @@ import { onBeforeUnmount, onUnmounted } from "vue";
 				this.player = new EZUIKitPlayer({
 					id: "video-container", // 视频容器ID
 					accessToken: this.accessToken,
+					autoPlay: true,
 					url: url,
 					// simple: 极简版; pcLive: pc直播; pcRec: pc回放; mobileLive: 移动端直播; mobileRec: 移动端回放;security: 安防版; voice: 语音版;
+					//template: "simple",
 					template: "pcLive",
 					//plugin: ["talk","voice","ptz","privacy","mirror"], // 加载插件，talk-对讲
 					width: windowWidth || 375,
 					height: windowWidth * 2 / 3,
 					streamInfoCBType: 0,
+					handleSuccess:()=>{
+						// 3分钟自动关闭
+						setTimeout(()=>{
+							this.player.stop()
+						}, 3 * 60 * 1000)
+					}
 				});
 				
 				//关闭流信息显示
 				this.player.displayStreamInfo(false);
+				//关闭云台
+				this.player.closePtz()
 			}
 		}
 	}
@@ -125,6 +135,10 @@ import { onBeforeUnmount, onUnmounted } from "vue";
 
 [video-container-streamInfo]{
 	display: none;
+}
+
+.ezplayer-mobile-extend{
+	display: none !important;
 }
 
 </style>
