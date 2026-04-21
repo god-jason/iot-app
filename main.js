@@ -6,6 +6,13 @@ dayjs.locale("zh-cn")
 
 import App from './App'
 
+// 兼容 mqtt.js
+window.process = {
+  env: {
+    NODE_ENV: 'production'
+  }
+}
+
 // #ifndef VUE3
 import Vue from 'vue'
 import store from './store'

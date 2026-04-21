@@ -2,7 +2,7 @@
 	<view class="login-container">
 		<!-- 顶部背景 -->
 		<view class="logo">
-			<image src="/static/logo.jpg" mode="aspectFill"></image>
+			<image src="/static/noob.jpg" mode="aspectFill"></image>
 		</view>
 
 		<uni-card>

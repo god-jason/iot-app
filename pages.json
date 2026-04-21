@@ -53,7 +53,7 @@
 		{
 			"path": "pages/device/device",
 			"style": {
-				"navigationBarTitleText": "设备",
+				"navigationBarTitleText": "泽田科技",
 				"enablePullDownRefresh": true
 			}
 		},

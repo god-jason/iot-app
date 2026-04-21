@@ -109,7 +109,8 @@ import { ez_app_key, ez_secret } from "../../app.config";
 					url: url,
 					// simple: 极简版; pcLive: pc直播; pcRec: pc回放; mobileLive: 移动端直播; mobileRec: 移动端回放;security: 安防版; voice: 语音版;
 					//template: "simple",
-					template: "pcLive",
+					//template: "pcLive",
+					template: "mobileLive",
 					//plugin: ["talk","voice","ptz","privacy","mirror"], // 加载插件，talk-对讲
 					width: windowWidth || 375,
 					height: windowWidth * 2 / 3,
@@ -137,6 +138,7 @@ import { ez_app_key, ez_secret } from "../../app.config";
 	display: none;
 }
 
+/* 隐藏云台控制，太大了 */
 .ezplayer-mobile-extend{
 	display: none !important;
 }

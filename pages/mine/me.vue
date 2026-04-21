@@ -29,7 +29,7 @@
 
 				<uni-list-item class="list-item" title="修改个人信息" clickable show-arrow show-extra-icon link="navigateTo"
 					to="/pages/mine/info" :extra-icon="{color:'#55aaff', size:'28', type:'person'}"></uni-list-item>
-				<uni-list-item class="list-item" title="修改密码" clickable show-arrow @click="changePassword"
+				<uni-list-item v-if="!user.openid" class="list-item" title="修改密码" clickable show-arrow @click="changePassword"
 					show-extra-icon :extra-icon="{color:'#aaaa00', size:'28', type:'locked'}">
 				</uni-list-item>
 				<uni-list-item class="list-item" title="退出" clickable show-extra-icon @click="logout"

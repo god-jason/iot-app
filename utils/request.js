@@ -37,6 +37,12 @@ export async function request(options) {
 					} else {
 						resolve(res.data);
 					}
+				} else if (res.statusCode == 401) {
+					//用户未鉴权
+					uni.redirectTo({
+						url: '/pages/login/login'
+					})
+					reject(new Error("鉴权失败"))
 				} else {
 					reject(new Error(res.data || `服务器错误 ${res.statusCode}`));
 				}
@@ -65,4 +71,3 @@ export async function post(api, data, options) {
 		...options
 	})
 }
-
