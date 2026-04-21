@@ -53,7 +53,7 @@
 		{
 			"path": "pages/device/device",
 			"style": {
-				"navigationBarTitleText": "泽田科技",
+				"navigationBarTitleText": "设备管理",
 				"enablePullDownRefresh": true
 			}
 		},
@@ -161,6 +161,13 @@
 			"path": "pages/device/history",
 			"style": {
 				"navigationBarTitleText": "历史曲线",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/device/child",
+			"style": {
+				"navigationBarTitleText": "子设备",
 				"enablePullDownRefresh": true
 			}
 		}

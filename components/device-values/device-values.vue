@@ -139,6 +139,12 @@
 			font-size: 28px;
 			text-shadow: 1px 1px 5px black;
 
+
+			//禁止换行
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			overflow-x: hidden;
+			width: 100%;
 		}
 
 	}

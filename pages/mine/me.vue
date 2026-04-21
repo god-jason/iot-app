@@ -57,7 +57,7 @@
 	export default {
 		data() {
 			return {
-				avatar: '/static/avatar.jpg'
+				avatar: '/static/logo.jpg'
 			}
 		},
 		onShareAppMessage() {

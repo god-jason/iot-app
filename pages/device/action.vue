@@ -145,7 +145,7 @@
 			},
 			async submit() {
 				//中文名称
-				this.formData.name = this.action.label
+				//this.formData.name = this.action.label
 				
 				if (!this.id) {
 					this.eventChannel.emit("data", this.formData)

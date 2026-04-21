@@ -4,9 +4,9 @@
 		<view class="error" v-if="values.error_string || device.error_string" @click="clearError">
 			错误：{{values.error_string || device.error_string}}
 		</view>
-		
+
 		<!-- #ifndef MP-WEIXIN	-->
-		<ez-camera sn="FR7033737" channel="1"></ez-camera>
+		<!-- <ez-camera sn="FR7033737" channel="1"></ez-camera> -->
 		<!-- #endif	-->
 
 		<view class="opers">
@@ -14,24 +14,28 @@
 				<uni-icons type="compose" size="30" color="white"></uni-icons>
 				修改
 			</view>
-			<view class="oper" @click="openSettings">
+			<view class="oper" @click="openSettings" v-if="!device.gateway_id">
 				<uni-icons type="settings-filled" size="30" color="white"></uni-icons>
 				配置
 			</view>
-			<view class="oper" @click="job">
+			<view class="oper" @click="job" v-if="!device.gateway_id">
 				<uni-icons type="calendar" size="30" color="white"></uni-icons>
 				定时
 			</view>
-			<view class="oper" @click="scene">
+			<!-- 			<view class="oper" @click="scene" v-if="!device.gateway_id">
 				<uni-icons type="color" size="30" color="white"></uni-icons>
 				场景
-			</view>
-			<view class="oper" @click="log">
+			</view> -->
+			<view class="oper" @click="log" v-if="!device.gateway_id">
 				<uni-icons type="info" size="30" color="white"></uni-icons>
 				日志
 			</view>
+			<view class="oper" @click="child" v-if="!device.gateway_id && children">
+				<uni-icons type="list" size="30" color="white"></uni-icons>
+				设备
+			</view>
 		</view>
-		
+
 
 		<!-- 实时变量 -->
 		<device-values v-if="device.product_id" :id="id" :product="device.product_id" :values="values"></device-values>
@@ -83,7 +87,8 @@
 				batch: false,
 				actions: [],
 				values: {},
-				batch_result: {}
+				batch_result: {},
+				children: 0
 			}
 		},
 		computed: {
@@ -144,6 +149,16 @@
 					title: this.device.name || this.device.id
 				})
 				this.loadValues()
+
+				//网关设备，查询子设备数据
+				if (!this.device.gateway_id) {
+					res = await post("table/device/count", {
+						filter: {
+							gateway_id: this.device.id
+						}
+					})
+					this.children = res.data || 0
+				}
 			},
 			async loadValues() {
 
@@ -198,12 +213,17 @@
 			},
 			scene() {
 				uni.navigateTo({
-					url: '/sub/scene/scene?id=' + this.id +"&product_id=" + this.device.product_id
+					url: '/sub/scene/scene?id=' + this.id + "&product_id=" + this.device.product_id
 				})
 			},
 			job() {
 				uni.navigateTo({
-					url: '/sub/job/job?id=' + this.id +"&product_id=" + this.device.product_id
+					url: '/sub/job/job?id=' + this.id + "&product_id=" + this.device.product_id
+				})
+			},
+			child() {
+				uni.navigateTo({
+					url: '/pages/device/child?id=' + this.id
 				})
 			}
 		}
@@ -222,7 +242,7 @@
 		display: flex;
 		flex-direction: row;
 		justify-content: left;
-		align-items: center;		
+		align-items: center;
 	}
 
 	.update {

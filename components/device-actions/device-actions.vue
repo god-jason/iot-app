@@ -138,7 +138,7 @@
 								for (var index = 0; index < devices.length; index++) {
 									var id = devices[index];
 									post("device/" + id + "/action/" + action.name, {
-										name: action.label
+										//name: action.label
 									}).then((res) => {
 										console.log("batch then", res)
 										this.checkBatchResult(true)
@@ -154,7 +154,7 @@
 				}
 
 				let res = await post("device/" + this.id + "/action/" + action.name, {
-					name: action.label,
+					//name: action.label,
 				})
 				uni.showToast({
 					icon: 'success',
@@ -185,7 +185,7 @@
 									var id = devices[index];
 									post("device/" + id + "/action/" + action.name, {
 										//[action.bind || "value"]: $event.detail.value
-										name: action.label,
+										//name: action.label,
 										value: $event.detail.value,
 									}).then((res) => {
 										console.log("batch then", res)
@@ -204,7 +204,7 @@
 				console.log(action, $event.detail.value)
 				let res = await post("device/" + this.id + "/action/" + action.name, {
 					//[action.bind || "value"]: $event.detail.value
-					name: action.label,
+					//name: action.label,
 					value: $event.detail.value,
 				})
 				uni.showToast({
