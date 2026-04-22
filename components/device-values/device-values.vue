@@ -14,7 +14,6 @@
 </template>
 
 <script>
-
 	import {
 		getSetting
 	} from '../../utils/model';
@@ -49,9 +48,9 @@
 			this.loadModel()
 		},
 		methods: {
-			async loadModel(){
+			async loadModel() {
 				console.log("load model", this.id, this.product)
-				
+
 				let res = await getSetting(this.product, "model")
 				if (!res) {
 					uni.showToast({
@@ -60,9 +59,9 @@
 					})
 					return
 				}
-				
+
 				console.log("model", res)
-				
+
 				this.points = []
 				res.content.forEach(p => {
 					if (p.hidden && !this.user.admin) return
@@ -82,23 +81,39 @@
 				let val = this.values[name]
 				switch (typeof(val)) {
 					case "boolean":
-						return val ? "通" : "断"
+						return val ? "1" : "0"
 				}
 				return val;
 			},
 			onPropertyClick(property) {
-				if (typeof this.values[property.name] != "number")
-					return
-				uni.navigateTo({
-					url: "/pages/device/history?id=" + this.id + "&point=" + property.name
-				})
+				let val = this.values[property.name];
+				switch (typeof val) {
+					case "number":
+						uni.navigateTo({
+							url: "/pages/device/history?id=" + this.id + "&point=" + property.name
+						})
+						break
+					case "string":
+						uni.showModal({
+							title: property.label || property.name,
+							content: val,
+							confirmText: "复制",
+							success: (res) => {
+								if (res.confirm) {
+									uni.setClipboardData({
+										data: val
+									})
+								}
+							}
+						})
+						break
+				}
 			},
 		}
 	}
 </script>
 
 <style lang="scss" scoped>
-
 	.points {
 		background-color: #393939;
 	}
